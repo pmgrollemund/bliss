@@ -1,0 +1,24 @@
+Package: bliss
+Title: Bayesian functional Linear regression with Sparse Step functions (BLiSS)
+Version: 1.0.0
+Authors@R: c(
+  person("Paul-Marie", "Grollemund", email = "paul-marie.grollemund@umontpellier.fr", role = c("aut", "cre")),
+  person("Isabelle", "Sanchez", email = "isabelle.sanchez@inra.fr", role = c("ctr")),
+  person("Meïli", "Baragatti", email = "meili.baragatti@supagro.fr", role = c("ctr")))
+Author: Paul-Marie Grollemund [aut, cre],
+  Isabelle Sanchez [ctr]
+  Meïli Baragatti [ctr]
+Maintainer: Paul-Marie Grollemund <paul-marie.grollemund@umontpellier.fr>
+Description: A method for the Bayesian Functional Linear Regression model (functions-on-scalar),
+  including two estimators of the coefficient function and an estimator of its support.
+  A representation of the posterior distribution is also available.
+License: GPL-3
+Depends: R (>= 3.3.0)
+LinkingTo: Rcpp, RcppArmadillo
+Encoding: UTF-8
+LazyData: TRUE
+Imports: Rcpp, RcppArmadillo, MASS, RColorBrewer, ggplot2, rockchalk
+Suggests: rmarkdown,
+    knitr
+RoxygenNote: 6.0.1
+VignetteBuilder: knitr

@@ -1,0 +1,170 @@
+---
+title: "Introduction to BLiSS method"
+author: "Paul-Marie Grollemund"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: yes
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r,echo=TRUE,message=FALSE, warning=FALSE}
+  library(bliss)
+```
+
+This vignette describes step by step how to use the BLiSS method, by:
+
+* simulate data to illustrate the BLiSS model
+* obtain a sample of the *a posteriori* distribution with a sampler of Gibbs
+* plot the *a posteriori* distribution of the coefficient function and that of its support
+* calculate the different Bayesian estimators and plot the results in a graph
+
+# One single functional covariate
+
+## Simulation of the data set
+
+To obtain data, several characteristics must be specified to simulate the data, such as n (number of observations), p (number of measurement moments) curves $x_{i}(.)$), beta$\_$types (the shape of the coefficient function), and b$\_$inf and b$\_$sup (to define the domain of curves $x_{i}(.)$). Based on these parameters, we can uses the *sim$\_$multiple* function in the following code to simulate $x_{i}(.)$ curves, and real values $y_{i}$, from the functional linear regression model.
+
+
+```{r ,eval=TRUE,include = TRUE}
+  Q <- 1  # the number of functional covariate
+  param <- list(                       # define the "param" to simulate data 
+               n=25,                   # n is the sample size and p is the 
+               p=c(15),                # number of time observations of the curves
+               beta_types=c("smooth"), # define the shape of the "true" coefficient function
+               b_inf=c(0),             # Give the beginning of the observation's domain of the functions ...
+               b_sup=c(1))             # ... and the end.
+
+  data <- sim_multiple(param) # Simulate the data
+```
+
+## Apply the Bliss method
+
+To obtain an *a posteriori* sample, we use the Gibbs algorithm. We use the main function *Bliss$\_$multiple* which calls sub-functions that allow us
+
+* to sample the *a posteriori* distribution, 
+* then to calculate the *a posteriori* distribution of the coefficient function, 
+* to execute an optimization algorithm to calculate a constant estimate by pieces, 
+* to calculate an estimation of the support and to calculate the density of the sample a posteriori (useful to calculate the BIC criterion). 
+
+This main function requires a **param** list containing
+
+* **iter**, the number of iterations of the Gibbs algorithm, 
+* **burnin** heating time, 
+* **K**, hyperparameter K of the Bliss model,
+* **grids**, the moments of measurement of the curves $x_{i}(.)$, 
+* **prior$\_$beta**, an argument specifying the distribution a priori of $\beta$ **Ridge$\_$Zellner** is only considered in this vignette
+* and **phi$\_$l**, an argument specifying the *a priori* distribution of (only the **Gamma** option is considered in this vignette).
+
+```{r ,eval=TRUE, include = TRUE}
+  param <- list(               # define the required values of the Bliss method.
+             iter=1e3,         # The number of iteration of the main numerical algorithm of Bliss.
+             burnin=2e2,                 
+             K=c(3),           # The number of intervals of the beta
+             grids=data$grids, # The grid of the time observations 
+             prior_beta="Ridge_Zellner", 
+             phi_l=list("Gamma"))
+
+  res_Bliss_mult <- Bliss_multiple(data,param,density=TRUE)
+
+```
+
+## Plot the result
+
+We give here the code to obtain representations of the *a posteriori* distribution. First, we give the code to obtain a posteriori probabilities $\alpha(t|D)$, relative to the support. Then, the *image$\_$Bliss* function is used to represent the subsequent distribution of the coefficient function.
+
+```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
+  for(q in 1:Q){
+    ylim <- range(c(res_Bliss_mult$posterior_density_estimate[[q]]$res.kde2d$y,
+                  data$beta[[q]]))
+    ylim <- ylim +  (ylim[2] - ylim[1])/20 * c(-1,1)
+    param$ylim <- ylim
+  
+    image_Bliss(res_Bliss_mult$posterior_density_estimate[[q]],param)
+    # the Bliss estimate
+    lines_step_function(res_Bliss_mult$param$grids2[[q]],
+                        res_Bliss_mult$Bliss_estimate[[q]],lwd=2,bound=F) 
+    # the posterior expection of beta(t)
+    lines_step_function(res_Bliss_mult$param$grids2[[q]],
+                        res_Bliss_mult$res.Simulated_Annealing[[q]]$posterior_expe,
+                        lty=2,bound=T)
+    # plot the true coefficient function
+    lines(data$grids[[q]],data$beta[[q]],col=3)
+  }
+
+```
+
+
+
+# Several functional covariates
+
+To avoid execution lengths, this section is not executed. Please, give it a try.
+
+## Simulate the dataset
+
+```{r ,eval=FALSE, include = TRUE}
+  Q <- 2
+  param <- list(n=50,p=c(15,12),beta_types=c("simple","smooth"),
+                b_inf=c(0,0),b_sup=c(1,1))
+  data <- sim_multiple(param)
+```
+
+## Apply the Bliss method
+```{r ,eval=FALSE, include = TRUE}
+  param <- list(iter=1e3,burnin=2e2,K=c(3,3),grids=data$grids,
+                prior_beta="Ridge_Zellner",phi_l=list("Gamma","Gamma"))
+  res_Bliss_mult <- Bliss_multiple(data,param,density=TRUE)
+```
+
+## Plot the result
+```{r ,eval=FALSE, include = TRUE,fig.height=5,fig.width=7}
+  for(q in 1:Q){
+    ylim <- range(c(res_Bliss_mult$posterior_density_estimate[[q]]$res.kde2d$y,
+                    data$beta[[q]]))
+    ylim <- ylim +  (ylim[2] - ylim[1])/20 * c(-1,1)
+    param$ylim <- ylim
+  
+    image_Bliss(res_Bliss_mult$posterior_density_estimate[[q]],param)
+    # the Bliss estimate
+    lines_step_function(res_Bliss_mult$param$grids2[[q]],
+                        res_Bliss_mult$Bliss_estimate[[q]],lwd=2,bound=F) 
+    # the posterior expection of beta(t)
+    lines_step_function(res_Bliss_mult$param$grids2[[q]],
+                        res_Bliss_mult$res.Simulated_Annealing[[q]]$posterior_expe,
+                        lty=2,bound=T)
+    # plot the true coefficient function
+    lines(data$grids[[q]],data$beta[[q]],col=3)
+  }
+```
+
+# Session informations
+```{r session,echo=FALSE,message=FALSE, warning=FALSE}
+  sessionInfo()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
