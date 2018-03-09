@@ -12,7 +12,7 @@ To install the **bliss** package, the easiest is to install it directly from Git
 
 ```R
 library(devtools) 
-install_github("pmgrollemund/Bliss", build_vignettes=TRUE)
+install_github("pmgrollemund/bliss", build_vignettes=TRUE)
 ```
 
 # Usage
