@@ -45,7 +45,7 @@
 #' lines(param1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(param1$grids[[1]],data1$beta_function[[1]],col=2,lwd=2,type="s")
 image_Bliss <- function(posterior_density_estimate,param){
-  cols      <- param$cols
+  cols      <- param$cols #Ceci n'est pas une modification pmg 08-03-18
   col_scale <- param$col_scale
   ylim      <- param$ylim
   xlim      <- param$xlim
@@ -67,7 +67,7 @@ image_Bliss <- function(posterior_density_estimate,param){
   }
   if(is.null(ylim)) ylim <- range(posterior_density_estimate$res.kde2d$y)
   if(is.null(xlim)) xlim <- range(posterior_density_estimate$res.kde2d$x)
-  if(is.null(main)) main <- "BLiSS estimates"
+  if(is.null(main)) main <- "Bliss estimates"
   image(posterior_density_estimate$res.kde2d,col=cols,breaks = breaks,
         main=main,ylim=ylim,xlim=xlim,useRaster = TRUE)
 }
