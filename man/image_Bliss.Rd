@@ -10,7 +10,7 @@ image_Bliss(posterior_density_estimate, param)
 \item{posterior_density_estimate}{a list. The result of the function
 density_estimation.}
 
-\item{param}{a list
+\item{param}{a list containing
 \describe{
 \item{cols}{a vector of colors for the function image (optional)}
 \item{col_scale}{a character vector}

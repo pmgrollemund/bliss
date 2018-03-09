@@ -4,7 +4,7 @@
 #' @description plot the representation of the estimated posterior density.
 #' @param posterior_density_estimate a list. The result of the function
 #'                 density_estimation.
-#' @param param a list
+#' @param param a list containing
 #' \describe{
 #' \item{cols}{a vector of colors for the function image (optional)}
 #' \item{col_scale}{a character vector}
