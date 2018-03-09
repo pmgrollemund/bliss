@@ -14,9 +14,9 @@
 #' }
 #' @param data a list containing
 #' \describe{
-#'  \item{x_mult}{a list countaining the functions x_qi(t) observed at grids of time points}
+#'  \item{x_mult}{a list containing the functions x_qi(t) observed at grids of time points}
 #'  \item{y}{the outcome values y_i}
-#'  \item{grids}{a list countaining the observation time points of the covariates functions.}
+#'  \item{grids}{a list containing the observation time points of the covariates functions.}
 #' }
 #' @param param a list which have to contain :
 #' \describe{
