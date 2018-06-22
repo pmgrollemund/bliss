@@ -1,28 +1,37 @@
 ################################# ----
 #' Bliss_Gibbs_Sampler
 ################################# ----
-#' @description A Gibbs Sampler algorithm to sample posterior distribution of the Bliss model.
+#' @description A Gibbs Sampler algorithm to sample posterior distribution of
+#'              the Bliss model.
 #' @return a list containing :
 #' \describe{
 #'  \item{trace}{a matrix. Each row is a draw from the posterior.}
-#'  \item{param}{a list containing K and scale_ml}
+#'  \item{param}{a list containing K and scale_ml} # XXXXXX
 #' }
-#' @param data a list containing
+#' @param data a list containing:
 #' \describe{
-#'  \item{x}{a list containing the functions x_qi(t) observed at time points given by grids,}
-#'  \item{y}{the outcome values y_i,}
-#'  \item{grids}{a list containing the observation time points of the covariates functions.}
+#' \item{Q}{an integer, the number of covariates,}
+#' \item{x}{a list of matrices, the qth matrix contains the observation of the
+#'       qth functional covariate at time points given by grids,}
+#' \item{y}{a numerical vector, the outcome values y_i.}
 #' }
-#' @param param a list containing :
+#' @param param a list containing:
 #' \describe{
 #' \item{iter}{an integer, the number of iterations of the Gibbs sampler algorithm.}
-#' \item{K}{a vector of integers, corresponding to the numbers of intervals for each covariate.}
+#' \item{K}{a vector of integers, corresponding to the numbers of intervals for
+#'       each covariate.}
 #' \item{basis}{a vector of characters among : "uniform" (default),
-#'                 "epanechnikov", "gauss" and "triangular" which correspond to
-#'                 different basis expansion of coefficient function and functional data (optional)}
-#' \item{g}{hyperparameter of the Bliss model,  a nonnegative value, the coefficient of the Zellner prior.}
-#' \item{display}{a logical value. If FALSE nothing is printed.}
+#'       "epanechnikov", "gauss" and "triangular" which correspond to
+#'       different basis functions to expand the coefficient function and the
+#'       functional covariates (optional)}
+#' \item{g}{a nonnegative value, hyperparameter of the Bliss model which is the
+#'          coefficient of the Ridge Zellner prior. (optional)}
+#' \item{grids}{a list of numerical vectors, the qth vector is the grid of
+#'       observation points of the qth covariate.}
+#' \item{p}{XXXXXX}
 #' }
+#' @param progress a logical value. If TRUE, the algorithm progress is displayed.
+#'         (optional)
 #' @importFrom stats var
 #' @export
 #' @examples
@@ -32,14 +41,11 @@
 #' K       <- param1$K
 #' theta_1 <- res_Bliss_Gibbs_Sampler$trace[1,]
 #' theta_1
-Bliss_Gibbs_Sampler <- function(data,param){
- display <- param$display
- if(is.null(display)) display <- TRUE
- # Initialize
- x <- data$x
- y <- data$y
- Q <- length(x)
+Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  # load objects
+ x <- data[["x"]]
+ y <- data[["y"]]
+ Q <- data[["Q"]]
  basis <- param[["basis"]]
  grids <- param[["grids"]]
  iter  <- param[["iter"]]
@@ -123,7 +129,8 @@ Bliss_Gibbs_Sampler <- function(data,param){
  res <- Bliss_Gibbs_Sampler_cpp(Q,y,x_mult,iter,grids,K,l_max,
                                 eta_tilde,a,b,phi_m,phi_l,prior_beta,
                                 g,lambda,V_tilde,
-                                tol=sqrt(.Machine$double.eps),basis)
+                                tol=sqrt(.Machine$double.eps),basis,
+                                progress)
  # option a changer ?
  
  trace_names <- NULL

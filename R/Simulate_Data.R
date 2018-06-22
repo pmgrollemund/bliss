@@ -780,3 +780,38 @@ sigmoid_sharp <- function(x,loc=0,...){
  # provided by sigmoid_sharp is 1.
  4*(sigmoid(x-loc,...) * sigmoid(-x+loc,...))
 }
+################################# ----
+#' corr_matrix
+################################# ----
+#' @description compute an autocorrelation matrix to simulate functions x_i(t).
+#' @return a symmetric matrix.
+#' @param diagonal a numerical vector corresponding to the diagonal of the final matrix.
+#' @param ksi a "coefficient of correlation". See the article Bliss, Section 3.1 for more details.
+#' @export
+#' @examples
+#' ### Test 1 : weak autocorrelation
+#' ksi     <- 1
+#' diagVar <- abs(rnorm(100,50,5))
+#' Sigma   <- corr_matrix(diagVar,ksi^2)
+#' persp(Sigma)
+#' ### Test 2 : strong autocorrelation
+#' ksi     <- 0.2
+#' diagVar <- abs(rnorm(100,50,5))
+#' Sigma   <- corr_matrix(diagVar,ksi^2)
+#' persp(Sigma)
+corr_matrix <- function(diagonal,ksi){
+ # Initialize
+ p <- length(diagonal)
+ res <- diag(diagonal)
+ 
+ # Compute the correlation matrix
+ for(i in 1:(p-1)){
+  for(j in (i+1):p){
+   res[i,j] <- exp(-ksi*(i-j)^2/p)*sqrt(res[i,i]*res[j,j])
+   res[j,i] <- exp(-ksi*(i-j)^2/p)*sqrt(res[i,i]*res[j,j])
+  }
+ }
+ 
+ # return the matrix
+ return(res)
+}

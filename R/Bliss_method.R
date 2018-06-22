@@ -24,6 +24,7 @@
 #'        covariate.}
 #'  \item{res.Gibbs_Sampler}{a list: the qth item is the result of the function 
 #'        Bliss_Gibbs_Sampler for the qth covariate.}
+#'  \item{support_estimate}{XXXXX}
 #' }
 #' @param data a list containing:
 #' \describe{
