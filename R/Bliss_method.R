@@ -28,10 +28,12 @@
 #' }
 #' @param data a list containing:
 #' \describe{
-#' \item{Q}{an integer, the number of covariates,}
+#' \item{Q}{an integer, the number of functional covariates.}
 #' \item{x}{a list of matrices, the qth matrix contains the observation of the 
 #'       qth functional covariate at time points given by grids,}
 #' \item{y}{a numerical vector, the outcome values y_i.}
+#' \item{grids}{a list of numerical vectors, the qth vector is the grid of 
+#'        time points for the qth functional covariate.}
 #' }
 #' @param param a list containing: XXXXXX
 #' \describe{ 
@@ -42,8 +44,6 @@
 #'       "epanechnikov", "gauss" and "triangular" which correspond to
 #'       different basis functions to expand the coefficient function and the 
 #'       functional covariates (optional)}
-#' \item{grids}{a list of numerical vectors, the qth vector is the grid of
-#'       observation points of the qth covariate.}
 #' \item{g}{a nonnegative value, hyperparameter of the Bliss model which is the
 #'          coefficient of the Ridge Zellner prior. (optional)}
 #' \item{burnin}{an integer, the number of iteration to drop from the Gibbs 
@@ -52,8 +52,8 @@
 #'       approximation of the posterior density of beta(t). (optional)}
 #' \item{iter_sann}{an integer, the number of iteration of the Simulated 
 #'       Annealing algorithm. (optional)}
-#' \item{n_chains}{number of chains to do in the Gibbs sampler.}
-#' \item{theta_posterior_density}{a logical value. XXXXX}
+#' \item{n_chains}{number of chains to do in the Gibbs sampler. (optional)}
+#' \item{theta_posterior_density}{a logical value. XXXXX (optional)}
 #' \item{Temp_init}{a nonnegative value, the initial temperatures for the
 #'                 cooling function of the Q Simulated Annealings. (optional)}
 #' }
@@ -69,13 +69,17 @@
 Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
                     progress=FALSE){
  # define Q
- Q <- param[["Q"]]
+ Q <- data[["Q"]]
  if(is.null(Q))
-  stop("Please specify Q: the number of functional covariates.")
+  stop("Please specify Q: the number of functional covariates (in the 'data' object).")
  # Define p
- param$p  <- sapply(param$grids,length)
+ param$p  <- sapply(data$grids,length)
  # Centering the data 
- data$x <- sapply(data$x,function(m) scale(m,scale=F))
+ data$x0 <- data$x
+ for(q in 1:Q){
+  data$x[[q]] <- scale(data$x[[q]],scale=F)
+ }
+ 
  
  # How many chains i have to do ?
  if(is.null(param[["n_chains"]])){
@@ -91,10 +95,15 @@ Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
   chains[[j]] <- list()
   
   # Execute the Gibbs Sampler algorithm to sample the posterior distribution
-  chains[[j]]$posterior_sample <- Bliss_Gibbs_Sampler(data,param)
+  param.Gibbs_Sampler <- list(iter  = param[["iter"]],
+                              K     = param[["K"]],
+                              basis = param[["basis"]],
+                              g     = param[["g"]],
+                              p     = param[["p"]])
+  chains[[j]]$posterior_sample <- Bliss_Gibbs_Sampler(data,param.Gibbs_Sampler)
   
   # Compute a posterior sample of coefficient function
-  chains[[j]]$beta_sample <- compute_beta(chains[[j]]$posterior_sample,param)
+  chains[[j]]$beta_sample <- compute_beta(chains[[j]]$posterior_sample,param) # XXXXXXXXX
  }
  
  # Choose a chain for inference
@@ -111,7 +120,7 @@ Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
                           tail(param$grids[[q]],1)+diff_grid/2) #XXXXXXXX
    param$xlim[[q]] <- range(param$grids2[[q]])
    
-   param_density <- list(grid= param$grids[[q]], #XXXXXXXX
+   param.beta_density <- list(grid= param$grids[[q]], #XXXXXXXX
                          iter= param$iter,
                          p   = param[["p"]][q],
                          n        = param[["n"]],
@@ -125,7 +134,7 @@ Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
                          display = display
    )
    beta_posterior_density[[q]] <-
-    compute_beta_posterior_density(beta_sample[[q]],param_density) #XXXXXXXX
+    compute_beta_posterior_density(beta_sample[[q]],param.beta_density) #XXXXXXXX
   }
  }
  

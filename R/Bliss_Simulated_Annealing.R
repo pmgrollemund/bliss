@@ -128,8 +128,8 @@ Bliss_Simulated_Annealing <- function(beta_sample,scale_ml,param,progress=FALSE)
  k        <- argmin[3*k_max+2]
  estimate <- beta_build_cpp(b,m,l,grid,p,k,basis,scale_ml)
  
- return(list(Bliss_estimate = estimate,
-             posterior_expe = res_sann$posterior_expe,
-             trace          = res_sann$trace,
-             argmin         = argmin))
+ return(list(Bliss_estimate  = estimate,
+             Smooth_estimate = res_sann$posterior_expe,
+             trace           = res_sann$trace,
+             argmin          = argmin))
 }

@@ -14,6 +14,8 @@
 #' \item{x}{a list of matrices, the qth matrix contains the observation of the
 #'       qth functional covariate at time points given by grids,}
 #' \item{y}{a numerical vector, the outcome values y_i.}
+#' \item{grids}{a list of numerical vectors, the qth vector is the grid of
+#'       observation points of the qth covariate.}
 #' }
 #' @param param a list containing:
 #' \describe{
@@ -26,8 +28,6 @@
 #'       functional covariates (optional)}
 #' \item{g}{a nonnegative value, hyperparameter of the Bliss model which is the
 #'          coefficient of the Ridge Zellner prior. (optional)}
-#' \item{grids}{a list of numerical vectors, the qth vector is the grid of
-#'       observation points of the qth covariate.}
 #' \item{p}{XXXXXX}
 #' }
 #' @param progress a logical value. If TRUE, the algorithm progress is displayed.
@@ -43,17 +43,17 @@
 #' theta_1
 Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  # load objects
- x <- data[["x"]]
- y <- data[["y"]]
- Q <- data[["Q"]]
+ x     <- data[["x"]]
+ y     <- data[["y"]]
+ Q     <- data[["Q"]]
+ grids <- data[["grids"]]
  basis <- param[["basis"]]
- grids <- param[["grids"]]
  iter  <- param[["iter"]]
  K     <- param[["K"]]
  g     <- param[["g"]]
  p     <- param[["p"]]
  
- # Initialize the necessary unspecified objects
+ # Initialize the required unspecified objects
  if(is.null(K)) stop("Please specify a value for the vector K.")
  if(!is.null(K)){
   for (q in 1:Q){
@@ -72,10 +72,14 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
    if(is.na(basis[q])){basis[q] <- "uniform"}
   }
  }
+ if(is.null(g))       g <- length(y)
+ lambda <- 5 # a mettre dans le cpp ?
+ V_tilde <- diag(1+sum(K)) # a mettre dans le cpp ?
  
+ # a garder ?
  grids_l <- list()
  for (q in 1:Q){
-  grids_l[[q]] <- (grids[[q]] - grids[[q]][1])[-1] # Utilite ? a diviser par max aussi ?
+  grids_l[[q]] <- (grids[[q]] - grids[[q]][1])[-1] # Utilite ? pour les valeurs possible pour l 
  }
  
  
@@ -120,17 +124,16 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  }
  ######
  
- if(is.null(g))       g <- length(y)
- if(is.null(lambda))  lambda <- 5
- if(is.null(V_tilde)) V_tilde <- diag(1+sum(K))
- 
- 
+ if(progress){
+  progress_cpp <- TRUE
+ }else{
+  progress_cpp <- FALSE
+ }
  # Perfome the Gibbs Sampler and return the result.
- res <- Bliss_Gibbs_Sampler_cpp(Q,y,x_mult,iter,grids,K,l_max,
-                                eta_tilde,a,b,phi_m,phi_l,prior_beta,
-                                g,lambda,V_tilde,
-                                tol=sqrt(.Machine$double.eps),basis,
-                                progress)
+ res <- Bliss_Gibbs_Sampler_cpp(Q,y,x,grids,
+                                iter,K,basis,
+                                g,lambda,V_tilde, Probs_l,
+                                progress_cpp,tol=sqrt(.Machine$double.eps))
  # option a changer ?
  
  trace_names <- NULL

@@ -172,7 +172,7 @@ double norm_fct(arma::vec & x,arma::vec & y){
   return res;
 }
 
-// Use to compute an uniform function, see function beta_build.
+// Use to compute an uniform function, see function compute_beta.
 // [[Rcpp::export]]
 arma::vec uniform_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
@@ -190,7 +190,7 @@ arma::vec uniform_cpp (int m, int l, arma::vec & grid){
   return res;
 }
 
-// Use to compute an uniform function, see function beta_build.
+// Use to compute an uniform function, see function compute_beta.
 // [[Rcpp::export]]
 arma::vec uniform_cpp_unnormalized (int m, int l, arma::vec & grid){
   int p = grid.size();
@@ -206,7 +206,7 @@ arma::vec uniform_cpp_unnormalized (int m, int l, arma::vec & grid){
   return res;
 }
 
-// Use to compute a triangular function, see function beta_build.
+// Use to compute a triangular function, see function compute_beta.
 // [[Rcpp::export]]
 arma::vec triangular_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
@@ -231,7 +231,7 @@ arma::vec triangular_cpp (int m, int l, arma::vec & grid){
 }
 
 
-// Use to compute a triangular function, see function beta_build.
+// Use to compute a triangular function, see function compute_beta.
 // [[Rcpp::export]]
 arma::vec triangular_cpp_unnormalized (int m, int l, arma::vec & grid){
   int p = grid.size();
@@ -253,7 +253,7 @@ arma::vec triangular_cpp_unnormalized (int m, int l, arma::vec & grid){
   return res;
 }
 
-// Use to compute a gaussian function, see function beta_build.
+// Use to compute a gaussian function, see function compute_beta.
 // [[Rcpp::export]]
 arma::vec gaussian_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
@@ -277,7 +277,7 @@ arma::vec gaussian_cpp (int m, int l, arma::vec & grid){
   return res;
 }
 
-// Use to compute a gaussian function, see function beta_build.
+// Use to compute a gaussian function, see function compute_beta.
 // [[Rcpp::export]]
 arma::vec gaussian_cpp_unnormalized (int m, int l, arma::vec & grid){
   int p = grid.size();
@@ -299,7 +299,7 @@ arma::vec gaussian_cpp_unnormalized (int m, int l, arma::vec & grid){
   return res;
 }
 
-// Use to compute a gaussian function, see function beta_build.
+// Use to compute a gaussian function, see function compute_beta.
 // [[Rcpp::export]]
 arma::vec Epanechnikov_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
@@ -323,7 +323,7 @@ arma::vec Epanechnikov_cpp (int m, int l, arma::vec & grid){
   return res;
 }
 
-// Use to compute a gaussian function, see function beta_build.
+// Use to compute a gaussian function, see function compute_beta.
 // [[Rcpp::export]]
 arma::vec Epanechnikov_cpp_unnormalized (int m, int l, arma::vec & grid){
   int p = grid.size();
@@ -345,54 +345,54 @@ arma::vec Epanechnikov_cpp_unnormalized (int m, int l, arma::vec & grid){
   return res;
 }
 
-// Beta_build in cpp.
+// compute_beta in cpp.
 // [[Rcpp::export]]
-arma::vec beta_build_cpp (arma::vec & beta_star, arma::vec & m, arma::vec & l,
-                          arma::vec & grid, int p, int K, std::string basis, arma::mat & scale_ml ){
+arma::vec compute_beta_cpp (arma::vec & b, arma::vec & m, arma::vec & l,
+                          arma::vec & grid, int p, int K, std::string basis, arma::mat & normalization_values ){
   vec res = zeros<vec>(p) ;
 
   if(basis == "uniform"){
     for(int i=0 ; i<K ; ++i){
-      res = res + beta_star(i)/scale_ml( m(i)-1 , l(i)-1 ) *
+      res = res + b(i)/normalization_values( m(i)-1 , l(i)-1 ) *
         uniform_cpp(m(i),l(i),grid);
     }
   }
   if(basis == "uniform_unnormalized"){
     for(int i=0 ; i<K ; ++i){
-      res = res + beta_star(i) * uniform_cpp_unnormalized(m(i),l(i),grid);
+      res = res + b(i) * uniform_cpp_unnormalized(m(i),l(i),grid);
     }
   }
   if(basis == "triangular"){
     for(int i=0 ; i<K ; ++i){
-      res = res + beta_star(i)/scale_ml( m(i)-1 , l(i)-1 )  *
+      res = res + b(i)/normalization_values( m(i)-1 , l(i)-1 )  *
         triangular_cpp(m(i),l(i),grid);
     }
   }
   if(basis == "triangular_unnormalized"){
     for(int i=0 ; i<K ; ++i){
-      res = res + beta_star(i) * triangular_cpp_unnormalized(m(i),l(i),grid);
+      res = res + b(i) * triangular_cpp_unnormalized(m(i),l(i),grid);
     }
   }
   if(basis == "gaussian"){
     for(int i=0 ; i<K ; ++i){
-      res = res + beta_star(i)/scale_ml( m(i)-1 , l(i)-1 )  *
+      res = res + b(i)/normalization_values( m(i)-1 , l(i)-1 )  *
         gaussian_cpp(m(i),l(i),grid);
     }
   }
   if(basis == "gaussian_unnormalized"){
     for(int i=0 ; i<K ; ++i){
-      res = res + beta_star(i) * gaussian_cpp_unnormalized(m(i),l(i),grid);
+      res = res + b(i) * gaussian_cpp_unnormalized(m(i),l(i),grid);
     }
   }
   if(basis == "Epanechnikov"){
     for(int i=0 ; i<K ; ++i){
-      res = res + beta_star(i)/scale_ml( m(i)-1 , l(i)-1 )  *
+      res = res + b(i)/normalization_values( m(i)-1 , l(i)-1 )  *
         Epanechnikov_cpp(m(i),l(i),grid);
     }
   }
   if(basis == "Epanechnikov_unnormalized"){
     for(int i=0 ; i<K ; ++i){
-      res = res + beta_star(i) * Epanechnikov_cpp_unnormalized(m(i),l(i),grid);
+      res = res + b(i) * Epanechnikov_cpp_unnormalized(m(i),l(i),grid);
     }
   }
   return res;
@@ -400,21 +400,21 @@ arma::vec beta_build_cpp (arma::vec & beta_star, arma::vec & m, arma::vec & l,
 
 // Compute the functions beta_i for each iteration i.
 // [[Rcpp::export]]
-arma::mat compute_beta_functions_cpp (arma::mat &  trace, int p, int K, arma::vec & grid,
-                                std::string basis, arma::mat & scale_ml){
+arma::mat compute_beta_sample_cpp (arma::mat &  trace, int p, int K, arma::vec & grid,
+                                std::string basis, arma::mat & normalization_values){
   mat res = zeros<mat>(trace.n_rows,p);
-  vec beta_star;
+  vec b;
   vec m   ;
   vec l   ;
   vec tmp ;
 
   for(int i=0 ; i<res.n_rows ; ++i){
     tmp  = trans(trace.row(i))     ;
-    beta_star = tmp.subvec(0,K-1)    ;
+    b = tmp.subvec(0,K-1)    ;
     m    = tmp.subvec(K,2*K-1)   ;
     l    = tmp.subvec(2*K,3*K-1) ;
 
-    res.row(i) = trans(beta_build_cpp(beta_star,m,l,grid,p,K,basis,scale_ml)) ;
+    res.row(i) = trans(compute_beta_cpp(b,m,l,grid,p,K,basis,normalization_values)) ;
   }
   return res ;
 }
@@ -812,7 +812,7 @@ arma::mat extraire_X_tilde(arma::vec & m, arma::vec & l, NumericVector & all_int
 }
 
 // Update the parameter l_k                                                     // single covariate version : the matrix W_inv does not change here when all the possibility of l_k are evaluated
-int lk_update (int k, arma::vec & Y, arma::vec & beta_star, double  sigma_sq, arma::vec & m,
+int lk_update (int k, arma::vec & Y, arma::vec & b, double  sigma_sq, arma::vec & m,
                arma::vec & l, arma::mat & X_tilde, NumericVector & all_intervals,
                arma::vec & all_intervals_dims, arma::vec & l_alternative, arma::mat & V_inv,
                arma::vec & eta, arma::vec & phi_l) {
@@ -820,16 +820,16 @@ int lk_update (int k, arma::vec & Y, arma::vec & beta_star, double  sigma_sq, ar
   const int lmax = l_alternative.size();
   // Compute mu.mlk
   vec mu_mlk = (Y - mat_drop_col_k(X_tilde,k+1) *
-    vec_drop_k(beta_star,k+1) ) / beta_star(k+1);
+    vec_drop_k(b,k+1) ) / b(k+1);
   // Compute the probabilities
   vec probs = zeros<vec>(lmax);
   for(int  i=0 ; i<lmax ; i++){
     vec intervals_lki = all_intervals_extract(all_intervals,m(k),
                                               l_alternative(i),all_intervals_dims);
-    aux = sq(beta_star(k+1)) * dot(intervals_lki - mu_mlk ,
+    aux = sq(b(k+1)) * dot(intervals_lki - mu_mlk ,
              intervals_lki - mu_mlk) / (2*sigma_sq) +
-               1/(2*sigma_sq) * dot(beta_star - eta, V_inv *
-               (beta_star - eta));
+               1/(2*sigma_sq) * dot(b - eta, V_inv *
+               (b - eta));
     probs(i) = exp( - aux ) * phi_l(i);
   }
   // Simulate a lk
@@ -839,23 +839,23 @@ int lk_update (int k, arma::vec & Y, arma::vec & beta_star, double  sigma_sq, ar
 }
 
 //Update the parameter m_k                                                      // single covariate version : the matrix W_inv does not change here when all the possibility of m_k are evaluated
-int mk_update (int k, arma::vec & Y, arma::vec & beta_star, double  sigma_sq, arma::vec & m, arma::vec & l,
+int mk_update (int k, arma::vec & Y, arma::vec & b, double  sigma_sq, arma::vec & m, arma::vec & l,
                arma::mat & X_tilde, NumericVector & all_intervals, arma::vec & all_intervals_dims,
                arma::vec & m_alternative, arma::mat & V_inv, arma::vec & eta, arma::vec & phi_m) {
   double aux;
   const int p = m_alternative.size();
   // Compute mu.mmk
-  vec mu_mmk = (Y - mat_drop_col_k(X_tilde,k+1) * vec_drop_k(beta_star,k+1) )
-    / beta_star(k+1);
+  vec mu_mmk = (Y - mat_drop_col_k(X_tilde,k+1) * vec_drop_k(b,k+1) )
+    / b(k+1);
   // Compute the probabilities
   vec probs = ones<vec>(p);
   for(int  i=0 ; i<p ; ++i){
     vec intervals_mki = all_intervals_extract(all_intervals,m_alternative(i),
                                               l(k),all_intervals_dims);
-    aux = sq(beta_star(k+1)) * dot(intervals_mki - mu_mmk ,
+    aux = sq(b(k+1)) * dot(intervals_mki - mu_mmk ,
              intervals_mki - mu_mmk) / (2*sigma_sq)  +
-               1/(2*sigma_sq) * dot(beta_star - eta, V_inv *
-               (beta_star - eta));
+               1/(2*sigma_sq) * dot(b - eta, V_inv *
+               (b - eta));
     probs(i) = exp( - aux ) * phi_m(i);
   }
   // Simulate a mk
@@ -1042,17 +1042,17 @@ int lk_update_List (int count, int k, arma::vec & Y, arma::vec & beta_tilde, dou
 }
 
 // update the parameter sigma_sq
-double sigma_sq_update (arma::vec & Y, arma::vec & beta_star, arma::vec & eta, arma::mat & V_inv,
+double sigma_sq_update (arma::vec & Y, arma::vec & b, arma::vec & eta, arma::mat & V_inv,
                         arma::mat & X_tilde, double a, double b, int n, int K) {
   double a_tmp     = K+n+1 ;
   double a_star    = a + a_tmp/2 ;
 
-  vec Y_tmp        = Y - X_tilde * beta_star ;
+  vec Y_tmp        = Y - X_tilde * b ;
   double Y_tmp2    = dot(Y_tmp,Y_tmp) ;
-  vec beta_star_tmp     = beta_star - eta ;
-  double beta_star_tmp2 = dot(beta_star_tmp, V_inv * beta_star_tmp) ;
+  vec b_tmp     = b - eta ;
+  double b_tmp2 = dot(b_tmp, V_inv * b_tmp) ;
 
-  double b_star    = b + 0.5*( Y_tmp2 + beta_star_tmp2 ) ;
+  double b_star    = b + 0.5*( Y_tmp2 + b_tmp2 ) ;
 
   double res = 1. / (R::rgamma(a_star, 1/b_star) );
 
@@ -1076,7 +1076,7 @@ double sigma_sq_update_List (arma::vec & Y, arma::vec & beta_tilde, arma::vec & 
   return res ;
 }
 
-// update the parameter beta_star
+// update the parameter b
 // [[Rcpp::export]]
 arma::vec beta_tilde_update (arma::vec & Y, double sigma_sq, arma::vec & eta_tilde, arma::mat & W_inv,
                              arma::mat & X_tilde, arma::mat & Sigma_beta_tilde_inv,
@@ -1131,41 +1131,35 @@ arma::mat update_X_tilde (int Q, arma::vec & K, List & all_intervals,
 // returned values; trace and param.
 // trace : a matrix, with the different parameters in columns and the
 // iterations in rows.
-// The different parameters are : beta_star_1, m1, l1, beta_star_2, m2,
-//l2, ..., beta_star_Q, mQ, lQ, mu, sigma2.
+// The different parameters are : b_1, m1, l1, b_2, m2,
+//l2, ..., b_Q, mQ, lQ, mu, sigma2.
 // Hence the trace has (iter + 1) rows (+1 for the initailisation), and
 // 3*(K1+K2+...KQ)+2 columns. Indeed,
-// beta_star_1, m1 and l1 are of length K, ..., beta_star_Q, mQ and lQ are of
+// b_1, m1 and l1 are of length K, ..., b_Q, mQ and lQ are of
 // length KQ.
 // [[Rcpp::export]]
-List Bliss_Gibbs_Sampler_multiple_cpp (int Q, arma::vec & Y, List & X, int iter,
-                                       List & grids, arma::vec & K, arma::vec & lmax,
-                                       arma::vec & eta_tilde, double a, double b,
-                                       List & probs_m, List & probs_l,
-                                       std::string prior_beta,
-                                       double g, double lambda, arma::mat & V_tilde,
-                                       double tol,   CharacterVector & basis) {
-  // IS 02/02/2018: attention, std::cout a ne pas utiliser ds package...
-  // just replace std::cout by Rcpp::Rout
-  Rcpp::Rcout << "Gibbs Sampler: " <<  std::endl;
-  Rcpp::Rcout << "\t Initialization." <<  std::endl;
+List Bliss_Gibbs_Sampler_multiple_cpp (int Q, arma::vec & y, List & x, List & grids,
+                                       int iter, arma::vec & K, CharacterVector & basis, // rajouter du grid_l ?
+                                       double g, double lambda,arma::mat & V_tilde,List & probs_l,
+                                       bool progress, double tol) {
+  if(progress) Rcpp::Rcout << "Gibbs Sampler: " <<  std::endl;
+  if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;
 
   // Compute the value of n and the p's
-  int n = as<mat>(X[0]).n_rows ;
+  int n = as<mat>(x[0]).n_rows ;
 
   vec p = zeros<vec>(Q)        ;
   for(int i=0 ; i<Q ; ++i){
-    p(i) = as<mat>(X[i]).n_cols;
+    p(i) = as<mat>(x[i]).n_cols;
   }
 
   // Compute projection of the x_i on all the intervals
-  List scale_ml(Q); // scale_ml is used to normalize the predictors
-  List all_intervals(Q); // will be contain all the projections
+  List normalization_values(Q);    // normalization_values is used to normalize the predictors
+  List all_intervals(Q);      // will be contain all the projections
   List all_intervals_dims(Q); // will be contain the dim of the all_intervals's
   for( int q=0 ; q<Q ; ++q){
-    // for( int q=Q ; q>=0 ; --q){
     arma::cube temp = potential_intervals_List (X, grids, lmax, basis,q) ;
-    scale_ml[q]      = temp.slice(n);
+    normalization_values[q]      = temp.slice(n);
 
     temp = temp.subcube(0,0,0,p(q)-1,lmax(q)-1,n-1);
     all_intervals[q] = temp;
@@ -1437,7 +1431,7 @@ List Bliss_Gibbs_Sampler_multiple_cpp (int Q, arma::vec & Y, List & X, int iter,
                                           _["l_max"]=lmax,
                                           _["all_intervals"]=all_intervals,
                                           _["grids"]=grids,
-                                          _["scale_ml"]=scale_ml
+                                          _["normalization_values"]=normalization_values
                        ));
 }
 
@@ -1446,7 +1440,7 @@ List Bliss_Gibbs_Sampler_multiple_cpp (int Q, arma::vec & Y, List & X, int iter,
 List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::vec & grid,
                                     int burnin, double Temp,int k_max,
                                     int l_max, int dm, int dl,
-                                    int p,std::string basis, arma::mat & scale_ml){
+                                    int p,std::string basis, arma::mat & normalization_values){
   Rcpp::Rcout << "Simulated Annealing:" <<  std::endl;
   // Initialization
   Rcpp::Rcout << "\t Initialization." <<  std::endl;
@@ -1462,7 +1456,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
   int k;
   vec m;
   vec l;
-  vec beta_star;
+  vec b;
   vec d;
   double d_loss;
   int boundary_min;
@@ -1475,7 +1469,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
   double u;
   int j;
   double Temperature;
-  vec beta_star_tmp;
+  vec b_tmp;
   vec m_tmp;
   vec l_tmp;
   int k_tmp;
@@ -1485,13 +1479,13 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
   int choice;
   int interval_min;
   int interval_max;
-  double var_beta_star;
+  double var_b;
   vec boundaries_min;
   vec boundaries_max;
   vec boundaries;
   int new_m;
   int new_l;
-  double new_beta_star;
+  double new_b;
 
   // Initialize the matrix trace
   mat trace = zeros<mat>(iter+1,3*k_max+3);
@@ -1502,7 +1496,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
   k      = sample_weight( probs )+1;
   m      = zeros<vec>(k);
   l      = zeros<vec>(k);
-  beta_star   = zeros<vec>(k);
+  b   = zeros<vec>(k);
 
   probs = ones<vec>(p);
   m(0)   = sample_weight( probs )+1;
@@ -1513,8 +1507,8 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
   boundary_max = m(0)+l(0)-1;
   if(boundary_min < 0   ) boundary_min = 0   ;
   if(boundary_max > p-1 ) boundary_max = p-1 ;
-  beta_star(0) = mean(posterior_expe.subvec( boundary_min , boundary_max ));
-  d = beta_build_cpp(beta_star,m,l,grid,p,1,basis,scale_ml);
+  b(0) = mean(posterior_expe.subvec( boundary_min , boundary_max ));
+  d = compute_beta_cpp(b,m,l,grid,p,1,basis,normalization_values);
 
   if(k > 1){
     for(int i=1 ; i<k ; ++i ){
@@ -1560,12 +1554,12 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
         if(boundary_max < 1) boundary_max = 1;
 
         l(i) = sample_weight( ones<vec>(boundary_max) ) + 1 ;
-        // Simulate a beta_star (from the smoothed difference)
+        // Simulate a b (from the smoothed difference)
         if( m(i) - l(i) -1 > 0  ) boundary_min = m(i) - l(i) -1; else boundary_min = 1;
         if( m(i) + l(i) +1 < p+1) boundary_max = m(i) + l(i) +1; else boundary_max = p;
-        beta_star(i) = mean( difference.subvec(boundary_min-1 , boundary_max-1) );
+        b(i) = mean( difference.subvec(boundary_min-1 , boundary_max-1) );
         // Compute the function with these intervals
-        d = beta_build_cpp(beta_star,m,l,grid,p,i+1,basis,scale_ml);
+        d = compute_beta_cpp(b,m,l,grid,p,i+1,basis,normalization_values);
       }else{
         // sortir de la boucle avec une bonne valeur de k
         unsigned i_tmp = i;
@@ -1576,11 +1570,11 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
   }
 
   // Compute the first function with K intervals (and its loss)
-  d      = beta_build_cpp(beta_star,m,l,grid,p,k,basis,scale_ml);
+  d      = compute_beta_cpp(b,m,l,grid,p,k,basis,normalization_values);
   d_loss = loss_cpp(d,grid,posterior_expe);
 
   // Update the trace with the start point
-  trace.row(0).subvec( 0       ,           k-1) = trans(beta_star.subvec(0,k-1)) ;
+  trace.row(0).subvec( 0       ,           k-1) = trans(b.subvec(0,k-1)) ;
   trace.row(0).subvec( k_max   , k_max   + k-1) = trans(m.subvec(0,k-1))         ;
   trace.row(0).subvec( k_max*2 , k_max*2 + k-1) = trans(l.subvec(0,k-1))         ;
   trace(0,3*k_max)   = 1      ;
@@ -1595,7 +1589,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
     if( (i+1) % (iter / 10)  == 0)
       Rcpp::Rcout << "\t " << (i+1) / (iter / 100) << "%" << std::endl;
     // Initialize the proposal
-    beta_star_tmp = beta_star;
+    b_tmp = b;
     m_tmp    = m   ;
     l_tmp    = l   ;
     k_tmp    = k   ;
@@ -1608,19 +1602,19 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
     if(k == 1    ) choice_prob(4) = choice_prob(4) -1;
 
     choice = sample_weight( choice_prob ) + 1;
-    // change a beta_star
+    // change a b
     if(choice == 1){
       // choose an interval
       j = sample_weight(choice_prob_interval);
 
-      // Simulate a new beta_star_k
+      // Simulate a new b_k
       interval_min = m(j)-l(j) -1;
       interval_max = m(j)+l(j) -1;
       if(interval_min < 0   ) interval_min = 0   ;
       if(interval_max > p-1 ) interval_max = p-1 ;
 
-      var_beta_star = mean(posterior_var.subvec( interval_min , interval_max));
-      beta_star_tmp(j) = R::rnorm( beta_star(j), sqrt(var_beta_star) );
+      var_b = mean(posterior_var.subvec( interval_min , interval_max));
+      b_tmp(j) = R::rnorm( b(j), sqrt(var_b) );
     }
     // change a m_k
     if(choice == 2){
@@ -1736,13 +1730,13 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
         l_tmp.subvec(0,k-1) = l;
         l_tmp(k_tmp-1)      = new_l;
 
-        // Simulate a new beta_star (from the smoothed difference)
+        // Simulate a new b (from the smoothed difference)
         if( new_m - new_l -1 > 0  ) boundary_min = new_m - new_l -1; else boundary_min = 1;
         if( new_m + new_l +1 < p+1) boundary_max = new_m + new_l +1; else boundary_max = p;
-        new_beta_star = mean( difference.subvec(boundary_min-1 , boundary_max-1) );
-        beta_star_tmp = zeros<vec>(k_tmp);
-        beta_star_tmp.subvec(0,k_tmp-2) = beta_star;
-        beta_star_tmp(k_tmp-1)          = new_beta_star;
+        new_b = mean( difference.subvec(boundary_min-1 , boundary_max-1) );
+        b_tmp = zeros<vec>(k_tmp);
+        b_tmp.subvec(0,k_tmp-2) = b;
+        b_tmp(k_tmp-1)          = new_b;
       }
     }
     // death
@@ -1752,18 +1746,18 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
 
       // Drop the interval
       k_tmp = k-1;
-      beta_star_tmp = zeros<vec>(k_tmp);
+      b_tmp = zeros<vec>(k_tmp);
       m_tmp    = zeros<vec>(k_tmp);
       l_tmp    = zeros<vec>(k_tmp);
 
-      beta_star_tmp = vec_drop_k(beta_star,j);
+      b_tmp = vec_drop_k(b,j);
       m_tmp    = vec_drop_k(m   ,j);
       l_tmp    = vec_drop_k(l   ,j);
     }
 
     // Compute the acceptance probability
-    d_tmp      = beta_build_cpp(beta_star_tmp,m_tmp,l_tmp,grid,p,k_tmp,basis,
-                                scale_ml);
+    d_tmp      = compute_beta_cpp(b_tmp,m_tmp,l_tmp,grid,p,k_tmp,basis,
+                                normalization_values);
     d_loss_tmp = loss_cpp(d_tmp,grid,posterior_expe);
 
     proba_acceptance = exp( -( d_loss_tmp-d_loss )/ Temperature );
@@ -1771,11 +1765,11 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
     // Accept/reject
     u = R::runif(0,1) ;
     if(u < proba_acceptance){
-      beta_star = zeros<vec>(k_tmp)     ;
+      b = zeros<vec>(k_tmp)     ;
       l = zeros<vec>(k_tmp)     ;
       m = zeros<vec>(k_tmp)     ;
       accepted  = 1             ;
-      beta_star = beta_star_tmp.subvec(0,k_tmp-1) ;
+      b = b_tmp.subvec(0,k_tmp-1) ;
       m         = m_tmp.subvec(0,k_tmp-1)         ;
       l         = l_tmp.subvec(0,k_tmp-1)         ;
       k         = k_tmp         ;
@@ -1784,7 +1778,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
     }
 
     // Update the trace
-    trace.row(i+1).subvec( 0       ,           k-1) = trans(beta_star.subvec( 0,k-1)) ;
+    trace.row(i+1).subvec( 0       ,           k-1) = trans(b.subvec( 0,k-1)) ;
     trace.row(i+1).subvec( k_max   , k_max   + k-1) = trans(m.subvec( 0,k-1))         ;
     trace.row(i+1).subvec( k_max*2 , k_max*2 + k-1) = trans(l.subvec( 0,k-1))         ;
     trace(i+1,3*k_max  ) = accepted ;

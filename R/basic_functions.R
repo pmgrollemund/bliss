@@ -228,7 +228,9 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
   new_thin <- NULL
  }
  
- return(list(res.kde2d       = res.kde2d,
+ return(list(grid_t          = res.kde2d$x,
+             grid_beta_t     = res.kde2d$y,
+             density         = res.kde2d$z,
              new_beta_sample = beta_sample,
              new_thin        = new_thin
              ))
@@ -423,5 +425,17 @@ prior_l <- function(m,s,grid_l){
 
 
 
+
+
+
+################################# ----
+#' integrate_trapeze XXXXXXXXXXX
+################################# ----
+
+
+integrate_trapeze <- function(x,y){
+ apply(as.matrix(y),2,function(vect) 
+  sum(diff(x)*(vect[-1]+vect[-length(vect)]))/2)
+} 
 
 
