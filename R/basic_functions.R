@@ -48,7 +48,7 @@ compute_beta_sample <- function(res.Gibbs_Sampler,param,progress=FALSE){
   
   beta_sample[[q]] <- compute_beta_sample_cpp(trace_tmp,p[q],K[q],grids[[q]],
                                               basis[q],
-                                              res.Gibbs_Sampler$param$scale_ml[[q]]) # XXXXX
+                                              res.Gibbs_Sampler$param$normalization_values[[q]]) # XXXXX
   count <- count + 3*K[q]
  }
  

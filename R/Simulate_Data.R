@@ -144,6 +144,7 @@ choose_beta <- function(param){
 #' }
 #' @param param a list containing:
 #' \describe{
+#'  \item{Q}{an integer, the number of functional covariates.}
 #'  \item{n}{an integer, the sample size.}
 #'  \item{p}{a vector of integers, the qth component is the number of 
 #'        times for the qth covariate.}
@@ -187,6 +188,7 @@ choose_beta <- function(param){
 sim <- function(param,progress=FALSE){
  if(progress) cat("Simulation of the data.\n")
  # load objects
+ Q <- param[['Q']]
  n <- param[['n']]
  p <- param[['p']]
  
@@ -203,7 +205,6 @@ sim <- function(param,progress=FALSE){
  correlation     <- param[['correlation']]
  
  # Initialize the required unspecified objects
- Q <- length(p)
  if(is.null(grids_lim)){
   grids_lim <- list()
   for(q in 1:Q) grids_lim[[q]] <- c(0,1)

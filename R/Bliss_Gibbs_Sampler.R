@@ -76,52 +76,57 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  lambda <- 5 # a mettre dans le cpp ?
  V_tilde <- diag(1+sum(K)) # a mettre dans le cpp ?
  
- # a garder ?
- grids_l <- list()
+ # Determine the possible values of l
+ l_values <- list()
  for (q in 1:Q){
-  grids_l[[q]] <- (grids[[q]] - grids[[q]][1])[-1] # Utilite ? pour les valeurs possible pour l 
+  l_values[[q]] <- (grids[[q]] - grids[[q]][1])[-1] 
  }
+ l_values_length <- sapply(l_values,length)
  
  
  #### Passage a bien changer !
- if (is.null(phi_l_mean)) phi_l_mean <- rep(NA,Q)
- if (is.null(phi_l_sd))   phi_l_sd <- rep(NA,Q)
- for(q in 1:Q){
-  if(!is.null(phi_l[[q]]) &&
-     is.character(phi_l[[q]]) && phi_l[[q]] != "Gamma")
-   stop("The qth component of phi_l should be a numeric vector or 'Gamma'.")
-  if(!is.null(phi_l[[q]]) &&
-     is.character(phi_l[[q]]) && phi_l[[q]] == "Gamma"){
-   
-   if(is.na(phi_l_mean[q])) phi_l_mean[q] <-
-     diff(range(grids[[q]]))/5 + grids[[q]][1]
-   if(is.na(phi_l_sd[q]))   phi_l_sd[q]   <-
-     diff(range(grids[[q]]))/5
-   phi_l[[q]] <- prior_l(phi_l_mean[q]/K[q],phi_l_sd[q]/K[q],grids_l[[q]])
-  }
- }
- if(is.null(phi_l)){
-  phi_l <- list()
-  for (q in 1:Q){
-   if(is.null(l_max)) l_max <- floor(p/5)
-   if(!is.null(l_max) & is.na(l_max[q])){l_max[q] <- floor(p[q]/5)}
-   phi_l[[q]] <- rep(1/l_max[q],l_max[q])
-  }
- }
- for (q in 1:Q){
-  l_max[q] <- length(phi_l[[q]])
- }
- if(!is.null(phi_m)){
-  for (q in 1:Q){
-   if(is.na(phi_m[[q]])){phi_m[[q]] <- rep(1/p[q],p[q])}
-  }
- }
- if(is.null(phi_m)){
-  phi_m <- list()
-  for (q in 1:Q){
-   phi_m[[q]] <- rep(1/p[q],p[q])
-  }
- }
+ # if (is.null(phi_l_mean)) phi_l_mean <- rep(NA,Q)
+ # if (is.null(phi_l_sd))   phi_l_sd <- rep(NA,Q)
+ # for(q in 1:Q){
+ #  if(!is.null(phi_l[[q]]) &&
+ #     is.character(phi_l[[q]]) && phi_l[[q]] != "Gamma")
+ #   stop("The qth component of phi_l should be a numeric vector or 'Gamma'.")
+ #  if(!is.null(phi_l[[q]]) &&
+ #     is.character(phi_l[[q]]) && phi_l[[q]] == "Gamma"){
+ #   
+ #   if(is.na(phi_l_mean[q])) phi_l_mean[q] <-
+ #     diff(range(grids[[q]]))/5 + grids[[q]][1]
+ #   if(is.na(phi_l_sd[q]))   phi_l_sd[q]   <-
+ #     diff(range(grids[[q]]))/5
+ #   phi_l[[q]] <- prior_l(phi_l_mean[q]/K[q],phi_l_sd[q]/K[q],l_values[[q]])
+ #  }
+ # }
+ # if(is.null(phi_l)){
+ #  phi_l <- list()
+ #  for (q in 1:Q){
+ #   if(is.null(l_max)) l_max <- floor(p/5)
+ #   if(!is.null(l_max) & is.na(l_max[q])){l_max[q] <- floor(p[q]/5)}
+ #   phi_l[[q]] <- rep(1/l_max[q],l_max[q])
+ #  }
+ # }
+ # for (q in 1:Q){
+ #  l_max[q] <- length(phi_l[[q]])
+ # }
+ # if(!is.null(phi_m)){
+ #  for (q in 1:Q){
+ #   if(is.na(phi_m[[q]])){phi_m[[q]] <- rep(1/p[q],p[q])}
+ #  }
+ # }
+ # if(is.null(phi_m)){
+ #  phi_m <- list()
+ #  for (q in 1:Q){
+ #   phi_m[[q]] <- rep(1/p[q],p[q])
+ #  }
+ # }
+ #
+ Probs_l <- l_values
+ Probs_l[[1]] <- rep(1,length(Probs_l[[1]]))/length(Probs_l[[1]]) 
+ Probs_l[[2]] <- rep(1,length(Probs_l[[2]]))/length(Probs_l[[2]]) 
  ######
  
  if(progress){
@@ -132,7 +137,7 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  # Perfome the Gibbs Sampler and return the result.
  res <- Bliss_Gibbs_Sampler_cpp(Q,y,x,grids,
                                 iter,K,basis,
-                                g,lambda,V_tilde, Probs_l,
+                                g,lambda,V_tilde, l_values,l_values_length,Probs_l,
                                 progress_cpp,tol=sqrt(.Machine$double.eps))
  # option a changer ?
  

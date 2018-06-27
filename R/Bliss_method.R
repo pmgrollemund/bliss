@@ -99,11 +99,12 @@ Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
                               K     = param[["K"]],
                               basis = param[["basis"]],
                               g     = param[["g"]],
-                              p     = param[["p"]])
-  chains[[j]]$posterior_sample <- Bliss_Gibbs_Sampler(data,param.Gibbs_Sampler)
+                              p     = param[["p"]],
+                              grids = data$grids)
+  chains[[j]]$posterior_sample <- Bliss_Gibbs_Sampler(data,param.Gibbs_Sampler,progress)
   
   # Compute a posterior sample of coefficient function
-  chains[[j]]$beta_sample <- compute_beta(chains[[j]]$posterior_sample,param) # XXXXXXXXX
+  chains[[j]]$beta_sample <- compute_beta_sample(chains[[j]]$posterior_sample,param.Gibbs_Sampler,progress) # XXXXXXXXX
  }
  
  # Choose a chain for inference
@@ -115,24 +116,24 @@ Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
  beta_posterior_density <- list()
  if (do_beta_posterior_density){
   for(q in 1:Q){
-   diff_grid <- diff(param$grids[[q]])[1]
-   param$grids2[[q]] <- c(param$grids[[q]]-diff_grid/2,
-                          tail(param$grids[[q]],1)+diff_grid/2) #XXXXXXXX
-   param$xlim[[q]] <- range(param$grids2[[q]])
+   diff_grid <- diff(data$grids[[q]])[1]
+   param$new_grids[[q]] <- c(data$grids[[q]]-diff_grid/2,
+                          tail(data$grids[[q]],1)+diff_grid/2) #XXXXXXXX
+   param$xlim[[q]] <- range(param$new_grids[[q]])
    
-   param.beta_density <- list(grid= param$grids[[q]], #XXXXXXXX
-                         iter= param$iter,
-                         p   = param[["p"]][q],
-                         n        = param[["n"]],
-                         thin     = param$thin,
-                         burnin   = param[["burnin"]],
-                         lims.kde = param$lims.kde[[q]],
-                         h1       = param$h1,
-                         new_grid = param[["new_grid"]],
-                         xlim     = range(param$grids[[q]]) + c(-diff_grid,
-                                                                diff_grid),
-                         display = display
-   )
+   param.beta_density <- list(grid= data[["grids"]][[q]], 
+                              iter= param$iter,
+                              p   = param[["p"]][q],
+                              n        = length(data$y),
+                              thin     = param$thin,
+                              burnin   = param[["burnin"]],
+                              lims.kde = param$lims.kde[[q]],
+                              h1       = param$h1,
+                              new_grid = param[["new_grid"]],
+                              xlim     = range(param$grids[[q]]) + c(-diff_grid,
+                                                                     diff_grid),
+                              display = display
+                              )
    beta_posterior_density[[q]] <-
     compute_beta_posterior_density(beta_sample[[q]],param.beta_density) #XXXXXXXX
   }
