@@ -5,7 +5,7 @@
 #'              Gibbs sample.
 #' @return return a matrix. Each row is a function evaluated on the grid of 
 #'         time points.
-#' @param res.Gibbs_Sampler a list provided by the function Bliss_Gibbs_Sampler.
+#' @param posterior_sample a list provided by the function Bliss_Gibbs_Sampler.
 #' @param param a list containing: (optional)
 #' \describe{
 #' \item{p}{XXXXXX}
@@ -29,7 +29,7 @@
 #' indexes <- sample(nrow(beta_sample[[1]]),1e2,replace=FALSE)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
 #' matplot(param1$grids[[1]],t(beta_sample[[1]][indexes,]),type="l",lty=1,col=cols)
-compute_beta_sample <- function(res.Gibbs_Sampler,param,progress=FALSE){
+compute_beta_sample <- function(posterior_sample,param,progress=FALSE){
  if(progress) cat("Compute the coefficient function posterior sample. \n")
  # Initialize parameters
  K     <- param[["K"]]
@@ -37,18 +37,18 @@ compute_beta_sample <- function(res.Gibbs_Sampler,param,progress=FALSE){
  p     <- param[["p"]]
  if(is.null(p)) p <- sapply(grids,length)
  basis <- param[["basis"]]
- if(is.null(basis)) basis <- rep("uniform",length(K))
+ if(is.null(basis)) basis <- rep("Uniform",length(K))
  
  # Compute the coefficient function for each iteration of the Gibbs Sampler 
  # and for each covariable
  beta_sample <- list()
  count <- 0
  for(q in 1:length(K)){
-  trace_tmp <- res.Gibbs_Sampler$trace[,(1+count):(count+3*K[q])]
+  trace_tmp <- posterior_sample$trace[,(1+count):(count+3*K[q])]
   
   beta_sample[[q]] <- compute_beta_sample_cpp(trace_tmp,p[q],K[q],grids[[q]],
                                               basis[q],
-                                              res.Gibbs_Sampler$param$normalization_values[[q]]) # XXXXX
+                                              posterior_sample$param$normalization_values[[q]]) # XXXXX
   count <- count + 3*K[q]
  }
  
@@ -116,7 +116,9 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
  thin     <- param[["thin"]]
  burnin   <- param[["burnin"]]
  lims.kde <- param[["lims.kde"]]
- new_grid <- param[["new_grid"]] # XXXXX
+ new_grid <- param[["new_grid"]] 
+ lims_estimate <- param[["lims_estimate"]] 
+ 
  
  # Initialize the necessary unspecified objects
  max_points <- 1e5 
@@ -132,6 +134,22 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
    cat("\t Burnin is too large. New burnin : ",burnin,".\n")
  }
  
+ 
+ # Compute the coefficient function on the new grid (if required).
+ if(!is.null(new_grid)){
+  old_beta_sample <- beta_sample
+  beta_sample <- matrix(0,nrow(beta_sample),p)
+  if(progress) 
+   cat("Compute the coefficient functions on the new grid.\n")
+  for(i in 1:nrow(beta_sample)){
+   beta_sample[i,] <- change_grid(old_beta_sample[i,],grid,new_grid)
+  }
+  param$old_grid <- grid
+  param$grid     <- new_grid
+  param$new_grid <- NULL # PMG 22/06/18
+  grid           <- new_grid
+ }
+ 
  # Thin the posterior sample 
  thin_min   <- max(1,floor((iter-burnin)*p/max_points))
  if(thin <  thin_min){
@@ -144,75 +162,24 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
   cat("\t Thin the sample.\n")
  beta_sample <- beta_sample[seq(1+burnin,iter,by=thin),]
  
- 
- # Compute the coefficient function on the new grid (if required).
- if(!is.null(new_grid)){
-  beta_sample_save <- beta_sample
-  beta_sample <- matrix(0,nrow(beta_sample),p)
-  if(progress) 
-   cat("Compute the coefficient functions on the new grid.\n")
-  for(i in 1:nrow(beta_sample)){
-   beta_sample[i,] <- finer_grid(beta_sample_save[i,],grid,new_grid)
-  }
-  param$old_grid <- grid
-  param$grid     <- new_grid
-  param$new_grid <- NULL # PMG 22/06/18
-  grid           <- new_grid
- }
- 
- # Remove the functions with a range too large which leads to a noninterpretable
- # graphical representation
- if(progress) 
-  cat("\t Drop the extreme values.\n") # XXXXXXX
- beta_x <- rep(grid,nrow(beta_sample))
- beta_y <- as.vector(t(beta_sample))
- 
- beta_x <- beta_x[beta_y %between% quantile(beta_y,c(0.01,0.99))]
- beta_y <- beta_y[beta_y %between% quantile(beta_y,c(0.01,0.99))]
- 
- # If a window is given to plot the posterior density.
- if(!is.null(lims.kde)){ # XXXXXXX # XXXXXXX
-  index   <- which(beta_y %between% lims.kde)
-  beta_x  <- beta_x[index]
-  beta_y  <- beta_y[index]
- }
- 
- ############ est-ce vraiment utile ? (surtout avec bandwidth.nrd ?)
- # If there are too much of beta_y=0 (more than 50%), the default bandwidth of the
- # density estimation of the kde function is 0, using the defaut function
- # bw.nrd0. Indeed, with this function the bandwidth is :
- #     bw = 0.9 * min( \hat{\sigma} , IQR /1.34 ) * n^{-1/5}
- # So, if there are to much of beta_y=0, we choose to reduce them to 25%.
- if(sum(beta_y==0)/length(beta_y) > 0.25){
-  if(progress) 
-   cat("\t Bandwidth untractrable. Some points are dropped.\n")
-  res.table <- table(beta_x[beta_y==0])
-  # remove all the points which y=0
-  beta_x <- beta_x[beta_y!=0]
-  beta_y <- beta_y[beta_y!=0]
-  Toadd <- length(beta_y)*0.25/(1-0.25)
-  
-  # Add 25% of them for some correct beta_x
-  beta_x_0 <- sample(as.numeric(names(res.table)),Toadd,prob=res.table,replace=T)
-  beta_y_0 <- rep(0,Toadd)
-  beta_x <- c(beta_x,beta_x_0)
-  beta_y <- c(beta_y,beta_y_0)
- }
- ############
- 
  # Perform the kde2d function
  if(progress) 
   cat("\t Perform the 'kde2d' function.\n")
+ beta_x <- rep(grid,nrow(beta_sample))
+ beta_y <- as.vector(t(beta_sample))
+ 
  h1 <- bandwidth.nrd(beta_x)
  h2 <- bandwidth.nrd(beta_y)
+ if(h2 == 0){
+  h2 <- 4 * 1.06 * sd(beta_y) * length(beta_y)^(-1/5)
+ }
  points <- cbind(beta_x,beta_y)
  
- lims.kde <- c(range(beta_x),range(beta_y)) # XXXX
- if(!is.null(param$xlim)) )) # XXXX
-  lims.kde[1:2] <- param$xlim
- if(!is.null(param$ylim)) )) # XXXX
-  lims.kde[3:4] <- param$ylim
- 
+ lims.kde <- c(range(beta_x), quantile(beta_y,c(0.025,0.975))) # PMG 04/07/18
+ if(lims.kde[3] >= 0 ) lims.kde[3] <- -h2/2 # PMG 04/07/18
+ if(lims.kde[4] <= 0 ) lims.kde[4] <- -h2/2 # PMG 04/07/18
+ if(lims.kde[3] >= lims_estimate[1] ) lims.kde[3] <- lims_estimate[1]-h2/2 # PMG 04/07/18
+ if(lims.kde[4] <= lims_estimate[2] ) lims.kde[4] <- lims_estimate[2]+h2/2 # PMG 04/07/18
  res.kde2d <- kde2d(x=beta_x,y=beta_y,lims=lims.kde,
                     n=N,h=c(h1,h2))
  
@@ -222,17 +189,11 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
  }else{
   new_beta_sample <- NULL
  }
- if(param[["thin"]] != thin){
-  new_thin <- thin
- }else{
-  new_thin <- NULL
- }
  
  return(list(grid_t          = res.kde2d$x,
              grid_beta_t     = res.kde2d$y,
              density         = res.kde2d$z,
-             new_beta_sample = beta_sample,
-             new_thin        = new_thin
+             new_beta_sample = beta_sample
              ))
  if(progress) 
   cat("\t Done.\n")
@@ -386,45 +347,40 @@ change_grid <- function(fct,grid,new_grid){
  res <- rep(0,length(new_grid))
  for(i in 1:(length(grid)-1)){
   index <- new_grid %between% grid[i:(i+1)]
-  res[index] <- fct[i] + 0:(sum(index)-1) /
-   (sum(index)-1) * (fct[i+1]-fct[i])
+  
+  res[index] = fct[i] + (fct[i+1]-fct[i]) * 
+   abs(new_grid[index] - grid[i]) / abs(grid[i] - grid[i+1])
  }
+ 
+ index <- new_grid < min(grid)
+ if(sum(index) == 1 ) res[index] = fct[1]
+ if(sum(index) > 1  ) stop("The range of 'new_grid' is too large." )
+ 
+ index <- new_grid > max(grid)
+ if(sum(index) == 1 ) res[index] = fct[length(fct)]
+ if(sum(index) > 1  ) stop("The range of 'new_grid' is too large." )
+ 
  return(res)
 }
 
+
 ################################# ----
-#' prior_l XXXXXXXXXXXXXx
+#' dexp_grid
 ################################# ----
-#' @description Compute the probability function of the Gamma prior on l.
-#' @return a numerical vector, which is the prability function on "grid_l".
-#' @param m a positive value, the mean of the Gamma prior.
-#' @param s a nonnegative value, the standard deviation of the Gamma prior.
-#' @param grid_l a numerical value, the discrete support of the parameter l.
+#' @description Compute the probability function of the Exponential prior on l. #XXXXXXXX
+#' @return a numerical vector, which is the prability function on "l_values".
+#' @param a a positive value, the mean of the Exponential prior.
+#' @param l_values a numerical value, the discrete support of the parameter l.
 #' @importFrom stats pgamma
 #' @export
 #' @examples
-#' grid_l <- seq(0,5,l=100)
-#' f <- prior_l(3,1,grid_l)
-#' plot(grid_l,f,type="h",xlab="",ylab="")
-#' f <- prior_l(1,0.5,grid_l)
-#' plot(grid_l,f,type="h",xlab="",ylab="")
-#' f <- prior_l(1,5,grid_l)
-#' plot(grid_l,f,type="h",xlab="",ylab="")
-prior_l <- function(m,s,grid_l){
- # Compute the scale and the rate
- alpha <- m^2/s^2
- beta  <- m/s^2
- 
- # Compute the probability function on the grid
- step <- diff(grid_l)[1] / 2
- probs <- pgamma(grid_l + step ,shape=alpha,rate=beta) -
-  pgamma(grid_l - step ,shape=alpha,rate=beta)
+pexp_grid <- function(a,l_values){
+ step <- diff(l_values)[1] / 2
+ probs <- pexp(l_values + step ,a) -
+  pexp(l_values - step ,a)
  
  return(probs)
 }
-
-
-
 
 
 

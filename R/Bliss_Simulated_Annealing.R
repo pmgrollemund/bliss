@@ -15,7 +15,7 @@
 #' }
 #' @param beta_sample a matrix. Each row is a coefficient function computed from the
 #'        posterior sample.
-#' @param scale_ml a matrix given by the function "Bliss_Gibbs_Sampler". XXXXXXX
+#' @param normalization_values a matrix given by the function "Bliss_Gibbs_Sampler". XXXXXXX
 #' @param param a list containing:
 #' \describe{
 #' \item{grid}{a numerical vector, the observation time points.}
@@ -45,31 +45,32 @@
 #'  #                res.Simulated_Annealing$posterior_expe))
 #' #plot(param$grid,res.Simulated_Annealing$Bliss_estimate,type="l",ylim=ylim)
 #' #lines(param$grid,res.Simulated_Annealing$posterior_expe,lty=2)
-Bliss_Simulated_Annealing <- function(beta_sample,scale_ml,param,progress=FALSE){
+Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,progress=FALSE){
  # load optional objects
  grid <- param[["grid"]]
  iter <- param[["iter"]]
- p    <- length(grid)
  Temp_init <- param[["Temp_init"]]
+ K         <- param[["K"]]
  k_max     <- param[["k_max"]]
  iter_sann <- param[["iter_sann"]]
  burnin    <- param[["burnin"]]
  l_max     <- param[["l_max_sann"]] # pas bon : changement de nom
  basis     <- param[["basis"]]
+ p    <- length(grid)
  
  # Initialize the necessary unspecified objects
  if(is.null(Temp_init)) Temp_init <- 1000
- # if(is.null(k_max))     k_max     <- 5
  if(is.null(k_max))     k_max     <- K  # PMG 22/06/18
  if(is.null(iter_sann)) iter_sann <- 1e5
- if(is.null(burnin))    burnin    <- floor(iter/5) # utile ? XXXXXXX
- if(is.null(l_max))     l_max     <- floor(p/5)
- if(is.null(basis))     basis     <- "uniform"
+ if(is.null(burnin))    burnin    <- floor(iter/5) 
+ if(is.null(l_max))     l_max     <- floor(p/5) # XXX a changer ?
+ if(is.null(basis))     basis     <- "Uniform"
  
- # Check if the burnin value is correct.
- if(iter <= burnin+1){
+ # Check if the burnin isn't too large.
+ if(2*burnin > iter){
   burnin <- floor(iter/5)
-  if(progress) cat("Burnin value is too large. New burnin value: ",burnin,"\n")
+  if(progress) 
+   cat("\t Burnin is too large. New burnin : ",burnin,".\n")
  }
  
  # dm and dl are related to the random walk.
@@ -85,7 +86,7 @@ Bliss_Simulated_Annealing <- function(beta_sample,scale_ml,param,progress=FALSE)
  res_sann_list[[1]] <- Bliss_Simulated_Annealing_cpp(iter_sann,beta_sample,
                                                      grid,burnin,Temp_init,k_max,
                                                      l_max,dm,dl,p,basis,
-                                                     scale_ml,
+                                                     normalization_values,
                                                      progress)
  # Derive a new initial temperature
  Temp_init <- min(abs(range(res_sann_list[[1]]$trace[,ncol(res_sann_list[[1]]$trace)])
@@ -95,7 +96,7 @@ Bliss_Simulated_Annealing <- function(beta_sample,scale_ml,param,progress=FALSE)
  res_sann_list[[2]] <- Bliss_Simulated_Annealing_cpp(iter_sann,beta_sample,
                                                      grid,burnin,Temp_init,k_max,
                                                      l_max,dm,dl,p,basis,
-                                                     scale_ml,
+                                                     normalization_values,
                                                      progress)
  # Derive a new initial temperature
  Temp_init <- min(abs(range(res_sann_list[[2]]$trace[,ncol(res_sann_list[[2]]$trace)])
@@ -105,7 +106,7 @@ Bliss_Simulated_Annealing <- function(beta_sample,scale_ml,param,progress=FALSE)
  res_sann_list[[3]] <- Bliss_Simulated_Annealing_cpp(iter_sann,beta_sample,
                                                      grid,burnin,Temp_init,k_max,
                                                      l_max,dm,dl,p,basis,
-                                                     scale_ml,
+                                                     normalization_values,
                                                      progress)
  # Comparison and selection
  mins      <- c(min(res_sann_list[[1]]$trace[,ncol(res_sann_list[[1]]$trace)]),
@@ -126,7 +127,7 @@ Bliss_Simulated_Annealing <- function(beta_sample,scale_ml,param,progress=FALSE)
  m        <- argmin[1:res_k+  k_max]
  l        <- argmin[1:res_k+2*k_max]
  k        <- argmin[3*k_max+2]
- estimate <- beta_build_cpp(b,m,l,grid,p,k,basis,scale_ml)
+ estimate <- compute_beta_cpp(b,m,l,grid,p,k,basis,normalization_values)
  
  return(list(Bliss_estimate  = estimate,
              Smooth_estimate = res_sann$posterior_expe,

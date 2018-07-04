@@ -66,7 +66,7 @@
 #' @export
 #' @examples
 #' # see the vignette BlissIntro.
-Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
+Bliss   <- function(data,param,do_beta_posterior_density=FALSE,sann=FALSE,
                     progress=FALSE){
  # define Q
  Q <- data[["Q"]]
@@ -100,7 +100,7 @@ Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
                               basis = param[["basis"]],
                               g     = param[["g"]],
                               p     = param[["p"]],
-                              grids = data$grids)
+                              grids = data[["grids"]])
   chains[[j]]$posterior_sample <- Bliss_Gibbs_Sampler(data,param.Gibbs_Sampler,progress)
   
   # Compute a posterior sample of coefficient function
@@ -112,55 +112,51 @@ Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
  posterior_sample <- chains[[j]]$posterior_sample
  beta_sample      <- chains[[j]]$beta_sample
  
- # Compute an approximation of the posterior density of the coefficient function
- beta_posterior_density <- list()
- if (do_beta_posterior_density){
-  for(q in 1:Q){
-   diff_grid <- diff(data$grids[[q]])[1]
-   param$new_grids[[q]] <- c(data$grids[[q]]-diff_grid/2,
-                          tail(data$grids[[q]],1)+diff_grid/2) #XXXXXXXX
-   param$xlim[[q]] <- range(param$new_grids[[q]])
-   
-   param.beta_density <- list(grid= data[["grids"]][[q]], 
-                              iter= param$iter,
-                              p   = param[["p"]][q],
-                              n        = length(data$y),
-                              thin     = param$thin,
-                              burnin   = param[["burnin"]],
-                              lims.kde = param$lims.kde[[q]],
-                              h1       = param$h1,
-                              new_grid = param[["new_grid"]],
-                              xlim     = range(param$grids[[q]]) + c(-diff_grid,
-                                                                     diff_grid),
-                              display = display
-                              )
-   beta_posterior_density[[q]] <-
-    compute_beta_posterior_density(beta_sample[[q]],param.beta_density) #XXXXXXXX
-  }
- }
- 
  # Execute the Simulated Annealing algorithm to estimate the coefficient function
  Bliss_estimation <- list()
  Bliss_estimate <- list()
  for(q in 1:Q){
-  param$Simulated_Annealing <- list( grid = param$grids[[q]], #XXXXXXXX
-                      iter = param[["iter"]],
-                      p    = param$p[q],
-                      Temp = param$Temp[q],
-                      k_max = param$k_max[q],
-                      iter_sann = param[["iter_sann"]],
-                      burnin    = param[["burnin"]],
-                      l_max     = param[["l_max_sann"]][q],
-                      basis     = param[["basis"]][q])
+  param.Simulated_Annealing <- list( grid = data[["grids"]][[q]],
+                                     iter = param[["iter"]],
+                                     p    = param[["p"]][q],
+                                     Temp = param[["Temp"]][q],
+                                     K    = param[["K"]][[q]],
+                                     k_max = param[["k_max"]][q],
+                                     iter_sann = param[["iter_sann"]],
+                                     burnin    = param[["burnin"]],
+                                     l_max     = param[["l_max_sann"]][q],
+                                     basis     = param[["basis"]][q])
   
   Bliss_estimation[[q]] <- Bliss_Simulated_Annealing(beta_sample[[q]],
-                                                     param$Simulated_Annealing,
-                                                     posterior_sample$param$scale_ml[[q]])  #XXXXXXXX
+                                                     posterior_sample$param$normalization_values[[q]],
+                                                     param.Simulated_Annealing)
   Bliss_estimate[[q]] <- Bliss_estimation[[q]]$Bliss_estimate
  }
  
+ # Compute an approximation of the posterior density of the coefficient function
+ beta_posterior_density <- list()
+ if (do_beta_posterior_density){
+  for(q in 1:Q){
+   param.beta_density <- list(grid= data[["grids"]][[q]], 
+                              iter= param[["iter"]],
+                              p   = param[["p"]][q],
+                              n        = length(data[["y"]]),
+                              thin     = param[["thin"]],
+                              burnin   = param[["burnin"]],
+                              lims.kde = param[["lims.kde"]][[q]],
+                              new_grid = param[["new_grids"]][[q]],
+                              lims_estimate = range(Bliss_estimation[[q]]$Smooth_estimate),
+                              progress = progress)
+   
+   beta_posterior_density[[q]] <-
+    compute_beta_posterior_density(beta_sample[[q]],param.beta_density) 
+  }
+ }
+ 
+
+ 
  # Compute the support estimate
- if(display) cat("Support estimation.\n")
+ if(progress) cat("Support estimation.\n")
  support_estimate <- list()
  alpha <- list()
  for(q in 1:Q){
@@ -175,7 +171,7 @@ Bliss   <- function(data,param,beta_posterior_density=FALSE,sann=FALSE,
  # compute the posterior density of theta=(mu,(b)_k,(m)_k,(l)_k,sigma)
  if(length(param$K)==1) #XXXXXXXX
   if(param$theta_posterior_density){
-   if(display) cat("Compute the (log) densities. \n")  #XXXXXXXX mettrte lkh et prior
+   if(progress) cat("Compute the (log) densities. \n")  #XXXXXXXX mettrte lkh et prior
    posterior_sample$posterior_density <- dposterior(posterior_sample,data)
   }
  

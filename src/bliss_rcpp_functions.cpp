@@ -81,13 +81,13 @@ arma::vec sample_weight (int n, arma::vec proba){
 }
 
 // Return the vector vec[-k].
-arma::vec vec_drop_k(arma::vec & vecteur, int k){
+arma::vec vec_drop_k(arma::vec vecteur, int k){
  vecteur.shed_row(k);
  return vecteur;
 }
 
 // Return the matrix mat[,-k].
-arma::mat mat_drop_col_k(arma::mat & matrix, int k){
+arma::mat mat_drop_col_k(arma::mat matrix, int k){
  matrix.shed_col(k);
  return matrix;
 }
@@ -141,9 +141,9 @@ arma::vec mvrnormArma(arma::vec mu, arma::mat VarCovar, double sigma_sq) {
 
 // Compute a trapezoidal approximation of area under curve.
 // [[Rcpp::export]]
-double integrate_trapeze (arma::vec & x, arma::vec & y){
-  vec diff_x = vec_drop_k(x,0) - vec_drop_k(x,x.size()-1);
-  vec cumu_y = vec_drop_k(y,0) + vec_drop_k(y,y.size()-1);
+double integrate_trapeze_cpp (arma::vec & x, arma::vec & y){
+ vec diff_x = vec_drop_k(x,0) - vec_drop_k(x,x.size()-1);
+ vec cumu_y = vec_drop_k(y,0) + vec_drop_k(y,y.size()-1);
   return sum( diff_x % cumu_y  )/2 ;
 }
 
@@ -154,7 +154,7 @@ double norm_fct(arma::vec & x,arma::vec & y){
     tmp(i) = pow( y(i),2 );
   }
   double res;
-  res = sqrt(integrate_trapeze(x,tmp));
+  res = sqrt(integrate_trapeze_cpp(x,tmp));
 
   return res;
 }
@@ -329,7 +329,7 @@ arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & l_ma
           x_tmp = trans(x.row(k)) ;
           tmp2  =  x_tmp % tmp ;
 
-          res(i,j,k) = integrate_trapeze(grid, tmp2 );
+          res(i,j,k) = integrate_trapeze_cpp(grid, tmp2 );
         }
       }
     }
@@ -342,7 +342,7 @@ arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & l_ma
           x_tmp = trans(x.row(k)) ;
           tmp2  =  x_tmp % tmp ;
 
-          res(i,j,k) = integrate_trapeze(grid, tmp2 );
+          res(i,j,k) = integrate_trapeze_cpp(grid, tmp2 );
         }
       }
     }
@@ -355,7 +355,7 @@ arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & l_ma
           x_tmp = trans(x.row(k)) ;
           tmp2  =  x_tmp % tmp ;
 
-          res(i,j,k) = integrate_trapeze(grid, tmp2 );
+          res(i,j,k) = integrate_trapeze_cpp(grid, tmp2 );
         }
       }
     }
@@ -368,7 +368,7 @@ arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & l_ma
           x_tmp = trans(x.row(k)) ;
           tmp2  =  x_tmp % tmp ;
 
-          res(i,j,k) = integrate_trapeze(grid, tmp2 );
+          res(i,j,k) = integrate_trapeze_cpp(grid, tmp2 );
         }
       }
     }
@@ -882,7 +882,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
 
 // Perform the Simulated Annealing algorithm to minimize the loss function
 // [[Rcpp::export]]
-List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::vec & grid,
+List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec & grid,
                                     int burnin, double Temp,int k_max,
                                     int l_max, int dm, int dl,
                                     int p,std::string basis, arma::mat & normalization_values,
@@ -890,12 +890,12 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
   if(progress) Rcpp::Rcout << "Simulated Annealing:" <<  std::endl;
   // Initialization
   if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;
-  int N = beta_functions.n_rows;
+  int N = beta_sample.n_rows;
   vec posterior_expe = zeros<vec>(p);
-  vec posterior_var  = zeros<vec>(p);
+  vec posterior_var  = zeros<vec>(p); // 
   for(int i=0 ; i<p ; ++i){
-    posterior_expe(i) = mean(beta_functions.col(i));
-    posterior_var(i)  =  var(beta_functions.col(i));
+    posterior_expe(i) = mean(beta_sample.col(i));
+    posterior_var(i)  =  var(beta_sample.col(i));
   }
 
   vec probs;
@@ -937,17 +937,17 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
   mat trace = zeros<mat>(iter+1,3*k_max+3);
 
   // Determine the start point
-  if(progress) Rcpp::Rcout << "\t Determine the start point." <<  std::endl;
+  if(progress) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
   probs = ones<vec>(k_max);
-  k      = sample_weight( probs )+1;
-  m      = zeros<vec>(k);
-  l      = zeros<vec>(k);
-  b   = zeros<vec>(k);
+  k     = sample_weight( probs )+1;
+  m     = zeros<vec>(k);
+  l     = zeros<vec>(k);
+  b     = zeros<vec>(k);
 
   probs = ones<vec>(p);
-  m(0)   = sample_weight( probs )+1;
-  probs = ones<vec>(l_max);
-  l(0)   = sample_weight( probs )+1;
+  m(0)  = sample_weight( probs )+1;
+  probs = ones<vec>(l_max); // besoin de lmax: a remplacer par du calcul de l_values
+  l(0)  = sample_weight( probs )+1;
 
   boundary_min = m(0)-l(0)-1;
   boundary_max = m(0)+l(0)-1;
@@ -961,7 +961,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
       // Compute the difference ...
       difference = abs(posterior_expe - d);
       // ... and its smoothed version.
-      difference = moving_average_cpp(difference,4);
+      difference = moving_average_cpp(difference,floor(p/10));
 
       // Which intervals are possible ?
       for(int o=0 ; o<i ; ++o){
@@ -1035,11 +1035,11 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
     if( (i+1) % (iter / 10)  == 0)
       if(progress) Rcpp::Rcout << "\t " << (i+1) / (iter / 100) << "%" << std::endl;
     // Initialize the proposal
-    b_tmp = b;
-    m_tmp    = m   ;
-    l_tmp    = l   ;
-    k_tmp    = k   ;
-    accepted  = 0   ;
+    b_tmp     = b ;
+    m_tmp     = m ;
+    l_tmp     = l ;
+    k_tmp     = k ;
+    accepted  = 0 ;
     choice_prob_interval = ones<vec>(k);
 
     // Choose a move
@@ -1137,7 +1137,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
       // compute the difference ...
       difference = posterior_expe - d;
       // ... and its smoothed version
-      difference = moving_average_cpp(difference,4);
+      difference = moving_average_cpp(difference,floor(p/10));
 
       // Which intervals are possible ?
       for(int o=0 ; o<k ; ++o){
@@ -1235,9 +1235,12 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat beta_functions, arma::ve
   // Return the result
   if(progress) Rcpp::Rcout << "\t Return the result." <<  std::endl;
   return  List::create(_["trace"]         =trace,
-                       _["posterior_expe"]=posterior_expe,
-                       _["posterior_var"] =posterior_var);
+                       _["posterior_expe"]=posterior_expe);
 }
+
+
+
+
 
 // Perform the Simulated Annealing algorithm to minimize the loss function
 // [[Rcpp::export]]

@@ -6,7 +6,7 @@
 #' @return a list containing :
 #' \describe{
 #'  \item{trace}{a matrix. Each row is a draw from the posterior.}
-#'  \item{param}{a list containing K and scale_ml} # XXXXXX
+#'  \item{param}{a list containing K and normalization_values} # XXXXXX
 #' }
 #' @param data a list containing:
 #' \describe{
@@ -64,12 +64,12 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  if(is.null(basis)){
   basis <- character()
   for (q in 1:Q){
-   basis[q] <- "uniform"
+   basis[q] <- "Uniform"
   }
  }
  if(!is.null(basis)){
   for (q in 1:Q){
-   if(is.na(basis[q])){basis[q] <- "uniform"}
+   if(is.na(basis[q])){basis[q] <- "Uniform"}
   }
  }
  if(is.null(g))       g <- length(y)
@@ -83,51 +83,11 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  }
  l_values_length <- sapply(l_values,length)
  
- 
- #### Passage a bien changer !
- # if (is.null(phi_l_mean)) phi_l_mean <- rep(NA,Q)
- # if (is.null(phi_l_sd))   phi_l_sd <- rep(NA,Q)
- # for(q in 1:Q){
- #  if(!is.null(phi_l[[q]]) &&
- #     is.character(phi_l[[q]]) && phi_l[[q]] != "Gamma")
- #   stop("The qth component of phi_l should be a numeric vector or 'Gamma'.")
- #  if(!is.null(phi_l[[q]]) &&
- #     is.character(phi_l[[q]]) && phi_l[[q]] == "Gamma"){
- #   
- #   if(is.na(phi_l_mean[q])) phi_l_mean[q] <-
- #     diff(range(grids[[q]]))/5 + grids[[q]][1]
- #   if(is.na(phi_l_sd[q]))   phi_l_sd[q]   <-
- #     diff(range(grids[[q]]))/5
- #   phi_l[[q]] <- prior_l(phi_l_mean[q]/K[q],phi_l_sd[q]/K[q],l_values[[q]])
- #  }
- # }
- # if(is.null(phi_l)){
- #  phi_l <- list()
- #  for (q in 1:Q){
- #   if(is.null(l_max)) l_max <- floor(p/5)
- #   if(!is.null(l_max) & is.na(l_max[q])){l_max[q] <- floor(p[q]/5)}
- #   phi_l[[q]] <- rep(1/l_max[q],l_max[q])
- #  }
- # }
- # for (q in 1:Q){
- #  l_max[q] <- length(phi_l[[q]])
- # }
- # if(!is.null(phi_m)){
- #  for (q in 1:Q){
- #   if(is.na(phi_m[[q]])){phi_m[[q]] <- rep(1/p[q],p[q])}
- #  }
- # }
- # if(is.null(phi_m)){
- #  phi_m <- list()
- #  for (q in 1:Q){
- #   phi_m[[q]] <- rep(1/p[q],p[q])
- #  }
- # }
- #
+ # Determine the prior distribution of l
  Probs_l <- l_values
- Probs_l[[1]] <- rep(1,length(Probs_l[[1]]))/length(Probs_l[[1]]) 
- Probs_l[[2]] <- rep(1,length(Probs_l[[2]]))/length(Probs_l[[2]]) 
- ######
+ for(q in 1:Q){
+  Probs_l[[q]] <- pexp_grid( 5*K[q] , l_values[[q]] )
+ }
  
  if(progress){
   progress_cpp <- TRUE
@@ -139,7 +99,6 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
                                 iter,K,basis,
                                 g,lambda,V_tilde, l_values,l_values_length,Probs_l,
                                 progress_cpp,tol=sqrt(.Machine$double.eps))
- # option a changer ?
  
  trace_names <- NULL
  if(Q == 1){
