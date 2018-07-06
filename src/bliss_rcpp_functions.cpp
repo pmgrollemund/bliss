@@ -565,7 +565,7 @@ void update_sigma_sq (arma::vec & y, arma::vec & b_tilde, arma::mat & W_inv,
 // [[Rcpp::export]]
 void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde, 
                           arma::mat & Sigma_b_tilde_inv, double tol,
-                          vec & b_tilde) {
+                          arma::vec & b_tilde) {
   vec mu_b_tilde = trans(x_tilde) * y;
   b_tilde = mvrnormArma( ginv_cpp(Sigma_b_tilde_inv,tol) * mu_b_tilde ,
                          ginv_cpp(Sigma_b_tilde_inv,tol), sigma_sq);
@@ -623,7 +623,7 @@ void update_x_tilde (int Q, arma::vec & K, List & potential_intervals,
 List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
                               int iter, arma::vec & K, CharacterVector & basis, 
                               double g, double lambda ,arma::mat & V_tilde, 
-                              List & l_values, vec & l_values_length,List & probs_l, 
+                              List & l_values, arma::vec & l_values_length,List & probs_l, 
                               bool progress, double tol) {
   if(progress) Rcpp::Rcout << "Gibbs Sampler: " <<  std::endl;
   if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;
