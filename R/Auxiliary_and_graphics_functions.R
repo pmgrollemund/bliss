@@ -1,10 +1,10 @@
 ################################# ----
-#' image.Bliss
+#' image_Bliss
 ################################# ----
 #' @description Plot an approximation of the posterior density.
 #' @param beta_posterior_density a list. The result of the function
 #'                 \code{compute_beta_posterior_density}.
-#' @param param a list containing: 
+#' @param param a list containing:
 #' \describe{
 #' \item{cols}{a vector of colors for the function image (optional).}
 #' \item{col_scale}{a character vector.} XXXXX
@@ -15,36 +15,38 @@
 #' @importFrom grDevices heat.colors
 #' @export
 #' @examples
+#' \donttest{
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- Bliss_multiple(data=data1,param=param1,density=TRUE)
+#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1,density=TRUE)
 #' param1$cols <- colorRampPalette(brewer.pal(9,"Reds"))(1e2)
-#' image.Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
 #' lines(param1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(param1$grids[[1]],data1$beta_function[[1]],col=3,lwd=2,type="s")
 #'
 #' param1$cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
-#' image.Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
 #' lines(param1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(param1$grids[[1]],data1$beta_function[[1]],col=3,lwd=2,type="s")
 #'
 #' param1$cols <- rev(heat.colors(12))
 #' param1$col_scale <- "quantile"
-#' image.Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
 #' lines(param1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(param1$grids[[1]],data1$beta_function[[1]],col=3,lwd=2,type="s")
 #'
 #' param1$cols <- rev(terrain.colors(12))
-#' image.Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
 #' lines(param1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(param1$grids[[1]],data1$beta_function[[1]],col=2,lwd=2,type="s")
 #'
 #' param1$cols <- rev(topo.colors(12))
-#' image.Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
 #' lines(param1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(param1$grids[[1]],data1$beta_function[[1]],col=2,lwd=2,type="s")
-image.Bliss <- function(beta_posterior_density,param){
+#' }
+image_Bliss <- function(beta_posterior_density,param){
  cols      <- param[["cols"]] #Ceci n'est pas une modification pmg 08-03-18
  col_scale <- param[["col_scale"]] # XXX
  ylim      <- param[["ylim"]]
@@ -55,7 +57,7 @@ image.Bliss <- function(beta_posterior_density,param){
  breaks <- seq(min(as.vector(beta_posterior_density$res.kde2d$z)),
                 max(as.vector(beta_posterior_density$res.kde2d$z)),
                 length=length(cols)+1)
- 
+
  xlim <- range(beta_posterior_density$res.kde2d$x)
  if(is.null(ylim)) ylim <- range(beta_posterior_density$res.kde2d$y)
  if(is.null(main)) main <- ""
@@ -63,10 +65,10 @@ image.Bliss <- function(beta_posterior_density,param){
        col=cols,breaks = breaks,main=main,ylim=ylim,xlim=xlim)
 }
 ################################# ----
-#' plot.bliss
+#' plot_bliss
 ################################# ----
 #' @description A suitable representation of the Bliss estimate.
-#' @param extended_grid a numerical vector, a new grid to provide a suitable 
+#' @param extended_grid a numerical vector, a new grid to provide a suitable
 #'        representation.
 #' @param fct a numerical vector, the function to plot.
 #' @param bound a logical value. If bound is TRUE, the plot of fct is one line.
@@ -76,24 +78,26 @@ image.Bliss <- function(beta_posterior_density,param){
 #' @importFrom graphics abline segments
 #' @export
 #' @examples
+#' \donttest{
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- Bliss_multiple(data=data1,param=param1)
+#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
 #' ### Plot the BLiss estimate on a suitable grid
-#' plot.bliss(res_Bliss_mult$param$grids[[1]],
+#' plot_bliss(res_Bliss_mult$param$grids[[1]],
 #'                    res_Bliss_mult$Bliss_estimate[[1]],lwd=2,bound=FALSE)
-plot.bliss <- function(extended_grid,fct,bound=FALSE,...){
+#' }
+plot_bliss <- function(extended_grid,fct,bound=FALSE,...){
  ylim <- range(fct)
  plot(extended_grid,extended_grid,type="n",ylim=ylim,...)
- lines.bliss(extended_grid,fct,bound=bound,...)
+ lines_bliss(extended_grid,fct,bound=bound,...)
 }
 
 
 ################################# ----
-#' lines.bliss
+#' lines_bliss
 ################################# ----
 #' @description A suitable representation of the Bliss estimate.
-#' @param extended_grid a numerical vector, a new grid to provide a suitable 
+#' @param extended_grid a numerical vector, a new grid to provide a suitable
 #'        representation.
 #' @param fct a numerical vector, the function to plot.
 #' @param bound a logical value. If bound is TRUE, the plot of fct is one line.
@@ -102,7 +106,7 @@ plot.bliss <- function(extended_grid,fct,bound=FALSE,...){
 #' @export
 #' @examples
 #' ### Plot the BLiss estimate on a suitable grid
-lines.bliss <- function(extended_grid,fct,bound=FALSE,...){
+lines_bliss <- function(extended_grid,fct,bound=FALSE,...){
  for(i in 1:length(extended_grid)){
   segments(extended_grid[i],fct[i],
            extended_grid[i+1],fct[i],
@@ -125,7 +129,7 @@ lines.bliss <- function(extended_grid,fct,bound=FALSE,...){
 #' @param data a list containing:
 #' \describe{
 #' \item{Q}{an integer, the number of covariates,}
-#' \item{x}{a list of matrices, the qth matrix contains the observation of the 
+#' \item{x}{a list of matrices, the qth matrix contains the observation of the
 #'       qth functional covariate at time points given by grids,}
 #' \item{y}{a numerical vector, the outcome values y_i.}
 #' }
@@ -137,7 +141,7 @@ lines.bliss <- function(extended_grid,fct,bound=FALSE,...){
 #' \donttest{
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- Bliss_multiple(data=data1,param=param1)
+#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
 #' interpretation_plot(res_Bliss_mult$Bliss_estimate[[1]],data1)
 #' interpretation_plot(res_Bliss_mult$Bliss_estimate[[1]],data1,centered=FALSE)
 #' }
@@ -150,7 +154,7 @@ interpretation_plot <- function(estimate,data,q=1,centered=FALSE,cols=NULL){
   grid0 <- c(grid0 , max(data$grids[[q]]) + 0.5*diff(data$grids[[q]])[1]  )
 
   x_centered <- scale(x,scale=F)
-  
+
   new_grid <- rep(0,2*length(grid)+1)
   new_grid[seq(2,length(new_grid),by=2)] <- grid
   new_grid[seq(3,length(new_grid),by=2)] <- grid + 0.5*diff(grid)[1]
@@ -242,7 +246,7 @@ interpretation_plot <- function(estimate,data,q=1,centered=FALSE,cols=NULL){
 #' @param data a list containing:
 #' \describe{
 #' \item{Q}{an integer, the number of covariates,}
-#' \item{x}{a list of matrices, the qth matrix contains the observation of the 
+#' \item{x}{a list of matrices, the qth matrix contains the observation of the
 #'       qth functional covariate at time points given by grids,}
 #' \item{y}{a numerical vector, the outcome values y_i.}
 #' }
@@ -252,6 +256,7 @@ interpretation_plot <- function(estimate,data,q=1,centered=FALSE,cols=NULL){
 #' @importFrom graphics image
 #' @export
 #' @examples
+#' \donttest{
 #' library(RColorBrewer)
 #' ### Autocorrelation of the function x_i(t)
 #' param <- list(n=50,p=100,beta_type="smooth")
@@ -259,11 +264,10 @@ interpretation_plot <- function(estimate,data,q=1,centered=FALSE,cols=NULL){
 #' res_autocorr <- autocorr(data)
 #' cols <- rev(colorRampPalette(brewer.pal(9,"YlOrRd"))(50))
 #' image(res_autocorr,col=cols)
-#' \donttest{
 #' ### Autocorrelation of the function beta_j(t).
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- Bliss_multiple(data=data1,param=param1)
+#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
 #' beta_functions_autocorr <- autocorr(list(grid = data1$grids[[1]],
 #'                                          x = res_Bliss_mult$beta_functions[[1]]))
 #' image(beta_functions_autocorr)
@@ -272,7 +276,7 @@ autocorr <- function(data,plot=F,q=1){
  # Initialize
  x     <- data$x[[q]]
  x.cor <- matrix(0,ncol(x),ncol(x))
- 
+
  # Compute the correlations
  for(i in 1:ncol(x)){
   for(j in i:ncol(x)){
@@ -280,10 +284,10 @@ autocorr <- function(data,plot=F,q=1){
    x.cor[j,i] <- cor(x[,i],x[,j])
   }
  }
- 
+
  # Plot the autocorrelation ?
  if(plot) image(x.cor)
- 
+
  # Return the result
  return(x.cor)
 }
@@ -296,18 +300,18 @@ autocorr <- function(data,plot=F,q=1){
 #'              function \code{Bliss_Gibbs_Sampler}.
 #' @return A list containing the diagnostics which can be plotted with the
 #'         function "plot_diagnostics".
-#' @details The implementation does not tackle the issue of several 
-#'          functional covariates. 
-#' @param chains a list. Each element contains: 
+#' @details The implementation does not tackle the issue of several
+#'          functional covariates.
+#' @param chains a list. Each element contains:
 #' \describe{
 #' \item{res.Gibbs_Sampler}{a list resulting of the function Bliss_Gibbs_Sampler.}
 #' }
 #' @param param a list
 #' \describe{
 #' \item{iter}{an integer, the number of iterations of the Gibbs sampler algorithm.}
-#' \item{burnin}{an integer, the number of iteration to drop from the Gibbs 
+#' \item{burnin}{an integer, the number of iteration to drop from the Gibbs
 #'       sample. (optional)}
-#' \item{K}{a vector of integers, corresponding to the numbers of intervals for 
+#' \item{K}{a vector of integers, corresponding to the numbers of intervals for
 #'       each covariate.}
 #' \item{p}{XXXXXX}
 #' \item{ts}{a vector. The sample of time points t_j used for compute some diagnostics of beta(t_j). (optional)}
@@ -319,6 +323,7 @@ autocorr <- function(data,plot=F,q=1){
 #' @importFrom stats cor density
 #' @export
 #' @examples
+#' \donttest{
 #' data(data1)
 #' data(param1)
 #' param1$n_chains <- 3
@@ -326,7 +331,7 @@ autocorr <- function(data,plot=F,q=1){
 #' param1$burnin <- 1e2
 #' param1$progress <- FALSE
 #' param1$compute_posterior <- FALSE
-#' res_bliss_chains <- Bliss_multiple(data1,param1)
+#' res_bliss_chains <- fit_Bliss(data1,param1)
 #' res_diagnostic <- diagnostics(res_bliss_chains$chains,param1)
 #' cols <- makeTransparent(2:5,0.8)
 #' plot(res_diagnostic$hist_mu[[1]],border=0,col=cols[1],main="",xlab="",ylab="")
@@ -336,6 +341,7 @@ autocorr <- function(data,plot=F,q=1){
 #' plot(res_diagnostic$density_beta[[4]][[1]],main="",xlab="",ylab="")
 #' for(c in 2:3){
 #'    lines(res_diagnostic$density_beta[[4]][[c]],col=c)
+#' }
 #' }
 diagnostics <- function(chains,param,progress=FALSE){
   if(progress) cat("Compute some diagnostics on the posterior sample. \n")
@@ -527,6 +533,7 @@ diagnostics <- function(chains,param,progress=FALSE){
 #' @importFrom ggplot2 aes aes_string geom_histogram ggplot scale_fill_manual
 #' @export
 #' @examples
+#' \donttest{
 #' data(data1)
 #' data(param1)
 #' param1$n_chains <- 3
@@ -534,9 +541,10 @@ diagnostics <- function(chains,param,progress=FALSE){
 #' param1$burnin <- 1e2
 #' param1$progress <- FALSE
 #' param1$compute_posterior <- FALSE
-#' res_bliss_chains <- Bliss_multiple(data1,param1)
+#' res_bliss_chains <- fit_Bliss(data1,param1)
 #' res_diagnostic <- diagnostics(res_bliss_chains$chains,param1)
 #' plot_diagnostics(res_diagnostic,param1,which_plot="mu")
+#' }
 plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,time=NULL){
  if(is.null(which_plot)) stop("Please specify which diagnostics you want : 'mu', 'sigma_sq' or 'beta' ?")
  if(which_plot == "beta"){
@@ -548,7 +556,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
   }
   if(!( time %in% res_diagnostics$ts)) stop("'time' must belong to 'ts'.")
  }
- 
+
  # load objects
  if(which_plot == "mu"){
   DF_mu           <- res_diagnostics$DF_mu
@@ -578,7 +586,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
   breaks_beta       <- res_diagnostics$breaks_beta
   n_class <- length(hist_beta[[1]][[1]]$breaks)-1
  }
- 
+
  # Initialize
  n_chains     <- param[["n_chains"]]
  if(n_chains < 5){
@@ -588,7 +596,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
  lags    <- res_diagnostics$lags
  ts      <- res_diagnostics$ts
  l_ts    <- length(ts)
- 
+
  if(is.numeric(chain)){ # For a specific chain or ...
   if(which_plot == "mu"){
    # Trace of mu
@@ -657,7 +665,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    for(j in 1:n_chains){
     lines(lags+j/(n_chains+1),autocorr_lag_mu[,j],type="h",col=cols_chains[j])
    }
-   
+
    breaks_mu <- hist_mu[[1]]$breaks
    step_mu   <- diff( breaks_mu )[1]
    # Histograms of the empirical posterior distribution of mu
@@ -666,7 +674,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    print(ggplot(data=DF_mu, aes_string(x="obs", fill="chain")) +
           geom_histogram(binwidth=5*step_mu, colour="black", position="dodge") +
           scale_fill_manual(breaks=paste("chain_",1:n_chains,sep=""), values=cols_chains))
-   
+
    readline(paste("Press [enter] to plot another histogram of the posterior sample of mu :",sep=""))
    matrix_layout <- matrix(c(rep(1,3),2), 1, 4, byrow = TRUE)
    layout(matrix_layout)
@@ -701,7 +709,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    for(j in 1:n_chains){
     lines(lags+j/(n_chains+1),autocorr_lag_sigma[,j],type="h",col=cols_chains[j])
    }
-   
+
    breaks_sigma <- hist_sigma[[1]]$breaks
    step_sigma   <- diff( breaks_sigma )[1]
    # Histograms of the empirical posterior distribution of sigma_sq
@@ -710,7 +718,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    print(ggplot(DF_sigma, aes_string(x="obs", fill="chain")) +
           geom_histogram(binwidth=5*step_sigma, colour="black", position="dodge") +
           scale_fill_manual(breaks=paste("chain_",1:n_chains,sep=""), values=cols_chains))
-   
+
    readline(paste("Press [enter] to plot another histogram of the posterior sample of sigma_sq :",sep=""))
    matrix_layout <- matrix(c(rep(1,3),2), 1, 4, byrow = TRUE)
    layout(matrix_layout)
@@ -727,7 +735,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    text(x=rep(0.3,n_chains), y = seq(0,1,l=n_chains+2)[-c(1,n_chains+2)],
         labels = rev(paste("chain_",1:n_chains,sep="")),cex=1)
    layout(1)
-   
+
   }
   if(which_plot == "beta"){
    ts_index <- which(ts == time)
@@ -742,7 +750,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    text(x=rep(0.3,n_chains), y = seq(0,1,l=n_chains+2)[-c(1,n_chains+2)],
         labels = rev(paste("chain_",1:n_chains,sep="")),cex=1)
    layout(1)
-   
+
    # Autocorrelation of beta( time )
    readline(paste("Press [enter] to plot the autocorrelation of beta(",round(data$grid[time],2),"):",sep=""))
    matrix_layout <- matrix(c(rep(1,3),2), 1, 4, byrow = TRUE)
@@ -757,7 +765,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    text(x=rep(0.3,n_chains), y = seq(0,1,l=n_chains+2)[-c(1,n_chains+2)],
         labels = rev(paste("chain_",1:n_chains,sep="")),cex=1)
    layout(1)
-   
+
    step_beta   <- diff( breaks_beta[,ts_index] )[1]
    # Histograms of the empirical posterior distribution of beta( time )
    readline(paste("Press [enter] to plot the histogram of the posterior sample of beta(",round(data$grid[time],2),"):",sep=""))
@@ -765,7 +773,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    print(ggplot(DF_beta[[ts_index]], aes_string(x="obs", fill="chain")) +
           geom_histogram(binwidth=5*step_beta, colour="black", position="dodge") +
           scale_fill_manual(breaks=paste("chain_",1:n_chains,sep=""), values=cols_chains))
-   
+
    readline(paste("Press [enter] to plot another trace of beta(",round(data$grid[time],2),"):",sep=""))
    matrix_layout <- matrix(c(rep(1,3),2), 1, 4, byrow = TRUE)
    layout(matrix_layout)
@@ -783,7 +791,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    text(x=rep(0.3,n_chains), y = seq(0,1,l=n_chains+2)[-c(1,n_chains+2)],
         labels = rev(paste("chain_",1:n_chains,sep="")),cex=1)
    layout(1)
-   
+
   }
  }
 }
@@ -801,15 +809,16 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
 #' @param theta a matrix or a vector which contains the parameter set. XXXX
 #' @details If the option theta is NULL, the posterior density is computed for
 #'          the MCMC sample given in the "res.Gibbs_Sampler" object.
-#' @return Return the (log) posterior density, the (log) likelihood and the 
-#'         (log) prior density for the given parameter set. 
+#' @return Return the (log) posterior density, the (log) likelihood and the
+#'         (log) prior density for the given parameter set.
 #' @useDynLib bliss
 #' @importFrom Rcpp sourceCpp
 #' @export
 #' @examples
+#' \donttest{
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- Bliss_multiple(data=data1,param=param1)
+#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
 #' # Compute the posterior density of the MCMC sample :
 #' res_poste <- dposterior(res_Bliss_mult$res.Gibbs_Sampler,data1)
 #' ### Compute the posterior density of the MCMC sample :
@@ -818,6 +827,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
 #' l = rbind(c(10,10,5),c(10,5,5)),
 #' mu=c(1,1.5),sigma_sq=c(1,0.5))
 #' dposterior(res_Bliss_mult$res.Gibbs_Sampler,data1,theta=theta)
+#' }
 dposterior <- function(res.Gibbs_Sampler,data,theta=NULL){ # XXXXXXXx
  if(!is.null(theta)){
   if( length(theta$mu) != 1){
@@ -832,7 +842,7 @@ dposterior <- function(res.Gibbs_Sampler,data,theta=NULL){ # XXXXXXXx
   K <- res.Gibbs_Sampler$param$K[1]
  }
  N <- nrow(rposterior)
- 
+
  y <- data$y
  all_intervals <- res.Gibbs_Sampler$param$all_intervals
  scale_ml      <- res.Gibbs_Sampler$param$scale_ml
@@ -841,7 +851,7 @@ dposterior <- function(res.Gibbs_Sampler,data,theta=NULL){ # XXXXXXXx
                          length(data$y))
  lambda <- 5
  lmax <- res.Gibbs_Sampler$param$l_max
- 
+
  res <- dposterior_cpp(rposterior,y,N,K,all_intervals[[1]],all_intervals_dims,
                        lambda,lmax)
  colnames(res) <- c("posterior density","log posterior density",

@@ -2,29 +2,30 @@
 % Please edit documentation in R/basic_functions.R
 \name{support_estimation}
 \alias{support_estimation}
-\title{support_estimation}
+\title{support_estimation XXXXXXXXX}
 \usage{
-support_estimation(beta_functions)
+support_estimation(beta_sample)
 }
 \arguments{
-\item{beta_functions}{a matrix for which each row is an evaluation of a function on a grid.}
+\item{beta_sample}{a matrix. Each row is a coefficient function computed from the
+posterior sample.}
 }
 \value{
-a list
+a list containing:
 \describe{
-\item{alpha_t}{a numerical vector. For each point t, alpha(t) is the probability that beta(t) is non-null}
-\item{estimate}{a matrix given by the function "interval_detection", which give the estimation of
-the support of the coefficient function}
+ \item{alpha}{a numerical vector. XXXXXXX}
+ \item{estimate}{a numerical vector. XXXXXXX}
 }
 }
 \description{
-Compute the estimate of the support of the coefficient function.
+Compute the support estimate.
 }
 \examples{
+\donttest{
 data(data1)
 data(param1)
-res_Bliss_mult <- Bliss_multiple(data=data1,param=param1)
-res.support <- support_estimation(res_Bliss_mult$beta_functions[[1]])
+res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
+res.support <- support_estimation(res_Bliss_mult$beta_sample[[1]])
  ### The estimate
  res.support$estimate
  ### Plot the result
@@ -37,4 +38,5 @@ res.support <- support_estimation(res_Bliss_mult$beta_functions[[1]])
    points(grid[res.support$estimate[k,2]],0.5,pch="|",lwd=2,col=2)
  }
  abline(h=0.5,col=2,lty=2)
+}
 }

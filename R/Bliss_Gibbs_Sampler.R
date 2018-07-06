@@ -35,12 +35,14 @@
 #' @importFrom stats var
 #' @export
 #' @examples
+#' \donttest{
 #' data(data1)
 #' data(param1)
-#' res_Bliss_Gibbs_Sampler <- Bliss_Gibbs_Sampler_multiple(data1,param1)
+#' res_Bliss_Gibbs_Sampler <- Bliss_Gibbs_Sampler(data1,param1)
 #' K       <- param1$K
 #' theta_1 <- res_Bliss_Gibbs_Sampler$trace[1,]
 #' theta_1
+#' }
 Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  # load objects
  x     <- data[["x"]]
@@ -52,7 +54,7 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  K     <- param[["K"]]
  g     <- param[["g"]]
  p     <- param[["p"]]
- 
+
  # Initialize the required unspecified objects
  if(is.null(K)) stop("Please specify a value for the vector K.")
  if(!is.null(K)){
@@ -75,20 +77,20 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  if(is.null(g))       g <- length(y)
  lambda <- 5 # a mettre dans le cpp ?
  V_tilde <- diag(1+sum(K)) # a mettre dans le cpp ?
- 
+
  # Determine the possible values of l
  l_values <- list()
  for (q in 1:Q){
-  l_values[[q]] <- (grids[[q]] - grids[[q]][1])[-1] 
+  l_values[[q]] <- (grids[[q]] - grids[[q]][1])[-1]
  }
  l_values_length <- sapply(l_values,length)
- 
+
  # Determine the prior distribution of l
  Probs_l <- l_values
  for(q in 1:Q){
   Probs_l[[q]] <- pexp_grid( 5*K[q] , l_values[[q]] )
  }
- 
+
  if(progress){
   progress_cpp <- TRUE
  }else{
@@ -99,7 +101,7 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
                                 iter,K,basis,
                                 g,lambda,V_tilde, l_values,l_values_length,Probs_l,
                                 progress_cpp,tol=sqrt(.Machine$double.eps))
- 
+
  trace_names <- NULL
  if(Q == 1){
   for(k in 1:K[q]){

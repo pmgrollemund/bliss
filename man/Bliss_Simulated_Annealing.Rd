@@ -4,40 +4,51 @@
 \alias{Bliss_Simulated_Annealing}
 \title{Bliss_Simulated_Annealing}
 \usage{
-Bliss_Simulated_Annealing(beta_functions, param, scale_ml)
+Bliss_Simulated_Annealing(beta_sample, normalization_values, param,
+  progress = FALSE)
 }
 \arguments{
-\item{beta_functions}{a matrix. Each row is a coefficient function computed from the posterior sample.}
+\item{beta_sample}{a matrix. Each row is a coefficient function computed from the
+posterior sample.}
 
-\item{param}{a list containing :
+\item{normalization_values}{a matrix given by the function "Bliss_Gibbs_Sampler". XXXXXXX}
+
+\item{param}{a list containing:
 \describe{
-\item{grid}{a numerical vector which countains the observation time points.}
-\item{burnin}{an integer, the number of iterations to drop from the Gibbs sample. (optional)}
+\item{grid}{a numerical vector, the observation time points.}
+\item{burnin}{an integer, the number of iterations to drop from the Gibbs
+      sample. (optional)}
 \item{iter}{an integer, the number of iteration of the Gibbs Sampler algorithm.}
-\item{iter_sann}{an integer, the number of iteration of the Simulated Annealing algorithm. (optional)}
-\item{Temp}{a non negative value, the initial temperature for the cooling function of the Simulated Annealing. (optional)}
-\item{k_max}{an integer, the maximum number of intervals. (optional)}
-\item{l_max_sann}{an integer, the maximum value for the parameter l. (optional)}
-\item{basis}{a character vectors, used to compute the coefficient function, see the function beta_build. (optional)}
+\item{iter_sann}{an integer, the number of iteration of the Simulated
+      Annealing algorithm. (optional)} XXXXXXX
+\item{Temp_init}{a non negative value, the initial temperature for the
+      cooling function of the Simulated Annealing. (optional)}
+\item{k_max}{an integer, the maximum number of intervals. (optional)} XXXXXXX
+\item{l_max_sann}{an integer, the maximum value for the parameter l. (optional)} XXXXXXX
+\item{basis}{a character vectors, used to compute the coefficient function,
+      see the function beta_build. (optional)} XXXXXXX
+\item{K}{a vector of integers, corresponding to the numbers of intervals for
+      each covariate.}
 }}
 
-\item{scale_ml}{a matrix returned by the function "Bliss_Gibbs_Sampler".}
+\item{progress}{a logical value. If TRUE, the algorithm progress is displayed.
+(optional)}
 }
 \value{
-a list containing :
+a list containing:
 \describe{
- \item{Bliss_estimate}{a numerical vector, corresponding to the Bliss estimate.}
- \item{posterior_expe}{a numerical vector, which is the posterior expectation of beta(t), for each t in the
-                grid ot time points.}
- \item{posterior_var}{a numerical vector, which is the posterior expectation of beta(t), for each t in the
-                grid ot time points.}
+ \item{Bliss_estimate}{a numerical vector, corresponding to the Bliss estimate
+       of the coefficient function.}
+ \item{Smooth_estimate}{a numerical vector, which is the posterior expectation
+       of beta(t), for each t in the grid ot time points.}
  \item{trace}{Each row is an iteration of the Simulated Annealing algorithm.}
- \item{argmin}{an integer, which is the index of the iteration minimizing the loss.}
+ \item{argmin}{an integer, which is the index of the iteration minimizing
+       the Bliss loss.}
 }
 }
 \description{
-Simulated Annealing algorithm to determine the minimum of the posterior expectation Bliss loss, i.e. the
-              Bliss estimate.
+A Simulated Annealing algorithm to determine the Bliss estimate,
+             i.e. the minimum of the posterior expectation of the Bliss loss.
 }
 \examples{
 data(data1)

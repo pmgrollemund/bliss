@@ -2,29 +2,33 @@
 % Please edit documentation in R/basic_functions.R
 \name{interval_detection}
 \alias{interval_detection}
-\title{interval_detection}
+\title{interval_detection XXXXXXXXX}
 \usage{
 interval_detection(vec, smooth = FALSE, q = c(0.1, 0.9))
 }
 \arguments{
 \item{vec}{a numerical vector.}
 
-\item{smooth}{a logical value, indicates if vec is smooth or not, default FALSE.}
+\item{smooth}{a Boolean value, indicates if vec is a smooth function or a
+stepwise function.}
 
-\item{q}{a two-vector, if smooth is TRUE, it is used to detect a rupture.}
+\item{q}{a two-vector, if smooth is TRUE, it is used to detect a rupture.
+The numerical values have to belong in [0,1].}
 }
 \value{
 a matrix with 3 columns : "begin", "end" and "value". The two first
           columns define the begin and the end of the pieces and the third
           gives the mean values of each piece.
+          Or something else.
 }
 \description{
-Cut a numerical vector in several homogenous pieces.
+Determine for which intervals a functions ???
 }
 \examples{
+\donttest{
 data(data1)
 data(param1)
-res_Bliss_mult <- Bliss_multiple(data=data1,param=param1)
+res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
 intervals <- interval_detection(res_Bliss_mult$Bliss_estimate[[1]])
 par(mfrow=c(2,1))
 plot(data1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s")
@@ -40,5 +44,6 @@ plot(data1$grids[[1]],res_Bliss_mult$res.Simulated_Annealing[[1]]$posterior_expe
 for(k in 1:nrow(intervals)){
    segments(intervals[k,1],intervals[k,3],
             intervals[k,2],intervals[k,3],col=2,lwd=2)
+}
 }
 }

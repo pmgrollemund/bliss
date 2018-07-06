@@ -6,6 +6,8 @@ A method for the Bayesian Functional Linear Regression model (functions-on-scala
 including two estimators of the coefficient function and an estimator of its support.
 A representation of the posterior distribution is also available.
 
+In progress...
+
 # Installation
 
 To install the **bliss** package, the easiest is to install it directly from GitHub. Open an R session and run the following commands:
@@ -28,7 +30,7 @@ help(package="bliss")
 
 As a lot of time and effort were spent in creating the **bliss** method, please cite it when using it for data analysis:
 
-Grollemund P-M., Abraham C., Baragatti M., Pudlo P. **Bayesian Analysis** (2018) Bayesian Functional Linear Regression with Sparse Step Functions (in press)
+Grollemund P-M., Abraham C., Baragatti M., Pudlo P. **Bayesian Analysis** (2018) Bayesian Functional Linear Regression with Sparse Step Functions *Bayesian Analysis*.
 
 You should also cite the **bliss** package:
 

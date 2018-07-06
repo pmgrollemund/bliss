@@ -6,17 +6,17 @@
 ################################# ----
 #' choose_beta
 ################################# ----
-#' @description Compute a coefficient function for the Function Linear Regression 
+#' @description Compute a coefficient function for the Function Linear Regression
 #'              model.
 #' @details Several shapes are available.
 #' @return A numerical vector which is the observation of the coefficient function
 #'         at the given grid of times points (\code{grid}).
-#' @param param a list containing: 
+#' @param param a list containing:
 #' \describe{
 #'  \item{grid}{a numerical vector, the observation time points.}
 #'  \item{p}{a numerical value, the length of the vector \code{grid}.}
 #'  \item{shape}{a character vector to choose between "smooth", "random_smooth",
-#'               "simple", "simple_bis", "random_simple", "sinusoid", 
+#'               "simple", "simple_bis", "random_simple", "sinusoid",
 #'               "flat_sinusoid" and "sharp"}
 #' }
 #' @export
@@ -58,7 +58,7 @@ choose_beta <- function(param){
  p    <- param[["p"]]
  grid <- param[["grid"]]
  shape <- param[["shape"]]
- 
+
  # Compute a grid on (0,1).
  grid_01 <- (grid - min(grid))/ (max(grid) - min(grid))
  # Choose a function beta
@@ -121,7 +121,7 @@ choose_beta <- function(param){
    2 * sigmoid_sharp(grid_01,min(grid_01) + 0.2 * shift,v=100,asym=1) -
    3 * sigmoid_sharp(grid_01,min(grid_01) + 0.6 * shift,v=100,asym=1)
  }
- 
+
  # Return the chosen function
  return(beta)
 }
@@ -134,47 +134,49 @@ choose_beta <- function(param){
 #' \describe{
 #'  \item{Q}{an integer, the number of functional covariates.}
 #'  \item{y}{a numerical vector, the outcome observations.}
-#'  \item{x}{a list of matrices, the qth matrix contains the observation of the 
+#'  \item{x}{a list of matrices, the qth matrix contains the observation of the
 #'        qth functional covariate on a grid of time points given with \code{grids}.}
-#'  \item{grids}{a list of numerical vectors, the qth vector is the grid of 
+#'  \item{grids}{a list of numerical vectors, the qth vector is the grid of
 #'        time points for the qth functional covariate.}
-#'  \item{betas}{a list of numerical vectors, the qth vector is the coefficient 
-#'        function associated to the qth covariate on a grid of time points 
+#'  \item{betas}{a list of numerical vectors, the qth vector is the coefficient
+#'        function associated to the qth covariate on a grid of time points
 #'        given with \code{grids}.}
 #' }
 #' @param param a list containing:
 #' \describe{
 #'  \item{Q}{an integer, the number of functional covariates.}
 #'  \item{n}{an integer, the sample size.}
-#'  \item{p}{a vector of integers, the qth component is the number of 
+#'  \item{p}{a vector of integers, the qth component is the number of
 #'        times for the qth covariate.}
-#'  \item{grids}{a list of numerical vectors, the qth vector is the grid 
-#'        of time points for the qth functional covariate (optional, can be 
+#'  \item{grids}{a list of numerical vectors, the qth vector is the grid
+#'        of time points for the qth functional covariate (optional, can be
 #'        deduced from grid_lim and p if it is \code{NULL}).}
 #'  \item{grids_lim}{a list of numerical vectors, the qth item is the lower
-#'        and upper boundaries of the domain for the qth functional covariate. (optional)}        
+#'        and upper boundaries of the domain for the qth functional covariate. (optional)}
 #'  \item{mu}{a numerical value, the intercept of the model. (optional)}
 #'  \item{r}{a nonnegative value, the signal to noise ratio. (optional)}
 #'  \item{link}{a function. XXXX (optional)}
-#'  \item{beta_shapes}{a character vector. The qth item indicates the shape of 
+#'  \item{beta_shapes}{a character vector. The qth item indicates the shape of
 #'        the coefficient function associated to the qth functional covariate.}
-#'  \item{x_shapes}{a character vector. The qth item indicates the shape of the 
+#'  \item{x_shapes}{a character vector. The qth item indicates the shape of the
 #'        functional covariate observations. (optional)}
-#'  \item{autocorr_diag}{a list of numerical vectors, the qth vector is the 
-#'        diagonal of the autocorrelation matrix of the qth functional 
+#'  \item{autocorr_diag}{a list of numerical vectors, the qth vector is the
+#'        diagonal of the autocorrelation matrix of the qth functional
 #'        covariate (optional).}
-#'  \item{autocorr_spread}{a vector of numerical values which are related to the 
+#'  \item{autocorr_spread}{a vector of numerical values which are related to the
 #'        autocorrelation of the functional covariates. (optional)}
-#'  \item{correlation}{a matrix which gives the correlation structure between the 
+#'  \item{correlation}{a matrix which gives the correlation structure between the
 #'        functional covariates (optional).}
 #' }
 #' @param progress a logical value. If TRUE, the algorithm progress is displayed.
 #'         (optional)
+#' @importFrom stats pexp runif
 #' @export
 #' @examples
+#' \donttest{
 #' library(RColorBrewer)
 #' param <- list(n=10,p=c(200,100),shapes=c("simple","smooth"),grid_min=c(0,-2.12),grid_max=c(1,3.14))
-#' data <- sim_multiple(param)
+#' data <- sim(param)
 #' data$y
 #' data$expe
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(10)
@@ -184,6 +186,7 @@ choose_beta <- function(param){
 #' plot(data$grids[[q]],data$beta_function_mult[[q]],type="l")
 #' abline(h=0,lty=2,col="gray")
 #' par(mfrow=c(1,1))
+#' }
 
 sim <- function(param,progress=FALSE){
  if(progress) cat("Simulation of the data.\n")
@@ -191,7 +194,7 @@ sim <- function(param,progress=FALSE){
  Q <- param[['Q']]
  n <- param[['n']]
  p <- param[['p']]
- 
+
  # load optional objects
  grids_lim <- param[['grids_lim']]
  mu     <- param[['mu']]
@@ -203,30 +206,30 @@ sim <- function(param,progress=FALSE){
  autocorr_spread <- param[['autocorr_spread']]
  autocorr_diag   <- param[['autocorr_diag']]
  correlation     <- param[['correlation']]
- 
+
  # Initialize the required unspecified objects
  if(is.null(grids_lim)){
   grids_lim <- list()
   for(q in 1:Q) grids_lim[[q]] <- c(0,1)
- } 
+ }
  if(is.null(mu))   mu   <- 1
  if(is.null(r))    r    <- 5
  if(is.null(link)) link <- function(expectation) expectation
  if(is.null(x_shapes))    x_shapes    <- rep(NULL,Q)
  if(is.null(beta_shapes)) beta_shapes <- rep("simple",Q)
- 
+
  # Derive some objects
  if(is.null(grids)) {
   grids  <- list()
-  for (q in 1:Q) grids[[q]] <- seq(grids_lim[[q]][1],grids_lim[[q]][2],length=p[q]) 
+  for (q in 1:Q) grids[[q]] <- seq(grids_lim[[q]][1],grids_lim[[q]][2],length=p[q])
   param[['grids']] <- grids
  }
  if(!is.null(grids)) {
   check <- TRUE
-  for (q in 1:Q) check <- check & length(grids[[q]])==p[q] 
+  for (q in 1:Q) check <- check & length(grids[[q]])==p[q]
   if(check == FALSE) stop("The length of each grid (parameter grids) should correspond to the number of observation times (parameter p).")
  }
- 
+
  # Simulate the functional covariate observed on the grids.
  if(progress) cat("\t Simulate functional covariate observations.\n")
  if( (Q == 1) && !(is.null(correlation)) )
@@ -243,7 +246,7 @@ sim <- function(param,progress=FALSE){
    x[[q]] <- sim_x(param.sim_x)
   }
  }
- 
+
  # Choose a coefficient function beta
  if(progress) cat("\t Choose a coefficient function.\n")
  betas <- list()
@@ -251,24 +254,24 @@ sim <- function(param,progress=FALSE){
   param.choose_beta <- list(p=p[q],grid=grids[[q]],shape=beta_shapes[q])
   betas[[q]] <- choose_beta(param.choose_beta)
  }
- 
+
  if(progress) cat("\t Compute the outcome values.\n")
  # Compute the expectation of the outcome
  y_expe <- rep(mu,n)
  for(i in 1:n){
   for(q in 1:Q){
-   x_beta    <- x[[q]][i,] * betas[[q]] 
+   x_beta    <- x[[q]][i,] * betas[[q]]
    y_expe[i] <- y_expe[i] + integrate_trapeze(grids[[q]],x_beta)
   }
  }
- 
- # Compute the error 
+
+ # Compute the error
  err <- rnorm(n,0,1)
  err <- sd(y_expe) * err / (sd(err) * sqrt(r))
- 
+
  # Compute the outcome values
  y <- link(y_expe) + err
- 
+
  # Return the data.
  return(list(Q     = Q,
              y     = y,
@@ -298,41 +301,41 @@ sim <- function(param,progress=FALSE){
 #' @importFrom rockchalk mvrnorm
 #' @export
 #' @examples
+#' \donttest{
 #' library(RColorBrewer)
 #' ### Fourier
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_shape="Fourier")
-#' x <- sim_functions(param)
+#' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
-#' \donttest{
 #' ### Fourier2
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="Fourier2")
-#' x <- sim_functions(param)
+#' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
 #' ### random_walk
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="random_walk")
-#' x <- sim_functions(param)
+#' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
 #' ### random_sharp
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="random_sharp")
-#' x <- sim_functions(param)
+#' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
 #' ### uniform
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="uniform")
-#' x <- sim_functions(param)
+#' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
 #' ### gaussian
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="gaussian")
-#' x <- sim_functions(param)
+#' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
 #' ### mvgauss
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="mvgauss")
-#' x <- sim_functions(param)
+#' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
 #' }
@@ -341,22 +344,22 @@ sim_x <- function(param){
  n <- param$n
  p <- param$p
  grid <- param$grid
- 
+
  # load optional objects
  shape    <- param$shape
  dim     <- param$dim
  ksi     <- param$ksi
  diagVar <- param$diagVar
- 
+
  # Initialize the necessary unspecified objects
  if(is.null(shape))   shape   <- "mvgauss"
  if(is.null(dim))     dim     <- 4
  if(is.null(ksi))     ksi     <- 1
  if(is.null(diagVar)) diagVar <- abs(rnorm(p,1,1/10))
- 
+
  # Deduce objects
  by <- diff(grid)[1]
- 
+
  # Simulate the functions x_i(t)
  if(shape == "Fourier"){
   # Set a Fourier basis
@@ -366,7 +369,7 @@ sim_x <- function(param){
   # Choose the coefficients
   a_n <- rockchalk::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
   b_n <- rockchalk::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
-  
+
   # Compute the functions x_i(t)
   x <- a_n %*% Fourier_basis[1:dim,] + b_n %*% Fourier_basis[(dim+1):(2*dim),]
  }
@@ -380,7 +383,7 @@ sim_x <- function(param){
   dim(a_n) <- c(n,dim)
   b_n <- runif(n*dim,-3,3)
   dim(b_n) <- c(n,dim)
-  
+
   # Determiner les courbes
   x <- a_n %*% Fourier_basis[1:dim,] + b_n %*% Fourier_basis[(dim+1):(2*dim),]
  }
@@ -391,16 +394,16 @@ sim_x <- function(param){
  if(shape == "random_sharp"){
   locs <- runif(n*2,grid[1],tail(grid,1))
   dim(locs) <- c(n,2)
-  
+
   asyms <- runif(n*2,1,5)
   dim(asyms) <- c(n,2)
-  
+
   vs <- runif(n*2, 1/(4*by), 1/(3*by) )
   dim(vs) <- c(n,2)
-  
+
   s <- sample(c(-1,1),2*n,replace=T)
   dim(s) <- c(n,2)
-  
+
   x <- matrix(0,n,p)
   for(i in 1:n){
    x[i,] <- s[i,1] * sigmoid_sharp(grid,locs[i,1],asyms[i,1],vs[i,1]) +
@@ -462,9 +465,9 @@ sim_x <- function(param){
   for(i in 1:n){
    x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
   }
-  
+
  }
- 
+
  # Return the functions
  return(x)
 }
@@ -492,14 +495,14 @@ sim_correlated_functions <- function(param){
  n <- param$n
  p <- param$p
  grids <- param$grids
- 
+
  # load optional objects
  shape    <- param$shape
  dim     <- param$dim
  ksi     <- param$ksi
  diagVar <- param$diagVar
  correlation <- param$correlation # IS 16/02/2018
- 
+
  # Initialize the necessary unspecified objects
  Q <- length(p) # IS 06/02/2018
  if(is.null(correlation))  correlation <- diag(Q)  # IS 16/02/2018
@@ -509,7 +512,7 @@ sim_correlated_functions <- function(param){
  for(q in 1:Q){
   diagVar[[q]] <- abs(rnorm(p[q],1,1/10))
  }
- 
+
  # Simulate the functions x_i(t)
  if(shape == "mvgauss"){
   mu <- NULL
@@ -518,7 +521,7 @@ sim_correlated_functions <- function(param){
    # mu <- c(mu,rnorm(1,0,0.001)+(1:p[q]/p[q])^rnorm(1,3,1)/(rnorm(1,1,1))^2/4)
   }
   Sigma <- matrix(0,sum(p),sum(p))
-  
+
   count <- 0
   for(q in 1:Q){
    count2 <- 0
@@ -528,7 +531,7 @@ sim_correlated_functions <- function(param){
     }else{
      tmp <- matrix(0,p[q],p[qq])
     }
-    
+
     for(i in 1:p[q]){
      for(j in 1:p[qq]){
       if( q==qq ){
@@ -547,20 +550,20 @@ sim_correlated_functions <- function(param){
    }
    count <- count + p[q]
   }
-  
+
   x       <- matrix(0,n,sum(p))
   for(i in 1:n){
    x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
   }
  }
- 
+
  x_mult <- list()
  count <- 0
  for( q in 1:Q){
   x_mult[[q]] <- x[,(1+count):(p[q]+count)]
   count <- count + p[q]
  }
- 
+
  # Return the functions
  return(x_mult)
 }
@@ -570,11 +573,11 @@ sim_correlated_functions <- function(param){
 #' build_Fourier_basis
 ################################# ----
 #' @description Define a Fourier basis to simulate functional covariate observation.
-#' @return a matrix. Each row is an functional observation evaluated on the 
+#' @return a matrix. Each row is an functional observation evaluated on the
 #'         \code{grid} time points.
 #' @param grid a numerical vector.
 #' @param dim a numerical value. It corresponds to dim(basis)/2.
-#' @param per a numerical value which corresponds to the period of the sine and 
+#' @param per a numerical value which corresponds to the period of the sine and
 #'        cosine functions.
 #' @details See the \code{\link[=sim_x]{sim_x}} function.
 #' @export
@@ -595,11 +598,11 @@ build_Fourier_basis <- function(grid,dim,per=2*pi){
 #'                 gaussian distribution used to compute the random walk.
 #' @param start a numerical vector which is the initial value of
 #'                 the random walks. (optional)
-#' @details see the \code{\link[=sim_functions]{sim_functions}} function.
+#' @details see the \code{\link[=sim_x]{sim_x}} function.
 #' @importFrom stats rnorm
 #' @export
 #' @examples
-#' # see the sim_functions() function.
+#' # see the sim_x() function.
 random_walk <- function(n,p,mu,sigma,start=rep(0,n)){
  res <- matrix(0,n,p)
  for(i in 1:n){
@@ -620,7 +623,7 @@ random_walk <- function(n,p,mu,sigma,start=rep(0,n)){
 #' @param x a numerical vector, a grid of points.
 #' @param asym the value of the asymptote of the sigmoid function. (optional)
 #' @param v a numerical value which is related to the slope at the origin. (optional)
-#' @details see the function \code{\link[=sim_functions]{sim_functions}}.
+#' @details see the function \code{\link[=sim_x]{sim_x}}.
 #' @export
 #' @examples
 #' ## Test 1 :
@@ -648,7 +651,7 @@ sigmoid <- function(x,asym=1,v=1){
 #' @param x a numerical vector, a grid of points.
 #' @param loc a numerical value, the instant of the sharp. (optional)
 #' @param ... Arguments to be passed to the function sigmoid. (optional)
-#' @details see the function \code{\link[=sim_functions]{sim_functions}}.
+#' @details see the function \code{\link[=sim_x]{sim_x}}.
 #' @export
 #' @examples
 #' ## Test 1 :
@@ -668,6 +671,7 @@ sigmoid_sharp <- function(x,loc=0,...){
  # provided by sigmoid_sharp is 1.
  4*(sigmoid(x-loc,...) * sigmoid(-x+loc,...))
 }
+
 ################################# ----
 #' corr_matrix
 ################################# ----
@@ -691,7 +695,7 @@ corr_matrix <- function(diagonal,ksi){
  # Initialize
  p <- length(diagonal)
  res <- diag(diagonal)
- 
+
  # Compute the correlation matrix
  for(i in 1:(p-1)){
   for(j in (i+1):p){
@@ -699,7 +703,7 @@ corr_matrix <- function(diagonal,ksi){
    res[j,i] <- exp(-ksi*(i-j)^2/p)*sqrt(res[i,i]*res[j,j])
   }
  }
- 
+
  # return the matrix
  return(res)
 }
