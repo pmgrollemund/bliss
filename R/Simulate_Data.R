@@ -178,8 +178,6 @@ choose_beta <- function(param){
 #'         (optional)
 #' @export
 #' @examples
-#' \donttest{
-#' #### NOT RUN
 #' library(RColorBrewer)
 #' param <- list(Q=2,n=25,p=c(50,50),grids_lim=list(c(0,1),c(-1,2)))
 #' data <- sim(param)
@@ -188,11 +186,10 @@ choose_beta <- function(param){
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(10)
 #' q=2
 #' par(mfrow=c(2,1))
-#' matplot(data$grids[[q]],t(data$x_mult[[q]]),type="l",lty=1,col=cols)
+#' matplot(data$grids[[q]],t(data$x[[q]]),type="l",lty=1,col=cols)
 #' plot(data$grids[[q]],data$beta_function_mult[[q]],type="l")
 #' abline(h=0,lty=2,col="gray")
 #' par(mfrow=c(1,1))
-#' }
 sim <- function(param,progress=FALSE){
  if(progress) cat("Simulation of the data.\n")
  # load objects
@@ -313,7 +310,6 @@ sim <- function(param,progress=FALSE){
 #' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
-#' \donttest{
 #' ### Fourier2
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="Fourier2")
 #' x <- sim_x(param)
@@ -344,7 +340,6 @@ sim <- function(param,progress=FALSE){
 #' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
-#' }
 sim_x <- function(param){
  # load objects
  n <- param$n

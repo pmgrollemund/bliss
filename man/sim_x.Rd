@@ -36,7 +36,6 @@ param <- list(n=15,p=100,grid=seq(0,1,length=100),x_shape="Fourier")
 x <- sim_x(param)
 cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 matplot(param$grid,t(x),type="l",lty=1,col=cols)
-\donttest{
 ### Fourier2
 param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="Fourier2")
 x <- sim_x(param)
@@ -67,5 +66,4 @@ param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="mvgauss")
 x <- sim_x(param)
 cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 matplot(param$grid,t(x),type="l",lty=1,col=cols)
-}
 }
