@@ -17,6 +17,7 @@
 #'       different basis functions to expand the coefficient function and the
 #'       functional covariates (optional)}
 #' }
+#' @param Q numeric
 #' @param progress a logical value. If TRUE, the algorithm progress is displayed.
 #'         (optional)
 #' @export
@@ -25,37 +26,42 @@
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- Bliss(data=data1,param=param1)
-#' beta_sample <- compute_beta_sample_mult(res_Bliss_mult$res.Gibbs_Sampler,param1)
+#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
+#' beta_sample <- compute_beta_sample_mult(res_Bliss_mult$res_Gibbs_Sampler,param1)
 #' indexes <- sample(nrow(beta_sample[[1]]),1e2,replace=FALSE)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
 #' matplot(param1$grids[[1]],t(beta_sample[[1]][indexes,]),type="l",lty=1,col=cols)
 #' }
-compute_beta_sample <- function(posterior_sample,param,progress=FALSE){
+compute_beta_sample <- function(posterior_sample,param,Q,progress=FALSE){
  if(progress) cat("Compute the coefficient function posterior sample. \n")
  # Initialize parameters
- K     <- param[["K"]]
- grids <- param[["grids"]]
- p     <- param[["p"]]
- if(is.null(p)) p <- sapply(grids,length)
- basis <- param[["basis"]]
- if(is.null(basis)) basis <- rep("Uniform",length(K))
+ Ks     <- param[["K"]]
+ grids  <- param[["grids"]]
+ ps     <- param[["p"]]
+ basiss <- param[["basis"]]
+ if(is.null(ps)) ps <- sapply(grids,length)
+ if(is.null(basiss)) basiss <- rep("Uniform",length(Ks))
 
  # Compute the coefficient function for each iteration of the Gibbs Sampler
  # and for each covariable
  beta_sample <- list()
  count <- 0
- for(q in 1:length(K)){
-  trace_tmp <- posterior_sample$trace[,(1+count):(count+3*K[q])]
+ for(q in 1:Q){
+  K     <- Ks[q]
+  grid  <- grids[[q]]
+  p     <- ps[q]
+  basis <- basiss[q]
+  trace_tmp <- posterior_sample$trace[,(1+count):(count+3*K)]
+  norm_val <- posterior_sample$param$normalization_values[[q]]
 
-  beta_sample[[q]] <- compute_beta_sample_cpp(trace_tmp,p[q],K[q],grids[[q]],
-                                              basis[q],
-                                              posterior_sample$param$normalization_values[[q]]) # XXXXX
+  beta_sample[[q]] <- compute_beta_sample_cpp(trace_tmp,
+                                              K,grid,p,basis,norm_val)
   count <- count + 3*K[q]
  }
 
  return(beta_sample)
 }
+
 ################################# ----
 #' compute_beta_posterior_density
 ################################# ----
@@ -73,7 +79,7 @@ compute_beta_sample <- function(posterior_sample,param,progress=FALSE){
 #'       sample. (optional)}
 #' \item{thin}{an integer, used to thin the Gibbs sample to compute an
 #'       approximation of the posterior density of beta(t). (optional)}
-#'  \item{lims.kde}{a numerical vector (yl,yu) XXXXXXXXXXX (optional)}
+#'  \item{lims_kde}{a numerical vector (yl,yu) XXXXXXXXXXX (optional)}
 #'  \item{N}{an integer related to the precision of the approximation. (optional)}
 #'  \item{new_grid}{a numerical vector.}
 #' }
@@ -86,7 +92,7 @@ compute_beta_sample <- function(posterior_sample,param,progress=FALSE){
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- Bliss(data=data1,param=param1,density=TRUE)
+#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
 #' q <- 1
 #' diff_grid <- diff(param1$grids[[q]])[1]
 #' param1$grids2[[q]] <- c(param1$grids[[q]]-diff_grid/2,
@@ -98,14 +104,14 @@ compute_beta_sample <- function(posterior_sample,param,progress=FALSE){
 #'                     n        = param1[["n"]],
 #'                     thin     = 10,
 #'                     burnin   = param1[["burnin"]],
-#'                     lims.kde = param1$lims.kde[[q]],
+#'                     lims_kde = param1$lims_kde[[q]],
 #'                     h1       = param1$h1,
 #'                     new_grid = param1[["new_grid"]],
 #'                     xlim = range(param1$grids[[q]]) + c(-diff_grid,diff_grid),
-#'                     display = FALSE
+#'                     progress = FALSE
 #' )
 #' density_estimate <- density_estimation(res_Bliss_mult$beta_sample[[1]],param_density)
-#' image(density_estimate$res.kde2d,col=rev(heat.colors(100)))
+#' image(density_estimate$res_kde2d,col=rev(heat.colors(100)))
 #' }
 compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
  if(progress)
@@ -117,7 +123,7 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
  N        <- param[["N"]]
  thin     <- param[["thin"]]
  burnin   <- param[["burnin"]]
- lims.kde <- param[["lims.kde"]]
+ lims_kde <- param[["lims_kde"]]
  new_grid <- param[["new_grid"]]
  lims_estimate <- param[["lims_estimate"]]
 
@@ -177,12 +183,12 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
  }
  points <- cbind(beta_x,beta_y)
 
- lims.kde <- c(range(beta_x), quantile(beta_y,c(0.025,0.975))) # PMG 04/07/18
- if(lims.kde[3] >= 0 ) lims.kde[3] <- -h2/2 # PMG 04/07/18
- if(lims.kde[4] <= 0 ) lims.kde[4] <- -h2/2 # PMG 04/07/18
- if(lims.kde[3] >= lims_estimate[1] ) lims.kde[3] <- lims_estimate[1]-h2/2 # PMG 04/07/18
- if(lims.kde[4] <= lims_estimate[2] ) lims.kde[4] <- lims_estimate[2]+h2/2 # PMG 04/07/18
- res.kde2d <- kde2d(x=beta_x,y=beta_y,lims=lims.kde,
+ lims_kde <- c(range(beta_x), quantile(beta_y,c(0.025,0.975))) # PMG 04/07/18
+ if(lims_kde[3] >= 0 ) lims_kde[3] <- -h2/2 # PMG 04/07/18
+ if(lims_kde[4] <= 0 ) lims_kde[4] <- -h2/2 # PMG 04/07/18
+ if(lims_kde[3] >= lims_estimate[1] ) lims_kde[3] <- lims_estimate[1]-h2/2 # PMG 04/07/18
+ if(lims_kde[4] <= lims_estimate[2] ) lims_kde[4] <- lims_estimate[2]+h2/2 # PMG 04/07/18
+ res_kde2d <- kde2d(x=beta_x,y=beta_y,lims=lims_kde,
                     n=N,h=c(h1,h2))
 
  # What to return ? # PMG 22/06/18
@@ -192,9 +198,9 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
   new_beta_sample <- NULL
  }
 
- return(list(grid_t          = res.kde2d$x,
-             grid_beta_t     = res.kde2d$y,
-             density         = res.kde2d$z,
+ return(list(grid_t          = res_kde2d$x,
+             grid_beta_t     = res_kde2d$y,
+             density         = res_kde2d$z,
              new_beta_sample = beta_sample
              ))
  if(progress)
@@ -222,6 +228,7 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
 #' @description Compute the support estimate.
 #' @param beta_sample a matrix. Each row is a coefficient function computed from the
 #'        posterior sample.
+#' @param gamma a numeric, default 0.5
 #' @return a list containing:
 #' \describe{
 #'  \item{alpha}{a numerical vector. XXXXXXX}
@@ -233,30 +240,32 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
 #' data(data1)
 #' data(param1)
 #' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
-#' res.support <- support_estimation(res_Bliss_mult$beta_sample[[1]])
+#' res_support <- support_estimation(res_Bliss_mult$beta_sample[[1]])
 #'  ### The estimate
-#'  res.support$estimate
+#'  res_support$estimate
 #'  ### Plot the result
 #'  grid <- res_Bliss_mult$param$grids[[1]]
-#'  plot(grid,res.support$alpha_t,ylim=c(0,1),type="l",xlab="",ylab="")
-#'  for(k in 1:nrow(res.support$estimate)){
-#'     segments(grid[res.support$estimate[k,1]],0.5,
-#'            grid[res.support$estimate[k,2]],0.5,lwd=2,col=2)
-#'    points(grid[res.support$estimate[k,1]],0.5,pch="|",lwd=2,col=2)
-#'    points(grid[res.support$estimate[k,2]],0.5,pch="|",lwd=2,col=2)
+#'  plot(grid,res_support$alpha_t,ylim=c(0,1),type="l",xlab="",ylab="")
+#'  for(k in 1:nrow(res_support$estimate)){
+#'     segments(grid[res_support$estimate[k,1]],0.5,
+#'            grid[res_support$estimate[k,2]],0.5,lwd=2,col=2)
+#'    points(grid[res_support$estimate[k,1]],0.5,pch="|",lwd=2,col=2)
+#'    points(grid[res_support$estimate[k,2]],0.5,pch="|",lwd=2,col=2)
 #'  }
 #'  abline(h=0.5,col=2,lty=2)
 #' }
-support_estimation <- function(beta_sample){
+support_estimation <- function(beta_sample,gamma=0.5){
  alpha <- apply(beta_sample,2, function(vec) sum(vec != 0)/length(vec))
  tmp   <- rep(0,ncol(beta_sample))
- tmp2  <- which(alpha >= 0.5)
+ tmp2  <- which(alpha >= gamma)
  tmp[tmp2] <- 1
  estimate  <- interval_detection(tmp)
- estimate  <- estimate[ estimate[,3]==1 , -3]
+ estimate$value <- NULL
  # Rajouter d'autres calculs
- return(list(alpha=alpha,estimate=estimate))
+ estimate2 <- NULL
+ return(list(alpha=alpha,estimate=estimate,estimate2=estimate2))
 }
+
 ################################# ----
 #' interval_detection XXXXXXXXX
 ################################# ----
@@ -265,11 +274,7 @@ support_estimation <- function(beta_sample){
 #'           columns define the begin and the end of the pieces and the third
 #'           gives the mean values of each piece.
 #'           Or something else.
-#' @param vec a numerical vector.
-#' @param smooth a Boolean value, indicates if vec is a smooth function or a
-#' stepwise function.
-#' @param q a two-vector, if smooth is TRUE, it is used to detect a rupture.
-#' The numerical values have to belong in [0,1].
+#' @param beta_sample a numerical vector.
 #' @importFrom stats qnorm sd
 #' @export
 #' @examples
@@ -286,50 +291,110 @@ support_estimation <- function(beta_sample){
 #'           intervals[k,2],intervals[k,3],col=2,lwd=2)
 #' }
 #' par(mfrow=c(1,1))
-#' intervals <- interval_detection(res_Bliss_mult$res.Simulated_Annealing[[1]]$posterior_expe,
+#' intervals <- interval_detection(res_Bliss_mult$res_Simulated_Annealing[[1]]$posterior_expe,
 #'                                smooth=TRUE)
-#' plot(data1$grids[[1]],res_Bliss_mult$res.Simulated_Annealing[[1]]$posterior_expe,type="l")
+#' plot(data1$grids[[1]],res_Bliss_mult$res_Simulated_Annealing[[1]]$posterior_expe,type="l")
 #' for(k in 1:nrow(intervals)){
 #'    segments(intervals[k,1],intervals[k,3],
 #'             intervals[k,2],intervals[k,3],col=2,lwd=2)
 #' }
 #' }
-interval_detection <- function(vec, smooth=FALSE, q = c(0.1, 0.9)){
+interval_detection <- function(beta_sample){
  intervals <- data.frame()
  begin <- 1
- value <- vec[1]
- add   <- diff(vec)
- tresh <- qnorm(q, mean(add), sd(add))
- for (i in 2:length(vec)) {
-  if(smooth){
-   if( !(add[i - 1] %between% tresh) ){
-    end <- i - 1
-    intervals <- rbind(intervals,
-                       c(begin, end, mean(vec[begin:end])))
-    begin <- i
-   }
+ for (i in 2:length(beta_sample)){
+  if (beta_sample[i] != beta_sample[i-1]) {
+   end <- i - 1
+   intervals <- rbind(intervals,
+                      c(begin,
+                        i-1,
+                        beta_sample[i-1]))
+   begin <- i
   }
-  if(!smooth){
-   if (vec[i] != value) {
-    end <- i - 1
-    intervals <- rbind(intervals,
-                       c(begin, end, value))
-    begin <- i
-    value <- vec[i]
+ }
+ if(begin == length(beta_sample))
+  intervals <- rbind(intervals,
+                     c(begin,
+                       i,
+                       beta_sample[i]))
+ names(intervals) <- c("begin", "end", "value")
+ return(intervals)
+}
+
+#' compute_starting_point
+#'
+#' @param beta_expe numeric
+#'
+#' @return a value
+#' @export
+#' @examples
+#' data(data1)
+#' data(param1)
+compute_starting_point <- function(beta_expe){
+ positive_vec <- unlist(sapply(beta_expe,function(value) if(value<0) 0  else value))
+ negative_vec <- unlist(sapply(beta_expe,function(value) if(value>0) 0  else value))
+
+ for(i in 1:length(beta_expe)){
+  positive_vec[positive_vec < max(positive_vec)/20] <- 0
+  negative_vec[negative_vec > min(negative_vec)/20] <- 0
+ }
+
+ tmp <- NULL
+ count_p = 0;
+ count_n = 0;
+ for(i in 1:length(beta_expe)){
+  # positive
+  if(positive_vec[i] != 0){
+   count_p = count_p +1
+  }else{
+   if(count_p > 0){
+    upper = i-1
+    lower = upper - count_p +1
+    value = mean(beta_expe[lower:upper])
+    tmp <- rbind(tmp,c(lower,upper,value))
+    count_p = 0
    }
   }
 
+  # negative
+  if(negative_vec[i] != 0){
+   count_n = count_n +1
+  }else{
+   if(count_n > 0){
+    upper = i-1
+    lower = upper - count_n +1
+    value = mean(beta_expe[lower:upper])
+    tmp <- rbind(tmp,c(lower,upper,value))
+    count_n = 0
+   }
+  }
  }
- end <- i
- if(smooth){
-  intervals <- rbind(intervals, c(begin, end, mean(vec[begin:end])))
-  colnames(intervals) <- c("begin", "end", "mean")
+ if(count_p > 0){
+  upper = i
+  lower = upper - count_p +1
+  value = mean(beta_expe[lower:upper])
+  tmp <- rbind(tmp,c(lower,upper,value))
  }
- if(!smooth){
-  intervals <- rbind(intervals, c(begin, end, value))
-  colnames(intervals) <- c("begin", "end", "value")
+ if(count_n > 0){
+  upper = i
+  lower = upper - count_n +1
+  value = mean(beta_expe[lower:upper])
+  tmp <- rbind(tmp,c(lower,upper,value))
  }
- return(intervals)
+
+ m <- NULL
+ l <- NULL
+ b <- NULL
+ for(j in 1:nrow(tmp)){
+  m <- c(m,floor(mean(tmp[j,1:2])))
+  l_tmp <- m[j]-tmp[j,1]
+  if(l_tmp == 0) l_tmp <- 1
+  l <- c(l,l_tmp)
+  b <- c(b,tmp[j,3])
+ }
+
+ res <- cbind(m,l,b)
+ res
 }
 
 ################################# ----
@@ -348,7 +413,7 @@ interval_detection <- function(vec, smooth=FALSE, q = c(0.1, 0.9)){
 #' new_grid <- seq(0,1,l=1e2)
 #' fct <- 3*grid^2 + sin(grid*2*pi)
 #' plot(grid,fct,type="o")
-#' lines(new_grid,change_grid(fct,grid,new_grid),type="o",col=2)
+#' lines(new_grid,change_grid(fct,grid,new_grid),type="o",col="red")
 change_grid <- function(fct,grid,new_grid){
  res <- rep(0,length(new_grid))
  for(i in 1:(length(grid)-1)){
@@ -380,7 +445,8 @@ change_grid <- function(fct,grid,new_grid){
 #' @importFrom stats pgamma
 #' @export
 #' @examples
-#' # not run
+#' data(data1)
+#' data(param1)
 pexp_grid <- function(a,l_values){
  step <- diff(l_values)[1] / 2
  probs <- pexp(l_values + step ,a) -
@@ -394,13 +460,16 @@ pexp_grid <- function(a,l_values){
 ################################# ----
 #' integrate_trapeze XXXXXXXXXXX
 ################################# ----
-#' @description integrate_trapeze
-#' @return a numeric
-#' @param x a numeric
-#' @param y a numeric
+#' integrate_trapeze
+#'
+#' @param x numeric
+#' @param y numeric
+#'
+#' @return a graphic
 #' @export
 #' @examples
-#' # not run
+#' data(data1)
+#' data(param1)
 integrate_trapeze <- function(x,y){
  apply(as.matrix(y),2,function(vect)
   sum(diff(x)*(vect[-1]+vect[-length(vect)]))/2)

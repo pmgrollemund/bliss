@@ -4,7 +4,7 @@
 \alias{compute_beta_sample}
 \title{compute_beta_sample}
 \usage{
-compute_beta_sample(posterior_sample, param, progress = FALSE)
+compute_beta_sample(posterior_sample, param, Q, progress = FALSE)
 }
 \arguments{
 \item{posterior_sample}{a list provided by the function Bliss_Gibbs_Sampler.}
@@ -20,6 +20,8 @@ compute_beta_sample(posterior_sample, param, progress = FALSE)
       different basis functions to expand the coefficient function and the
       functional covariates (optional)}
 }}
+
+\item{Q}{numeric}
 
 \item{progress}{a logical value. If TRUE, the algorithm progress is displayed.
 (optional)}
@@ -37,8 +39,8 @@ Compute the coefficient function for each iteration of the
 library(RColorBrewer)
 data(data1)
 data(param1)
-res_Bliss_mult <- Bliss(data=data1,param=param1)
-beta_sample <- compute_beta_sample_mult(res_Bliss_mult$res.Gibbs_Sampler,param1)
+res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
+beta_sample <- compute_beta_sample_mult(res_Bliss_mult$res_Gibbs_Sampler,param1)
 indexes <- sample(nrow(beta_sample[[1]]),1e2,replace=FALSE)
 cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
 matplot(param1$grids[[1]],t(beta_sample[[1]][indexes,]),type="l",lty=1,col=cols)

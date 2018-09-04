@@ -51,7 +51,7 @@ param1$progress <- FALSE
 param1$compute_posterior <- FALSE
 res_bliss_chains <- fit_Bliss(data1,param1)
 res_diagnostic <- diagnostics(res_bliss_chains$chains,param1)
-cols <- makeTransparent(2:5,0.8)
+cols <- c(2:5)
 plot(res_diagnostic$hist_mu[[1]],border=0,col=cols[1],main="",xlab="",ylab="")
 for(c in 2:3){
    plot(res_diagnostic$hist_mu[[c]],add=TRUE,border=0,col=cols[c])

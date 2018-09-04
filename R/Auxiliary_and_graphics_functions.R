@@ -15,11 +15,11 @@
 #' @importFrom grDevices heat.colors
 #' @export
 #' @examples
-#' \donttest{
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1,density=TRUE)
+#' \donttest{
+#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
 #' param1$cols <- colorRampPalette(brewer.pal(9,"Reds"))(1e2)
 #' image_Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
 #' lines(param1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s",lwd=2)
@@ -64,6 +64,8 @@ image_Bliss <- function(beta_posterior_density,param){
  image(beta_posterior_density$res.kde2d,
        col=cols,breaks = breaks,main=main,ylim=ylim,xlim=xlim)
 }
+
+
 ################################# ----
 #' plot_bliss
 ################################# ----
@@ -91,6 +93,8 @@ plot_bliss <- function(extended_grid,fct,bound=FALSE,...){
  plot(extended_grid,extended_grid,type="n",ylim=ylim,...)
  lines_bliss(extended_grid,fct,bound=bound,...)
 }
+
+
 
 
 ################################# ----
@@ -333,7 +337,7 @@ autocorr <- function(data,plot=F,q=1){
 #' param1$compute_posterior <- FALSE
 #' res_bliss_chains <- fit_Bliss(data1,param1)
 #' res_diagnostic <- diagnostics(res_bliss_chains$chains,param1)
-#' cols <- makeTransparent(2:5,0.8)
+#' cols <- c(2:5)
 #' plot(res_diagnostic$hist_mu[[1]],border=0,col=cols[1],main="",xlab="",ylab="")
 #' for(c in 2:3){
 #'    plot(res_diagnostic$hist_mu[[c]],add=TRUE,border=0,col=cols[c])
@@ -798,14 +802,14 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
 ################################# ----
 #' dposterior
 ################################# ----
-#' @description Compute the posterior density for a given parameter set.
-#' @param res.Gibbs_Sampler a list given by the "Bliss_Gibbs_Sampler" function.
+#' @description Compute the posterior density for a given parameter set. XXX (non normalisé)
+#' @param posterior_sample a list given by the "Bliss_Gibbs_Sampler" function.
 #' @param data a list containing
 #' \describe{
-#' \item{Q}{an integer, the number of covariates,}
 #' \item{x}{a list of matrices, the functions x_qi(t) observed at time points given by grids,}
 #' \item{y}{a numerical vector, the outcome values y_i.}
 #' }
+#' @param Q an integer, the number of covariates
 #' @param theta a matrix or a vector which contains the parameter set. XXXX
 #' @details If the option theta is NULL, the posterior density is computed for
 #'          the MCMC sample given in the "res.Gibbs_Sampler" object.
@@ -828,34 +832,48 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
 #' mu=c(1,1.5),sigma_sq=c(1,0.5))
 #' dposterior(res_Bliss_mult$res.Gibbs_Sampler,data1,theta=theta)
 #' }
-dposterior <- function(res.Gibbs_Sampler,data,theta=NULL){ # XXXXXXXx
+
+dposterior <- function(posterior_sample,data,Q,theta=NULL){ # XXXXXXXx
  if(!is.null(theta)){
-  if( length(theta$mu) != 1){
-   rposterior <- cbind(theta$beta,theta$m,theta$l,theta$mu,theta$sigma_sq)
-  }else{
-   rposterior <- t(matrix(
-    c(theta$beta,theta$m,theta$l,theta$mu,theta$sigma_sq)))
+  if(is.null(dim(theta))){
+   rposterior <- as.matrix(t(theta))
   }
-  K <- ncol(theta$beta)
+  K <- (ncol(theta)-2)/3
  }else{
-  rposterior <- res.Gibbs_Sampler$trace
-  K <- res.Gibbs_Sampler$param$K[1]
+  rposterior <- posterior_sample$trace
+  K <- posterior_sample$param$K
  }
  N <- nrow(rposterior)
 
  y <- data$y
- all_intervals <- res.Gibbs_Sampler$param$all_intervals
- scale_ml      <- res.Gibbs_Sampler$param$scale_ml
- all_intervals_dims <- c(ncol(data$x_mult[[1]]),
-                         res.Gibbs_Sampler$param$l_max,
-                         length(data$y))
- lambda <- 5
- lmax <- res.Gibbs_Sampler$param$l_max
+ potential_intervals  <- posterior_sample$param$potential_intervals
+ potential_intervals_dims <- list()
+ for(q in 1:Q){
+  potential_intervals_dims[[q]] <- c(ncol(data$x[[q]]),
+                                     posterior_sample$param$l_values_length[[q]],
+                                     length(data$y))
+ }
 
- res <- dposterior_cpp(rposterior,y,N,K,all_intervals[[1]],all_intervals_dims,
-                       lambda,lmax)
+ res <- dposterior_cpp(rposterior,y,N,K,potential_intervals,potential_intervals_dims,
+                       posterior_sample$param$l_values_length,Q)
  colnames(res) <- c("posterior density","log posterior density",
                     "likelihood","log likelihood",
                     "prior density","log prior density")
  return(res)
+}
+
+################################# ----
+#' compute_chains_info
+################################# ----
+#' compute_chains_info
+#'
+#' @param x numeric
+#'
+#' @return numeric
+#' @export
+#'
+#' @examples
+#' # compute x
+compute_chains_info <- function(x){
+  x
 }

@@ -26,8 +26,6 @@
 #'       "epanechnikov", "gauss" and "triangular" which correspond to
 #'       different basis functions to expand the coefficient function and the
 #'       functional covariates (optional)}
-#' \item{g}{a nonnegative value, hyperparameter of the Bliss model which is the
-#'          coefficient of the Ridge Zellner prior. (optional)}
 #' \item{p}{XXXXXX}
 #' }
 #' @param progress a logical value. If TRUE, the algorithm progress is displayed.
@@ -35,14 +33,12 @@
 #' @importFrom stats var
 #' @export
 #' @examples
-#' \donttest{
 #' data(data1)
 #' data(param1)
 #' res_Bliss_Gibbs_Sampler <- Bliss_Gibbs_Sampler(data1,param1)
 #' K       <- param1$K
 #' theta_1 <- res_Bliss_Gibbs_Sampler$trace[1,]
 #' theta_1
-#' }
 Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  # load objects
  x     <- data[["x"]]
@@ -52,7 +48,6 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  basis <- param[["basis"]]
  iter  <- param[["iter"]]
  K     <- param[["K"]]
- g     <- param[["g"]]
  p     <- param[["p"]]
 
  # Initialize the required unspecified objects
@@ -74,9 +69,9 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
    if(is.na(basis[q])){basis[q] <- "Uniform"}
   }
  }
- if(is.null(g))       g <- length(y)
  lambda <- 5 # a mettre dans le cpp ?
  V_tilde <- diag(1+sum(K)) # a mettre dans le cpp ?
+ g <- length(y) # a mettre dans le cpp ?
 
  # Determine the possible values of l
  l_values <- list()
@@ -116,13 +111,13 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  }else{
   for(q in 1:Q){
    for(k in 1:K[q]){
-    trace_names <- c(trace_names,paste("b",k," q",q,sep="_"))
+    trace_names <- c(trace_names,paste("b",k,"q",q,sep="_"))
    }
    for(k in 1:K[q]){
-    trace_names <- c(trace_names,paste("m",k," q",q,sep="_"))
+    trace_names <- c(trace_names,paste("m",k,"q",q,sep="_"))
    }
    for(k in 1:K[q]){
-    trace_names <- c(trace_names,paste("l",k," q",q,sep="_"))
+    trace_names <- c(trace_names,paste("l",k,"q",q,sep="_"))
    }
   }
  }

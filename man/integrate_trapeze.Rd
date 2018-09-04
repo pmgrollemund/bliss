@@ -2,21 +2,24 @@
 % Please edit documentation in R/basic_functions.R
 \name{integrate_trapeze}
 \alias{integrate_trapeze}
-\title{integrate_trapeze XXXXXXXXXXX}
+\title{integrate_trapeze XXXXXXXXXXX
+integrate_trapeze}
 \usage{
 integrate_trapeze(x, y)
 }
 \arguments{
-\item{x}{a numeric}
+\item{x}{numeric}
 
-\item{y}{a numeric}
+\item{y}{numeric}
 }
 \value{
-a numeric
+a graphic
 }
 \description{
+integrate_trapeze XXXXXXXXXXX
 integrate_trapeze
 }
 \examples{
-# not run
+data(data1)
+data(param1)
 }

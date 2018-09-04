@@ -4,16 +4,10 @@
 \alias{interval_detection}
 \title{interval_detection XXXXXXXXX}
 \usage{
-interval_detection(vec, smooth = FALSE, q = c(0.1, 0.9))
+interval_detection(beta_sample)
 }
 \arguments{
-\item{vec}{a numerical vector.}
-
-\item{smooth}{a Boolean value, indicates if vec is a smooth function or a
-stepwise function.}
-
-\item{q}{a two-vector, if smooth is TRUE, it is used to detect a rupture.
-The numerical values have to belong in [0,1].}
+\item{beta_sample}{a numerical vector.}
 }
 \value{
 a matrix with 3 columns : "begin", "end" and "value". The two first
@@ -38,9 +32,9 @@ for(k in 1:nrow(intervals)){
           intervals[k,2],intervals[k,3],col=2,lwd=2)
 }
 par(mfrow=c(1,1))
-intervals <- interval_detection(res_Bliss_mult$res.Simulated_Annealing[[1]]$posterior_expe,
+intervals <- interval_detection(res_Bliss_mult$res_Simulated_Annealing[[1]]$posterior_expe,
                                smooth=TRUE)
-plot(data1$grids[[1]],res_Bliss_mult$res.Simulated_Annealing[[1]]$posterior_expe,type="l")
+plot(data1$grids[[1]],res_Bliss_mult$res_Simulated_Annealing[[1]]$posterior_expe,type="l")
 for(k in 1:nrow(intervals)){
    segments(intervals[k,1],intervals[k,3],
             intervals[k,2],intervals[k,3],col=2,lwd=2)

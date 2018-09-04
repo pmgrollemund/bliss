@@ -1,8 +1,9 @@
 ################################# ----
 #' Bliss_Simulated_Annealing
 ################################# ----
-#' @description A Simulated Annealing algorithm to determine the Bliss estimate,
-#'              i.e. the minimum of the posterior expectation of the Bliss loss.
+#' @description A Simulated Annealing algorithm to determine the Bliss estimate
+#'              (for only functional covariate), i.e. the minimum of the 
+#'              posterior expectation of the Bliss loss.
 #' @return a list containing:
 #' \describe{
 #'  \item{Bliss_estimate}{a numerical vector, corresponding to the Bliss estimate
@@ -40,11 +41,11 @@
 #' @examples
 #' data(data1)
 #' data(param1)
-#' #res.Simulated_Annealing <- Bliss_Simulated_Annealing(beta_functions,param1)
-#' #ylim <- range(c(res.Simulated_Annealing$Bliss_estimate,
-#'  #                res.Simulated_Annealing$posterior_expe))
-#' #plot(param$grid,res.Simulated_Annealing$Bliss_estimate,type="l",ylim=ylim)
-#' #lines(param$grid,res.Simulated_Annealing$posterior_expe,lty=2)
+#' #res_Simulated_Annealing <- Bliss_Simulated_Annealing(beta_functions,param1)
+#' #ylim <- range(c(res_Simulated_Annealing$Bliss_estimate,
+#'  #                res_Simulated_Annealing$posterior_expe))
+#' #plot(param$grid,res_Simulated_Annealing$Bliss_estimate,type="l",ylim=ylim)
+#' #lines(param$grid,res_Simulated_Annealing$posterior_expe,lty=2)
 Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,progress=FALSE){
  # load optional objects
  grid <- param[["grid"]]
@@ -53,15 +54,17 @@ Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,pro
  K         <- param[["K"]]
  k_max     <- param[["k_max"]]
  iter_sann <- param[["iter_sann"]]
+ times_sann<- param[["times_sann"]]
  burnin    <- param[["burnin"]]
- l_max     <- param[["l_max_sann"]] # pas bon : changement de nom
+ l_max     <- param[["l_max"]] # pas bon : changement de nom
  basis     <- param[["basis"]]
  p    <- length(grid)
  
  # Initialize the necessary unspecified objects
  if(is.null(Temp_init)) Temp_init <- 1000
- if(is.null(k_max))     k_max     <- K  # PMG 22/06/18
- if(is.null(iter_sann)) iter_sann <- 1e5
+ if(is.null(k_max))     k_max     <- K  # PMG 22/06/18 
+ if(is.null(iter_sann)) iter_sann <- 5e4
+ if(is.null(times_sann))times_sann<- 100
  if(is.null(burnin))    burnin    <- floor(iter/5) 
  if(is.null(l_max))     l_max     <- floor(p/5) # XXX a changer ?
  if(is.null(basis))     basis     <- "Uniform"
@@ -77,43 +80,32 @@ Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,pro
  dm <- floor(p/5)+1
  dl <- floor(l_max/2)+1
  
+ # Compute the starting point
+ starting_point = compute_starting_point(apply(beta_sample,2,mean))
+ if(k_max < nrow(starting_point)) k_max <- nrow(starting_point)  # PMG 04/08/18
+  
  # Compute the Simulated Annealing algorithm (3 times to find a suitable value
  # for the initial temperature)
- res_sann_list <- list()
- 
- # first time
- if(progress) cat("First Simulated Annealing. \n")
- res_sann_list[[1]] <- Bliss_Simulated_Annealing_cpp(iter_sann,beta_sample,
-                                                     grid,burnin,Temp_init,k_max,
-                                                     l_max,dm,dl,p,basis,
-                                                     normalization_values,
-                                                     progress)
- # Derive a new initial temperature
- Temp_init <- min(abs(range(res_sann_list[[1]]$trace[,ncol(res_sann_list[[1]]$trace)])
-                      - median(res_sann_list[[1]]$trace[,ncol(res_sann_list[[1]]$trace)])))
- # second time
- if(progress) cat("Second Simulated Annealing. \n")
- res_sann_list[[2]] <- Bliss_Simulated_Annealing_cpp(iter_sann,beta_sample,
-                                                     grid,burnin,Temp_init,k_max,
-                                                     l_max,dm,dl,p,basis,
-                                                     normalization_values,
-                                                     progress)
- # Derive a new initial temperature
- Temp_init <- min(abs(range(res_sann_list[[2]]$trace[,ncol(res_sann_list[[2]]$trace)])
-                      - median(res_sann_list[[2]]$trace[,ncol(res_sann_list[[2]]$trace)])))
- # third time
- if(progress) cat("Third Simulated Annealing. \n")
- res_sann_list[[3]] <- Bliss_Simulated_Annealing_cpp(iter_sann,beta_sample,
-                                                     grid,burnin,Temp_init,k_max,
-                                                     l_max,dm,dl,p,basis,
-                                                     normalization_values,
-                                                     progress)
- # Comparison and selection
- mins      <- c(min(res_sann_list[[1]]$trace[,ncol(res_sann_list[[1]]$trace)]),
-                min(res_sann_list[[2]]$trace[,ncol(res_sann_list[[2]]$trace)]),
-                min(res_sann_list[[3]]$trace[,ncol(res_sann_list[[3]]$trace)]))
- index <- which(mins==min(mins))
- res_sann <- res_sann_list[[index]]
+ res_sann <- Bliss_Simulated_Annealing_cpp(iter_sann,beta_sample,
+                                           grid,burnin,Temp_init,k_max,
+                                           l_max,dm,dl,p,basis,
+                                           normalization_values,
+                                           progress,starting_point)
+ min_loss <- min(res_sann$trace[,3*k_max+4])
+ for(times in 1:times_sann ){
+  if(progress) 
+   cat("\t ",times,".\n")
+  res_sann_tmp <- Bliss_Simulated_Annealing_cpp(iter_sann,beta_sample,
+                                                grid,burnin,Temp_init,k_max,
+                                                l_max,dm,dl,p,basis,
+                                                normalization_values,
+                                                progress,starting_point)
+  min_loss_tmp <- min(res_sann_tmp$trace[,3*k_max+4])
+  if(min_loss_tmp < min_loss){
+   res_sann <- res_sann_tmp
+   min_loss <- min_loss_tmp
+  }
+ }
  
  # Determine the estimate
  index <- which(res_sann$trace[,ncol(res_sann$trace)] %in%
@@ -126,11 +118,28 @@ Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,pro
  b        <- argmin[1:res_k]
  m        <- argmin[1:res_k+  k_max]
  l        <- argmin[1:res_k+2*k_max]
- k        <- argmin[3*k_max+2]
+ k        <- argmin[3*k_max+3]
  estimate <- compute_beta_cpp(b,m,l,grid,p,k,basis,normalization_values)
+ 
+ difference  = abs(estimate-res_sann$posterior_expe)
+ sdifference = moving_average_cpp(difference,floor(p/10))
+ 
+ trace_names <- NULL
+ for(k in 1:k_max){
+  trace_names <- c(trace_names,paste("b",k,sep="_"))
+ }
+ for(k in 1:k_max){
+  trace_names <- c(trace_names,paste("m",k,sep="_"))
+ }
+ for(k in 1:k_max){
+  trace_names <- c(trace_names,paste("l",k,sep="_"))
+ }
+ colnames(res_sann$trace) <- c(trace_names ,"accepted","choice","k","loss")
  
  return(list(Bliss_estimate  = estimate,
              Smooth_estimate = res_sann$posterior_expe,
              trace           = res_sann$trace,
-             argmin          = argmin))
+             argmin          = argmin,
+             difference      = difference,
+             sdifference     = sdifference))
 }

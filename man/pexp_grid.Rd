@@ -18,5 +18,6 @@ a numerical vector, which is the prability function on "l_values".
 Compute the probability function of the Exponential prior on l. #XXXXXXXX
 }
 \examples{
-# not run
+data(data1)
+data(param1)
 }

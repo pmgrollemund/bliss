@@ -15,10 +15,8 @@ printbliss(x, ...)
 Print a bliss Object
 }
 \examples{
-\donttest{
 data(data1)
 data(param1)
-res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
-printbliss(res_Bliss_mult)
-}
+#res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
+# printbliss(res_Bliss_mult)
 }

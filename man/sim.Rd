@@ -56,8 +56,9 @@ Simulate a dataset for the Function Linear Regression model.
 }
 \examples{
 \donttest{
+#### NOT RUN
 library(RColorBrewer)
-param <- list(n=10,p=c(200,100),shapes=c("simple","smooth"),grid_min=c(0,-2.12),grid_max=c(1,3.14))
+param <- list(Q=2,n=25,p=c(50,50),grids_lim=list(c(0,1),c(-1,2)))
 data <- sim(param)
 data$y
 data$expe

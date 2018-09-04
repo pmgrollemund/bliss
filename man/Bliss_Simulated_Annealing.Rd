@@ -47,15 +47,16 @@ a list containing:
 }
 }
 \description{
-A Simulated Annealing algorithm to determine the Bliss estimate,
-             i.e. the minimum of the posterior expectation of the Bliss loss.
+A Simulated Annealing algorithm to determine the Bliss estimate
+             (for only functional covariate), i.e. the minimum of the 
+             posterior expectation of the Bliss loss.
 }
 \examples{
 data(data1)
 data(param1)
-#res.Simulated_Annealing <- Bliss_Simulated_Annealing(beta_functions,param1)
-#ylim <- range(c(res.Simulated_Annealing$Bliss_estimate,
- #                res.Simulated_Annealing$posterior_expe))
-#plot(param$grid,res.Simulated_Annealing$Bliss_estimate,type="l",ylim=ylim)
-#lines(param$grid,res.Simulated_Annealing$posterior_expe,lty=2)
+#res_Simulated_Annealing <- Bliss_Simulated_Annealing(beta_functions,param1)
+#ylim <- range(c(res_Simulated_Annealing$Bliss_estimate,
+ #                res_Simulated_Annealing$posterior_expe))
+#plot(param$grid,res_Simulated_Annealing$Bliss_estimate,type="l",ylim=ylim)
+#lines(param$grid,res_Simulated_Annealing$posterior_expe,lty=2)
 }

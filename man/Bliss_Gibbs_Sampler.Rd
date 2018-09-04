@@ -26,8 +26,6 @@ Bliss_Gibbs_Sampler(data, param, progress = FALSE)
       "epanechnikov", "gauss" and "triangular" which correspond to
       different basis functions to expand the coefficient function and the
       functional covariates (optional)}
-\item{g}{a nonnegative value, hyperparameter of the Bliss model which is the
-         coefficient of the Ridge Zellner prior. (optional)}
 \item{p}{XXXXXX}
 }}
 
@@ -46,12 +44,10 @@ A Gibbs Sampler algorithm to sample posterior distribution of
              the Bliss model.
 }
 \examples{
-\donttest{
 data(data1)
 data(param1)
 res_Bliss_Gibbs_Sampler <- Bliss_Gibbs_Sampler(data1,param1)
 K       <- param1$K
 theta_1 <- res_Bliss_Gibbs_Sampler$trace[1,]
 theta_1
-}
 }

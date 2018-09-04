@@ -72,11 +72,17 @@ choose_beta <- function(param){
    runif(1,-5,5)*exp(-((grid_01-runif(1,0,1))*20)^2) +
    runif(1,-5,5)*exp(-((grid_01-runif(1,0,1))*20)^2)
  }
- if(shape == "simple"){
+ if(shape == "simple2"){
   beta <- rep(0,p)
   beta[round(p/10):round(3*p/10)] <- 3
   beta[round(5*p/10):round(6*p/10)] <- 4
   beta[round(8*p/10):round(9.5*p/10)] <- -1
+ }
+ if(shape == "simple"){
+  beta <- rep(0,p)
+  beta[round(p/10):round(3*p/10)] <- 3
+  beta[round(5*p/10):round(6*p/10)] <- 4
+  beta[round(8*p/10):round(9.5*p/10)] <- -3
  }
  if(shape == "simple_bis"){
   beta <- rep(0,p)
@@ -170,12 +176,12 @@ choose_beta <- function(param){
 #' }
 #' @param progress a logical value. If TRUE, the algorithm progress is displayed.
 #'         (optional)
-#' @importFrom stats pexp runif
 #' @export
 #' @examples
 #' \donttest{
+#' #### NOT RUN
 #' library(RColorBrewer)
-#' param <- list(n=10,p=c(200,100),shapes=c("simple","smooth"),grid_min=c(0,-2.12),grid_max=c(1,3.14))
+#' param <- list(Q=2,n=25,p=c(50,50),grids_lim=list(c(0,1),c(-1,2)))
 #' data <- sim(param)
 #' data$y
 #' data$expe
@@ -187,7 +193,6 @@ choose_beta <- function(param){
 #' abline(h=0,lty=2,col="gray")
 #' par(mfrow=c(1,1))
 #' }
-
 sim <- function(param,progress=FALSE){
  if(progress) cat("Simulation of the data.\n")
  # load objects
@@ -240,10 +245,10 @@ sim <- function(param,progress=FALSE){
  if( is.null(correlation)){
   x <- list()
   for (q in 1:Q){
-   param.sim_x <- list(n=n,p=p[q],grid=grids[[q]],shape=x_shapes[q],
+   param_sim_x <- list(n=n,p=p[q],grid=grids[[q]],shape=x_shapes[q],
                        autocorr_spread=autocorr_spread[q],
                        autocorr_diag=autocorr_diag[[q]])
-   x[[q]] <- sim_x(param.sim_x)
+   x[[q]] <- sim_x(param_sim_x)
   }
  }
 
@@ -251,8 +256,8 @@ sim <- function(param,progress=FALSE){
  if(progress) cat("\t Choose a coefficient function.\n")
  betas <- list()
  for (q in 1:Q){
-  param.choose_beta <- list(p=p[q],grid=grids[[q]],shape=beta_shapes[q])
-  betas[[q]] <- choose_beta(param.choose_beta)
+  param_choose_beta <- list(p=p[q],grid=grids[[q]],shape=beta_shapes[q])
+  betas[[q]] <- choose_beta(param_choose_beta)
  }
 
  if(progress) cat("\t Compute the outcome values.\n")
@@ -299,15 +304,16 @@ sim <- function(param,progress=FALSE){
 #'  \item{diagVar}{a numerical vector, the diagonal of the autocorrelation matrix of the functions x_i(t).}
 #' }
 #' @importFrom rockchalk mvrnorm
+#' @importFrom stats pexp runif
 #' @export
 #' @examples
-#' \donttest{
 #' library(RColorBrewer)
 #' ### Fourier
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_shape="Fourier")
 #' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
+#' \donttest{
 #' ### Fourier2
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="Fourier2")
 #' x <- sim_x(param)
@@ -389,7 +395,7 @@ sim_x <- function(param){
  }
  if(shape == "random_walk"){
   start <- rnorm(n,0,2)
-  x <- random_walk(n,p,0,1,start)
+  x <- compute_random_walk(n,p,0,1,start)
  }
  if(shape == "random_sharp"){
   locs <- runif(n*2,grid[1],tail(grid,1))
@@ -587,7 +593,7 @@ build_Fourier_basis <- function(grid,dim,per=2*pi){
  sapply(grid,function(x) c(cos(2*pi*x*(1:dim)/per),sin(2*pi*x*(1:dim)/per) )  )
 }
 ################################# ----
-#' random_walk
+#' compute_random_walk
 ################################# ----
 #' @description compute a random walk. (gaussian)
 #' @return a matrix where each row is a random walk.
@@ -603,7 +609,7 @@ build_Fourier_basis <- function(grid,dim,per=2*pi){
 #' @export
 #' @examples
 #' # see the sim_x() function.
-random_walk <- function(n,p,mu,sigma,start=rep(0,n)){
+compute_random_walk <- function(n,p,mu,sigma,start=rep(0,n)){
  res <- matrix(0,n,p)
  for(i in 1:n){
   add     <- rnorm(p,mu,sigma)
@@ -671,7 +677,6 @@ sigmoid_sharp <- function(x,loc=0,...){
  # provided by sigmoid_sharp is 1.
  4*(sigmoid(x-loc,...) * sigmoid(-x+loc,...))
 }
-
 ################################# ----
 #' corr_matrix
 ################################# ----

@@ -16,7 +16,7 @@ compute_beta_posterior_density(beta_sample, param, progress = FALSE)
       sample. (optional)}
 \item{thin}{an integer, used to thin the Gibbs sample to compute an
       approximation of the posterior density of beta(t). (optional)}
- \item{lims.kde}{a numerical vector (yl,yu) XXXXXXXXXXX (optional)}
+ \item{lims_kde}{a numerical vector (yl,yu) XXXXXXXXXXX (optional)}
  \item{N}{an integer related to the precision of the approximation. (optional)}
  \item{new_grid}{a numerical vector.}
 }}
@@ -41,7 +41,7 @@ The sample is thinned in order to reduce the correlation and
 library(RColorBrewer)
 data(data1)
 data(param1)
-res_Bliss_mult <- Bliss(data=data1,param=param1,density=TRUE)
+res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
 q <- 1
 diff_grid <- diff(param1$grids[[q]])[1]
 param1$grids2[[q]] <- c(param1$grids[[q]]-diff_grid/2,
@@ -53,13 +53,13 @@ param_density<-list(grid= param1$grids[[q]],
                     n        = param1[["n"]],
                     thin     = 10,
                     burnin   = param1[["burnin"]],
-                    lims.kde = param1$lims.kde[[q]],
+                    lims_kde = param1$lims_kde[[q]],
                     h1       = param1$h1,
                     new_grid = param1[["new_grid"]],
                     xlim = range(param1$grids[[q]]) + c(-diff_grid,diff_grid),
-                    display = FALSE
+                    progress = FALSE
 )
 density_estimate <- density_estimation(res_Bliss_mult$beta_sample[[1]],param_density)
-image(density_estimate$res.kde2d,col=rev(heat.colors(100)))
+image(density_estimate$res_kde2d,col=rev(heat.colors(100)))
 }
 }

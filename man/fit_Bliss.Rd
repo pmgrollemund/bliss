@@ -4,7 +4,7 @@
 \alias{fit_Bliss}
 \title{Bliss method}
 \usage{
-fit_Bliss(data, param, do_beta_posterior_density = FALSE, sann = FALSE,
+fit_Bliss(data, param, do_beta_posterior_density = TRUE, sann = TRUE,
   progress = FALSE)
 }
 \arguments{
@@ -35,6 +35,7 @@ fit_Bliss(data, param, do_beta_posterior_density = FALSE, sann = FALSE,
       approximation of the posterior density of beta(t). (optional)}
 \item{iter_sann}{an integer, the number of iteration of the Simulated
       Annealing algorithm. (optional)}
+\item{times_sann}{an integer, XXXXXXXXXX. (optional)}
 \item{n_chains}{number of chains to do in the Gibbs sampler. (optional)}
 \item{theta_posterior_density}{a logical value. XXXXX (optional)}
 \item{Temp_init}{a nonnegative value, the initial temperatures for the
@@ -59,17 +60,17 @@ return a list containing :
  \item{bliss_estimate}{a list of numerical vectors corresponding to the
  Bliss estimates of each coefficient function.}
  \item{chain}{a list. XXXXX}
- \item{param.beta_density}{a list. XXXX}
+ \item{param_beta_density}{a list. XXXX}
  \item{beta_posterior_density}{a list of Q items. Each item contains: XXXX des trucs a changer ? XXXX
  Firts level: a matrix containing a posterior sample of coefficient function.
  Second level: for each covariate, there is a list of three levels containing
  1) a grid x, 2) a grid y and 3) matrix z containing approximations of the
  posterior density of the coefficient function on the 2-dimensional grid
- defined from x and y.}#'
- \item{res.Simulated_Annealing}{a list: the qth item is the result of the
+ defined from x and y.}
+ \item{res_Simulated_Annealing}{a list: the qth item is the result of the
        function Bliss_Simulated_Annealing applied for the qth functional
        covariate.}
- \item{res.Gibbs_Sampler}{a list: the qth item is the result of the function
+ \item{res_Gibbs_Sampler}{a list: the qth item is the result of the function
        Bliss_Gibbs_Sampler for the qth covariate.}
  \item{support_estimate}{XXXXX}
 }

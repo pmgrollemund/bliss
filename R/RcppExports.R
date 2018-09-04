@@ -37,12 +37,16 @@ compute_beta_cpp <- function(b, m, l, grid, p, K, basis, normalization_values) {
     .Call(`_bliss_compute_beta_cpp`, b, m, l, grid, p, K, basis, normalization_values)
 }
 
-compute_beta_sample_cpp <- function(trace, p, K, grid, basis, normalization_values) {
-    .Call(`_bliss_compute_beta_sample_cpp`, trace, p, K, grid, basis, normalization_values)
+extract_posterior_subsample <- function(posterior_sample, q, K) {
+    .Call(`_bliss_extract_posterior_subsample`, posterior_sample, q, K)
 }
 
-potential_intervals_List <- function(x_list, grids, l_max_vec, basis_vec, q) {
-    .Call(`_bliss_potential_intervals_List`, x_list, grids, l_max_vec, basis_vec, q)
+compute_beta_sample_cpp <- function(posterior_sample, K, grid, p, basis, normalization_values) {
+    .Call(`_bliss_compute_beta_sample_cpp`, posterior_sample, K, grid, p, basis, normalization_values)
+}
+
+potential_intervals_List <- function(x_list, grids, p_l_vec, basis_vec, q) {
+    .Call(`_bliss_potential_intervals_List`, x_list, grids, p_l_vec, basis_vec, q)
 }
 
 moving_average_cpp <- function(v, range) {
@@ -53,12 +57,12 @@ potential_intervals_extract <- function(potential_intervals, mk, lk, dims) {
     .Call(`_bliss_potential_intervals_extract`, potential_intervals, mk, lk, dims)
 }
 
-update_mqk <- function(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_alternative_q, p_q, Q, K, g, sum_K, lambda_id0) {
-    invisible(.Call(`_bliss_update_mqk`, count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_alternative_q, p_q, Q, K, g, sum_K, lambda_id0))
+update_mqk <- function(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_possible_q, p_q, Q, K, g, sum_K, lambda_id0) {
+    invisible(.Call(`_bliss_update_mqk`, count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_possible_q, p_q, Q, K, g, sum_K, lambda_id0))
 }
 
-update_lqk <- function(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_alternative_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, lambda_id0) {
-    invisible(.Call(`_bliss_update_lqk`, count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_alternative_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, lambda_id0))
+update_lqk <- function(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_possible_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, lambda_id0) {
+    invisible(.Call(`_bliss_update_lqk`, count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_possible_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, lambda_id0))
 }
 
 update_b_tilde <- function(y, sigma_sq, x_tilde, Sigma_b_tilde_inv, tol, b_tilde) {
@@ -73,11 +77,11 @@ Bliss_Gibbs_Sampler_cpp <- function(Q, y, x, grids, iter, K, basis, g, lambda, V
     .Call(`_bliss_Bliss_Gibbs_Sampler_cpp`, Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values, l_values_length, probs_l, progress, tol)
 }
 
-Bliss_Simulated_Annealing_cpp <- function(iter, beta_sample, grid, burnin, Temp, k_max, l_max, dm, dl, p, basis, normalization_values, progress) {
-    .Call(`_bliss_Bliss_Simulated_Annealing_cpp`, iter, beta_sample, grid, burnin, Temp, k_max, l_max, dm, dl, p, basis, normalization_values, progress)
+Bliss_Simulated_Annealing_cpp <- function(iter, beta_sample, grid, burnin, Temp, k_max, p_l, dm, dl, p, basis, normalization_values, progress, starting_point) {
+    .Call(`_bliss_Bliss_Simulated_Annealing_cpp`, iter, beta_sample, grid, burnin, Temp, k_max, p_l, dm, dl, p, basis, normalization_values, progress, starting_point)
 }
 
-dposterior_cpp <- function(rposterior, y, N, K, potential_intervals, potential_intervals_dims, lambda, l_max) {
-    .Call(`_bliss_dposterior_cpp`, rposterior, y, N, K, potential_intervals, potential_intervals_dims, lambda, l_max)
+dposterior_cpp <- function(rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q) {
+    .Call(`_bliss_dposterior_cpp`, rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q)
 }
 

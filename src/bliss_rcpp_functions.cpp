@@ -148,7 +148,7 @@ double integrate_trapeze_cpp (arma::vec & x, arma::vec & y){
 }
 
 //  Compute the norm of a vector.
-double norm_fct(arma::vec & x,arma::vec & y){
+double L2_norm(arma::vec & x,arma::vec & y){
   vec tmp = zeros<vec>(x.size());
   for(int i=0 ; i<tmp.size() ; ++i){
     tmp(i) = pow( y(i),2 );
@@ -172,7 +172,7 @@ arma::vec uniform_cpp (int m, int l, arma::vec & grid){
       res(index(i)-1) = 1;
     }
   }
-  double res_norm = norm_fct(grid,res);
+  double res_norm = L2_norm(grid,res);
   res = res / res_norm ;
   return res;
 }
@@ -196,7 +196,7 @@ arma::vec triangular_cpp (int m, int l, arma::vec & grid){
       res(tmp-1) = tmp2 ;
     }
   }
-  double res_norm = norm_fct(grid,res);
+  double res_norm = L2_norm(grid,res);
   res = res / res_norm ;
   return res;
 }
@@ -220,7 +220,7 @@ arma::vec gaussian_cpp (int m, int l, arma::vec & grid){
       res(tmp-1) = tmp2 ;
     }
   }
-  double res_norm = norm_fct(grid,res);
+  double res_norm = L2_norm(grid,res);
   res = res / res_norm ;
   return res;
 }
@@ -244,7 +244,7 @@ arma::vec Epanechnikov_cpp (int m, int l, arma::vec & grid){
       res(tmp-1) = tmp2 ;
     }
   }
-  double res_norm = norm_fct(grid,res);
+  double res_norm = L2_norm(grid,res);
   res = res / res_norm ;
   return res;
 }
@@ -252,7 +252,7 @@ arma::vec Epanechnikov_cpp (int m, int l, arma::vec & grid){
 // compute_beta in cpp.
 // [[Rcpp::export]]
 arma::vec compute_beta_cpp (arma::vec & b, arma::vec & m, arma::vec & l,
-                          arma::vec & grid, int p, int K, std::string basis, 
+                          arma::vec & grid, int p, int K, std::string basis,
                           arma::mat & normalization_values ){
   vec res = zeros<vec>(p) ;
 
@@ -285,45 +285,61 @@ arma::vec compute_beta_cpp (arma::vec & b, arma::vec & m, arma::vec & l,
 
 // Compute the functions beta_i for each iteration i.
 // [[Rcpp::export]]
-arma::mat compute_beta_sample_cpp (arma::mat &  trace, int p, int K, arma::vec & grid,
-                                std::string basis, arma::mat & normalization_values){
-  mat res = zeros<mat>(trace.n_rows,p);
-  vec b;
-  vec m   ;
-  vec l   ;
-  vec tmp ;
-  
-  for(int i=0 ; i<res.n_rows ; ++i){
-    tmp  = trans(trace.row(i))     ;
-    b = tmp.subvec(0,K-1)    ;
-    m    = tmp.subvec(K,2*K-1)   ;
-    l    = tmp.subvec(2*K,3*K-1) ;
+arma::mat extract_posterior_subsample (arma::mat & posterior_sample, int q,
+                                       int K){
+ unsigned nrows = posterior_sample.n_rows;
+ mat res = zeros<mat>(nrows,3*K) ;
 
-    res.row(i) = trans(compute_beta_cpp(b,m,l,grid,p,K,basis,normalization_values)) ;
-  }
-  return res ;
+ unsigned count = (q-1)*3*K;
+ res = posterior_sample.cols(count,count+3*K-1) ;
+
+ return res;
+}
+
+// Compute the functions beta_i for each iteration i.
+// [[Rcpp::export]]
+arma::mat compute_beta_sample_cpp (arma::mat & posterior_sample,
+                                   int K, arma::vec & grid, int p, std::string & basis,
+                                   arma::mat & normalization_values){
+ // mat posterior_sample_q = extract_posterior_subsample(posterior_sample,q,K);
+
+ mat res = zeros<mat>(posterior_sample.n_rows,p) ;
+ vec b   ;
+ vec m   ;
+ vec l   ;
+ vec tmp ;
+
+ for(int i=0 ; i<res.n_rows ; ++i){
+  tmp = trans(posterior_sample.row(i))     ;
+  b   = tmp.subvec(0,K-1)    ;
+  m   = tmp.subvec(K,2*K-1)   ;
+  l   = tmp.subvec(2*K,3*K-1) ;
+
+  res.row(i) = trans(compute_beta_cpp(b,m,l,grid,p,K,basis,normalization_values)) ;
+ }
+ return res ;
 }
 
 // Compute all the alternative for the value of the intergral for all m and l.
 // [[Rcpp::export]]
-arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & l_max_vec,
+arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & p_l_vec,
                                     CharacterVector & basis_vec, int q){
   mat x = as<mat>(x_list[q]);
   vec grid = as<vec>(grids[q]);
-  int l_max = l_max_vec(q);
+  int p_l = p_l_vec(q);
   std::string basis = as<std::string>(basis_vec(q));
 
   int n = x.n_rows ;
   int p = x.n_cols ;
   vec tub;
 
-  arma::cube res(p,l_max,n+1);
+  arma::cube res(p,p_l,n+1);
   vec tmp;
   vec x_tmp;
   vec tmp2;
   if(basis == "Uniform"){
     for(int i=0 ; i<p ; ++i){
-      for(int j=0 ; j<l_max ; ++j){
+      for(int j=0 ; j<p_l ; ++j){
         for( int k=0 ; k<n ; ++k){
           tmp   = uniform_cpp(i+1,j+1,grid);
           x_tmp = trans(x.row(k)) ;
@@ -336,7 +352,7 @@ arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & l_ma
   }
   if(basis == "Triangular"){
     for(int i=0 ; i<p ; ++i){
-      for(int j=0 ; j<l_max ; ++j){
+      for(int j=0 ; j<p_l ; ++j){
         for( int k=0 ; k<n ; ++k){
           tmp   = triangular_cpp(i+1,j+1,grid);
           x_tmp = trans(x.row(k)) ;
@@ -349,7 +365,7 @@ arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & l_ma
   }
   if(basis == "Gaussian"){
     for(int i=0 ; i<p ; ++i){
-      for(int j=0 ; j<l_max ; ++j){
+      for(int j=0 ; j<p_l ; ++j){
         for( int k=0 ; k<n ; ++k){
           tmp   = gaussian_cpp(i+1,j+1,grid);
           x_tmp = trans(x.row(k)) ;
@@ -362,7 +378,7 @@ arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & l_ma
   }
   if(basis == "Epanechnikov"){
     for(int i=0 ; i<p ; ++i){
-      for(int j=0 ; j<l_max ; ++j){
+      for(int j=0 ; j<p_l ; ++j){
         for( int k=0 ; k<n ; ++k){
           tmp   = Epanechnikov_cpp(i+1,j+1,grid);
           x_tmp = trans(x.row(k)) ;
@@ -375,7 +391,7 @@ arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & l_ma
   }
 
   for(int i=0 ; i<p ; ++i){
-    for(int j=0 ; j<l_max ; ++j){
+    for(int j=0 ; j<p_l ; ++j){
       // normalize by the scale \hat{s}_k
       tub = res.tube(i,j);
       tub = tub.subvec(0,n-1) ;
@@ -419,22 +435,22 @@ arma::vec moving_average_cpp (arma::vec & v, int range){
 
 // Compute the matrix V (for a Ridge Zellner prior)
 // (for Q functional covaribles)
-arma::mat compute_W_inv_List (int Q, arma::vec & K, double g, arma::mat & x_tilde, 
+arma::mat compute_W_inv_List (int Q, arma::vec & K, double g, arma::mat & x_tilde,
                               int sum_K, arma::mat & lambda_id0){
  mat W_inv = zeros<mat>(sum_K+1,sum_K+1);
  mat lambda_id = lambda_id0 ;
- 
+
  mat x_tilde_temp = mat_drop_col_k(x_tilde,0);
  mat u;
  vec s;
  mat v;
  svd(u,s,v,x_tilde_temp);
- 
+
  W_inv(0,0) = 1/lambda_id(0,0);
  for( unsigned i=1 ; i<sum_K+1; ++i){
-  lambda_id(i,i) = lambda_id(i,i) * max(s); // try with min 
+  lambda_id(i,i) = lambda_id(i,i) * max(s); // try with min
  }
- 
+
  int count = 0;
  for( unsigned q=0 ; q<Q ; ++q){
   W_inv.submat(1+count,1+count,K(q)+count,K(q)+count) =
@@ -443,13 +459,13 @@ arma::mat compute_W_inv_List (int Q, arma::vec & K, double g, arma::mat & x_tild
    lambda_id.submat(1+count,1+count,K(q)+count,K(q)+count) )  /g;
   count = count + K(q);
  }
- 
+
  return W_inv;
 }
 
 // Extract a subvector from the cube potential_intervals with a m_k and a l_k.
 // [[Rcpp::export]]
-arma::vec potential_intervals_extract (NumericVector & potential_intervals, int mk , 
+arma::vec potential_intervals_extract (NumericVector & potential_intervals, int mk ,
                                        int lk, arma::vec & dims) {
   vec res = zeros<vec>(dims(2));
   for (int i = 0; i < dims(2); i++) {
@@ -475,7 +491,7 @@ arma::mat extraire_x_tilde(arma::vec & m, arma::vec & l, NumericVector & potenti
 void update_mqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double sigma_sq,
                  arma::vec & m_q, arma::vec & l_q, arma::mat x_tilde,
                  NumericVector & potential_intervals_q, arma::vec & potential_intervals_dims_q,
-                 arma::vec & m_alternative_q, int p_q, int Q,
+                 arma::vec & m_possible_q, int p_q, int Q,
                  arma::vec K, double g, int sum_K, arma::mat & lambda_id0) {
   vec aux = zeros<vec>(p_q);
   vec aux2 = zeros<vec>(p_q);
@@ -485,7 +501,7 @@ void update_mqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
   vec probs = ones<vec>(p_q);
   vec x_tilde_qki = zeros<vec>(potential_intervals_dims_q(2)) ;
   for(int  i=0 ; i<p_q ; ++i){
-    x_tilde_qki = potential_intervals_extract(potential_intervals_q,m_alternative_q(i),
+    x_tilde_qki = potential_intervals_extract(potential_intervals_q,m_possible_q(i),
                                         l_q(k),potential_intervals_dims_q);
 
    x_tilde.col(count + k + 1) = x_tilde_qki;
@@ -493,7 +509,7 @@ void update_mqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
        y - x_tilde * b_tilde ) /(2*sigma_sq) ;
 
     W_inv_temp = compute_W_inv_List(Q,K,g,x_tilde,sum_K,lambda_id0);
-    
+
     aux(i) = aux(i) +
      dot( b_tilde , W_inv_temp * b_tilde ) / (2*sigma_sq);
     aux2(i) = sqrt( det(W_inv_temp) );
@@ -514,7 +530,7 @@ void update_mqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
 void update_lqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double sigma_sq,
                  arma::vec & m_q, arma::vec & l_q, arma::mat x_tilde,
                  NumericVector & potential_intervals_q, arma::vec & potential_intervals_dims_q,
-                 arma::vec & l_alternative_q, arma::vec & phi_l_q, int l_values_length_q, 
+                 arma::vec & l_possible_q, arma::vec & phi_l_q, int l_values_length_q,
                  int Q, arma::vec K, double g, int sum_K, arma::mat & lambda_id0) {
   vec aux = zeros<vec>(l_values_length_q);
   vec aux2 = zeros<vec>(l_values_length_q);
@@ -525,15 +541,15 @@ void update_lqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
   vec x_tilde_qki = zeros<vec>(potential_intervals_dims_q(2)) ;
   for(int  i=0 ; i<l_values_length_q ; ++i){
     x_tilde_qki = potential_intervals_extract(potential_intervals_q,m_q(k),
-                                        l_alternative_q(i),
+                                        l_possible_q(i),
                                         potential_intervals_dims_q);
 
     x_tilde.col(count + k + 1) = x_tilde_qki;
     aux(i) = dot( y - x_tilde * b_tilde ,
          y - x_tilde * b_tilde ) /(2*sigma_sq) ;
-    
+
     W_inv_temp = compute_W_inv_List(Q,K,g,x_tilde,sum_K,lambda_id0);
-    
+
     aux(i) = aux(i) +
      dot( b_tilde , W_inv_temp * b_tilde ) / (2*sigma_sq);
     aux2(i) = sqrt( det(W_inv_temp) );
@@ -549,7 +565,7 @@ void update_lqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
 }
 
 // update the parameter sigma_sq
-void update_sigma_sq (arma::vec & y, arma::vec & b_tilde, arma::mat & W_inv, 
+void update_sigma_sq (arma::vec & y, arma::vec & b_tilde, arma::mat & W_inv,
                       arma::mat & x_tilde, int n, int sum_K, double & sigma_sq) {
   vec y_tmp     = y - x_tilde * b_tilde ;
   double y_tmp2 = dot(y_tmp,y_tmp) ;
@@ -557,13 +573,13 @@ void update_sigma_sq (arma::vec & y, arma::vec & b_tilde, arma::mat & W_inv,
 
   double a_star = (sum_K+n+1)/2 ;
   double b_star = 0.5*( y_tmp2 + b_tilde_tmp);
-  
+
   sigma_sq = 1. / (R::rgamma(a_star, 1/b_star) );
 }
 
 // update the parameter b
 // [[Rcpp::export]]
-void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde, 
+void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
                           arma::mat & Sigma_b_tilde_inv, double tol,
                           arma::vec & b_tilde) {
   vec mu_b_tilde = trans(x_tilde) * y;
@@ -576,7 +592,7 @@ void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
 double loss_cpp (arma::vec & d, arma::vec & grid, arma::vec & posterior_expe){
   vec tmp  = d-posterior_expe ;
 
-  return pow(norm_fct(grid, tmp),2 );
+  return pow(L2_norm(grid, tmp),2 );
 }
 
 // Compute the decrease of the Temperature
@@ -621,9 +637,9 @@ void update_x_tilde (int Q, arma::vec & K, List & potential_intervals,
 // length KQ.
 // [[Rcpp::export]]
 List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
-                              int iter, arma::vec & K, CharacterVector & basis, 
-                              double g, double lambda ,arma::mat & V_tilde, 
-                              List & l_values, arma::vec & l_values_length,List & probs_l, 
+                              int iter, arma::vec & K, CharacterVector & basis,
+                              double g, double lambda ,arma::mat & V_tilde,
+                              List & l_values, arma::vec & l_values_length,List & probs_l,
                               bool progress, double tol) {
   if(progress) Rcpp::Rcout << "Gibbs Sampler: " <<  std::endl;
   if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;
@@ -669,7 +685,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   double sigma_sq       ;
   vec b_tilde           ;
   mat Sigma_b_tilde_inv ;
-  mat W_inv             ; 
+  mat W_inv             ;
 
   bool success = false ;
   mat R                ;
@@ -678,7 +694,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   List m(Q) ;
   List l(Q) ;
   mat x_tilde = ones<mat>(n,sum_K+1) ;
-  
+
   // Try to determine a starting point which not leads to a non-invertible
   // matrix problem
   while(success == false){
@@ -715,11 +731,11 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     test            = ginv_cpp(Sigma_b_tilde_inv,tol)    ;
     success         = accu(abs(test)) != 0                  ;
   }
-  
-  // Initialization of b_tilde 
+
+  // Initialization of b_tilde
   // peut etre definir le vecteur de 0 avant XXXXXXXXXXXXXXXXXXXXX
   b_tilde = mvrnormArma( zeros<vec>(sum_K+1) , ginv_cpp(W_inv,tol) , sigma_sq) ;
-  
+
   // Initialize the matrix trace
   mat trace = zeros<mat>(iter+1,3*sum_K+2);
   int count = 0;
@@ -737,13 +753,13 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   }
 
   // Initialize some variable used in the Gibbs loop
-  List l_alternative(Q);
+  List l_possible(Q);
   for( int q=0 ; q<Q ; ++q){
-    l_alternative[q] = sequence(1,l_values_length(q),1);
+    l_possible[q] = sequence(1,l_values_length(q),1);
   }
-  List m_alternative(Q);
+  List m_possible(Q);
   for( int q=0 ; q<Q ; ++q){
-    m_alternative[q] = sequence(1,p(q),1);
+    m_possible[q] = sequence(1,p(q),1);
   }
 
   // The Gibbs loop
@@ -765,14 +781,14 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
       int p_q = p(q);
       NumericVector potential_intervals_q = potential_intervals[q];
       vec potential_intervals_dims_q      = potential_intervals_dims[q];
-      vec m_alternative_q = sequence(1,p_q,1) ;
+      vec m_possible_q = sequence(1,p_q,1) ;
 
       for(int k=0 ; k<K(q) ; ++k){
         // update m_k
         update_mqk(count,k,y,b_tilde,sigma_sq,m_q,l_q,x_tilde,
-            potential_intervals_q,potential_intervals_dims_q,m_alternative_q,p_q,Q,K,g,
+            potential_intervals_q,potential_intervals_dims_q,m_possible_q,p_q,Q,K,g,
             sum_K,lambda_id0);
-       
+
         // update the value "x_tilde"
         update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
                        x_tilde);
@@ -794,15 +810,15 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
       int l_values_length_q = l_values_length(q);
       NumericVector potential_intervals_q = potential_intervals[q];
       vec potential_intervals_dims_q      = potential_intervals_dims[q];
-      vec l_alternative_q = sequence(1,l_values_length_q,1) ;
+      vec l_possible_q = sequence(1,l_values_length_q,1) ;
       vec probs_l_q         = probs_l[q];
 
       for(int k=0 ; k<K(q) ; ++k){
         // update l_k
         update_lqk(count,k,y,b_tilde,sigma_sq,m_q,l_q,x_tilde,
-            potential_intervals_q,potential_intervals_dims_q,l_alternative_q,probs_l_q,
+            potential_intervals_q,potential_intervals_dims_q,l_possible_q,probs_l_q,
             l_values_length_q, Q,K,g,sum_K,lambda_id0);
-       
+
 
         // update the value "x_tilde"
         update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
@@ -884,413 +900,346 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
 // [[Rcpp::export]]
 List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec & grid,
                                     int burnin, double Temp,int k_max,
-                                    int l_max, int dm, int dl,
-                                    int p,std::string basis, arma::mat & normalization_values,
-                                    bool progress){
-  if(progress) Rcpp::Rcout << "Simulated Annealing:" <<  std::endl;
-  // Initialization
-  if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;
-  int N = beta_sample.n_rows;
-  vec posterior_expe = zeros<vec>(p);
-  vec posterior_var  = zeros<vec>(p); // 
-  for(int i=0 ; i<p ; ++i){
-    posterior_expe(i) = mean(beta_sample.col(i));
-    posterior_var(i)  =  var(beta_sample.col(i));
-  }
+                                    int p_l, int dm, int dl, int p,
+                                    std::string basis, arma::mat & normalization_values,
+                                    bool progress, arma::mat & starting_point){
+ if(progress) Rcpp::Rcout << "Simulated Annealing:" <<  std::endl;
+ // Initialization
+ if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;
+ int N = beta_sample.n_rows;
+ vec posterior_expe = zeros<vec>(p);
+ for(int i=0 ; i<p ; ++i){
+  posterior_expe(i) = mean(beta_sample.col(i));
+ }
 
-  vec probs;
-  int k;
-  vec m;
-  vec l;
-  vec b;
-  vec d;
-  double d_loss;
-  int boundary_min;
-  int boundary_max;
-  vec difference;
+ vec probs;
+ int k;
+ vec m;
+ vec l;
+ vec b;
+ vec d;
+ double d_loss;
+ int value_min;
+ int value_max;
+ vec difference;
+ vec difference_l;
 
-  vec d_tmp;
-  double d_loss_tmp;
-  double proba_acceptance;
-  double u;
-  int j;
-  double Temperature;
-  vec b_tmp;
-  vec m_tmp;
-  vec l_tmp;
-  int k_tmp;
-  int accepted;
-  vec choice_prob_interval;
-  vec choice_prob;
-  int choice;
-  int interval_min;
-  int interval_max;
-  double var_b;
-  vec boundaries_min;
-  vec boundaries_max;
-  vec boundaries;
-  int new_m;
-  int new_l;
-  double new_b;
+ vec d_tmp;
+ double d_loss_tmp;
+ double proba_acceptance;
+ double u;
+ int j;
+ double Temperature;
+ vec b_tmp;
+ vec m_tmp;
+ vec l_tmp;
+ int k_tmp;
+ int accepted;
+ vec choice_prob_interval;
+ vec choice_prob;
+ int choice;
+ double mean_b;
+ double var_b;
+ int new_m;
+ int new_l;
+ double new_b;
+ unsigned smooth_param = 1;
+ if(smooth_param == 0) smooth_param = 1;
+ vec tmp_basis;
 
-  // Initialize the matrix trace
-  mat trace = zeros<mat>(iter+1,3*k_max+3);
+ // Initialize the matrix trace
+ mat trace = zeros<mat>(iter+1,3*k_max+4);
+ Temp = pow(L2_norm(grid, posterior_expe),2 )*(floor(iter)/1000);
+ difference = abs(posterior_expe);
+ difference = moving_average_cpp(difference,smooth_param);
 
-  // Determine the start point
-  if(progress) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
-  probs = ones<vec>(k_max);
-  k     = sample_weight( probs )+1;
-  m     = zeros<vec>(k);
-  l     = zeros<vec>(k);
-  b     = zeros<vec>(k);
+ // Determine the start point
+ if(progress) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
+ m = starting_point.col(0);
+ l = starting_point.col(1);
+ b = starting_point.col(2);
+ k = m.size()   ;
+ for(unsigned i=0 ; i<k ; ++i){
+  tmp_basis = uniform_cpp(m(i),l(i),grid);
+  b(i) = b(i) * normalization_values( m(i)-1 , l(i)-1 ) / tmp_basis(m(i)-1);
+ }
 
-  probs = ones<vec>(p);
-  m(0)  = sample_weight( probs )+1;
-  probs = ones<vec>(l_max); // besoin de lmax: a remplacer par du calcul de l_values
-  l(0)  = sample_weight( probs )+1;
+ // Compute the first function with K intervals (and its loss)
+ d      = compute_beta_cpp(b,m,l,grid,p,k,basis,normalization_values);
+ d_loss = loss_cpp(d,grid,posterior_expe);
 
-  boundary_min = m(0)-l(0)-1;
-  boundary_max = m(0)+l(0)-1;
-  if(boundary_min < 0   ) boundary_min = 0   ;
-  if(boundary_max > p-1 ) boundary_max = p-1 ;
-  b(0) = mean(posterior_expe.subvec( boundary_min , boundary_max ));
-  d = compute_beta_cpp(b,m,l,grid,p,1,basis,normalization_values);
+ // Update the trace with the start point
+ trace.row(0).subvec( 0       ,           k-1) = trans(b.subvec(0,k-1)) ;
+ trace.row(0).subvec( k_max   , k_max   + k-1) = trans(m.subvec(0,k-1))         ;
+ trace.row(0).subvec( k_max*2 , k_max*2 + k-1) = trans(l.subvec(0,k-1))         ;
+ trace(0,3*k_max)   = 1      ;
+ trace(0,3*k_max+1) = 0      ;
+ trace(0,3*k_max+2) = k      ;
+ trace(0,3*k_max+3) = d_loss ;
 
-  if(k > 1){
-    for(int i=1 ; i<k ; ++i ){
-      // Compute the difference ...
-      difference = abs(posterior_expe - d);
-      // ... and its smoothed version.
-      difference = moving_average_cpp(difference,floor(p/10));
+ // Start the loop
+ if(progress) Rcpp::Rcout << "\t Start the loop." <<  std::endl;
+ for(int i=0 ; i<iter ; ++i){
+  Temperature = cooling_cpp(i,Temp);
+  // Progress
+  if( (i+1) % (iter / 10)  == 0)
+   if(progress) Rcpp::Rcout << "\t " << (i+1) / (iter / 100) << "%" << std::endl;
+   // Initialize the proposal
+   b_tmp     = b ;
+   m_tmp     = m ;
+   l_tmp     = l ;
+   k_tmp     = k ;
+   accepted  = 0 ;
+   choice_prob_interval = ones<vec>(k);
 
-      // Which intervals are possible ?
-      for(int o=0 ; o<i ; ++o){
-        if( m(o) - l(o) -1 > 0  ) boundary_min = m(o) - l(o) -1; else boundary_min = 1;
-        if( m(o) + l(o) +1 < p+1) boundary_max = m(o) + l(o) +1; else boundary_max = p;
-        for(int z=boundary_min; z < boundary_max+1 ; ++z){
-          difference(z-1) = 0;
-        }
-      }
+   // Choose a move
+   choice_prob = ones<vec>(5);
+   if(k == k_max) choice_prob(3) = choice_prob(3) -1;
+   if(k == 1    ) choice_prob(4) = choice_prob(4) -1;
 
-      // Simulate an interval
-      if(sum(difference) > 0){
-        vec boundaries;
-        vec boundaries_min;
-        vec boundaries_max;
-        int boundary_min;
-        int boundary_max;
+   choice = sample_weight( choice_prob ) + 1;
+   // change a b_j
+   if(choice == 1){
+    // choose an interval
+    j = sample_weight(choice_prob_interval);
 
-        // Simulate a m
-        m(i) = sample_weight(difference) +1;
+    // Simulate a new b_j
+    value_min = m(j)-l(j) -1;
+    value_max = m(j)+l(j) -1;
+    if(value_min < 0   ) value_min = 0   ;
+    if(value_max > p-1 ) value_max = p-1 ;
 
-        // Simulate a l
-        boundaries_max = zeros<vec>(i);
-        boundaries_min = zeros<vec>(i);
+    // Compute the difference ...
+    difference = (posterior_expe - d);
+    difference = moving_average_cpp(difference,smooth_param);
+    tmp_basis  = uniform_cpp(m(j),l(j),grid);
+    mean_b = mean(difference.subvec( value_min , value_max)*
+     normalization_values( m(j)-1 , l(j)-1 )) / tmp_basis(m(j)-1);
 
-        boundaries_min = abs(m.subvec(0,i-1) - l.subvec(0,i-1) - m(i))-1 ;
-        boundaries_max = abs(m.subvec(0,i-1) + l.subvec(0,i-1) - m(i))-1 ;
+    // ... and its smoothed version.
+    difference = abs(posterior_expe - d);
+    var_b = var(difference.subvec( value_min , value_max)*
+     normalization_values( m(j)-1 , l(j)-1 )) / tmp_basis(m(j)-1);
 
-        boundaries = zeros<vec>(2*i+1);
-        boundaries(0) = l_max;
-        boundaries.subvec(1  ,i  ) = boundaries_min;
-        boundaries.subvec(1+i,i+i) = boundaries_max;
-        boundaries = sort(boundaries);
-        boundary_max = boundaries(0);
+    b_tmp(j) = R::rnorm( mean_b, sqrt(var_b) );
+   }
+   // change a m_j and b_j
+   if(choice == 2){
+    // choose an interval
+    j = sample_weight(choice_prob_interval);
 
-        if(boundary_max < 1) boundary_max = 1;
+    // Simulate a new m_j
 
-        l(i) = sample_weight( ones<vec>(boundary_max) ) + 1 ;
-        // Simulate a b (from the smoothed difference)
-        if( m(i) - l(i) -1 > 0  ) boundary_min = m(i) - l(i) -1; else boundary_min = 1;
-        if( m(i) + l(i) +1 < p+1) boundary_max = m(i) + l(i) +1; else boundary_max = p;
-        b(i) = mean( difference.subvec(boundary_min-1 , boundary_max-1) );
-        // Compute the function with these intervals
-        d = compute_beta_cpp(b,m,l,grid,p,i+1,basis,normalization_values);
-      }else{
-        // sortir de la boucle avec une bonne valeur de k
-        unsigned i_tmp = i;
-        i = k ;
-        k = i_tmp;
-      }
+    // value_max = m(j) + dm ;
+    // value_min = m(j) - dm ;
+    // if(value_max > p) value_max = p ;
+    // if(value_min < 1) value_min = 1 ;
+    //
+    // probs = ones<vec>( value_max - value_min + 1 ) ;
+    // m_tmp(j)  = sample_weight( probs ) + value_min ;
+
+    difference = (posterior_expe - d);
+    difference = moving_average_cpp(difference,smooth_param);
+    m_tmp(j) = sample_weight(abs(difference)) +1;
+
+    // Simulate a new b_j
+    value_min = m(j)-l(j) -1;
+    value_max = m(j)+l(j) -1;
+    if(value_min < 0   ) value_min = 0   ;
+    if(value_max > p-1 ) value_max = p-1 ;
+
+    tmp_basis  = uniform_cpp(m(j),l(j),grid);
+    b_tmp(j) = mean(difference.subvec( value_min , value_max)*
+     normalization_values( m(j)-1 , l(j)-1 )) / tmp_basis(m(j)-1);
+   }
+   // change a l_j
+   if(choice == 3){
+    // choose an interval
+    j = sample_weight(choice_prob_interval);
+
+    // Simulate a new l_j
+    value_max = l(j) + dl ;
+    value_min = l(j) - dl ;
+    if(value_max > p_l) value_max = p_l ;
+    if(value_min < 1) value_min = 1 ;
+
+    probs = ones<vec>( value_max - value_min + 1 ) ;
+    l_tmp(j)  = sample_weight( probs ) + value_min ;
+   }
+   // birth
+   if(choice == 4){
+    // compute the difference ...
+    difference = abs(posterior_expe - d);
+    // ... and its smoothed version
+    difference = moving_average_cpp(difference,smooth_param);
+
+    if(sum(abs(difference)) > 0){
+     // update k
+     k_tmp = k+1;
+     // Simulate a new m
+     new_m = sample_weight(abs(difference)) +1;
+     m_tmp = zeros<vec>(k_tmp);
+     m_tmp.subvec(0,k-1) = m;
+     m_tmp(k_tmp-1)      = new_m;
+
+     // Simulate a new l
+     difference_l = zeros<vec>(dl);
+     for(unsigned o=0 ; o<dl ; ++o){
+      value_min = new_m-o-1; if(value_min < 1) value_min = 1;
+      value_max = new_m+o+1; if(value_max > p) value_max = p;
+      difference_l(o) = exp(-pow(mean(abs(
+       difference.subvec(value_min-1,value_max-1) - difference(new_m-1)
+      )),2));
+     }
+
+     new_l = sample_weight(difference_l) + 1 ;
+
+     l_tmp = zeros<vec>(k_tmp);
+     l_tmp.subvec(0,k-1) = l;
+     l_tmp(k_tmp-1)      = new_l;
+
+     // Simulate a new b (from the smoothed difference)
+     if( new_m - new_l -1 > 0  ) value_min = new_m - new_l -1; else value_min = 1;
+     if( new_m + new_l +1 < p+1) value_max = new_m + new_l +1; else value_max = p;
+
+     tmp_basis  = uniform_cpp(new_m,new_l,grid);
+     difference = (posterior_expe - d);
+     difference = moving_average_cpp(difference,smooth_param);
+     new_b = mean( difference.subvec(value_min-1 , value_max-1) )*
+      normalization_values( new_m-1 , new_l-1 )/ tmp_basis(new_m-1);
+
+     b_tmp = zeros<vec>(k_tmp);
+     b_tmp.subvec(0,k_tmp-2) = b;
+     b_tmp(k_tmp-1)          = new_b;
     }
-  }
+   }
+   // death
+   if(choice == 5){
+    // Choose an interval to drop
+    j = sample_weight(choice_prob_interval);
 
-  // Compute the first function with K intervals (and its loss)
-  d      = compute_beta_cpp(b,m,l,grid,p,k,basis,normalization_values);
-  d_loss = loss_cpp(d,grid,posterior_expe);
+    // Drop the interval
+    k_tmp = k-1;
+    b_tmp = zeros<vec>(k_tmp);
+    m_tmp = zeros<vec>(k_tmp);
+    l_tmp = zeros<vec>(k_tmp);
 
-  // Update the trace with the start point
-  trace.row(0).subvec( 0       ,           k-1) = trans(b.subvec(0,k-1)) ;
-  trace.row(0).subvec( k_max   , k_max   + k-1) = trans(m.subvec(0,k-1))         ;
-  trace.row(0).subvec( k_max*2 , k_max*2 + k-1) = trans(l.subvec(0,k-1))         ;
-  trace(0,3*k_max)   = 1      ;
-  trace(0,3*k_max+1) = k      ;
-  trace(0,3*k_max+2) = d_loss ;
+    b_tmp = vec_drop_k(b,j);
+    m_tmp = vec_drop_k(m   ,j);
+    l_tmp = vec_drop_k(l   ,j);
+   }
 
-  // Start the loop
-  if(progress) Rcpp::Rcout << "\t Start the loop." <<  std::endl;
-  for(int i=0 ; i<iter ; ++i){
-    Temperature = cooling_cpp(i,Temp);
-    // Progress
-    if( (i+1) % (iter / 10)  == 0)
-      if(progress) Rcpp::Rcout << "\t " << (i+1) / (iter / 100) << "%" << std::endl;
-    // Initialize the proposal
-    b_tmp     = b ;
-    m_tmp     = m ;
-    l_tmp     = l ;
-    k_tmp     = k ;
-    accepted  = 0 ;
-    choice_prob_interval = ones<vec>(k);
+   // Compute the acceptance probability
+   d_tmp      = compute_beta_cpp(b_tmp,m_tmp,l_tmp,grid,p,k_tmp,basis,
+                                 normalization_values);
+   d_loss_tmp = loss_cpp(d_tmp,grid,posterior_expe);
 
-    // Choose a move
-    choice_prob = ones<vec>(5);
-    if(k == k_max) choice_prob(3) = choice_prob(3) -1;
-    if(k == 1    ) choice_prob(4) = choice_prob(4) -1;
+   proba_acceptance = exp( -( d_loss_tmp-d_loss )/ Temperature );
 
-    choice = sample_weight( choice_prob ) + 1;
-    // change a b
-    if(choice == 1){
-      // choose an interval
-      j = sample_weight(choice_prob_interval);
+   // Accept/reject
+   u = R::runif(0,1) ;
+   if(u < proba_acceptance){
+    b = zeros<vec>(k_tmp) ;
+    l = zeros<vec>(k_tmp) ;
+    m = zeros<vec>(k_tmp) ;
+    accepted  = 1         ;
+    b = b_tmp.subvec(0,k_tmp-1) ;
+    m = m_tmp.subvec(0,k_tmp-1) ;
+    l = l_tmp.subvec(0,k_tmp-1) ;
+    k = k_tmp ;
+    d = d_tmp ;
+    d_loss    = d_loss_tmp ;
+   }
 
-      // Simulate a new b_k
-      interval_min = m(j)-l(j) -1;
-      interval_max = m(j)+l(j) -1;
-      if(interval_min < 0   ) interval_min = 0   ;
-      if(interval_max > p-1 ) interval_max = p-1 ;
+   // Update the trace
+   trace.row(i+1).subvec( 0       ,           k-1) = trans(b.subvec( 0,k-1)) ;
+   trace.row(i+1).subvec( k_max   , k_max   + k-1) = trans(m.subvec( 0,k-1))         ;
+   trace.row(i+1).subvec( k_max*2 , k_max*2 + k-1) = trans(l.subvec( 0,k-1))         ;
+   trace(i+1,3*k_max  ) = accepted ;
+   trace(i+1,3*k_max+1) = choice   ;
+   trace(i+1,3*k_max+2) = k        ;
+   trace(i+1,3*k_max+3) = d_loss   ;
+ }
 
-      var_b = mean(posterior_var.subvec( interval_min , interval_max));
-      b_tmp(j) = R::rnorm( b(j), sqrt(var_b) );
-    }
-    // change a m_k
-    if(choice == 2){
-      // choose an interval
-      j = sample_weight(choice_prob_interval);
-
-      // Simulate a new m_k
-      if(k > 1){
-        boundaries_max = zeros<vec>(k);
-        boundaries_max.subvec(0,k-2) = vec_drop_k(m,j).subvec(0,k-2) -
-          vec_drop_k(l,j).subvec(0,k-2) - l(j)-1 ;
-        boundaries_max(k-1)          = p ;
-        boundaries_max               = sort(boundaries_max);
-        boundary_max                 = boundaries_max(boundaries_max.size()-1);
-
-        for(int o=0 ; o<boundaries_max.size() ; ++o){
-          if(m(j) < boundaries_max(o) ){
-            boundary_max = boundaries_max(o) ;
-            break;
-          }
-        }
-
-        boundaries_min = zeros<vec>(k);
-        boundaries_min.subvec(0,k-2) = vec_drop_k(m,j).subvec(0,k-2) +
-          vec_drop_k(l,j).subvec(0,k-2) + l(j)+1 ;
-        boundaries_min(k-1)          = 1 ;
-        boundaries_min               = sort(boundaries_min);
-        boundary_min                 = boundaries_min(0);
-
-        for(int o=boundaries_max.size()-1 ; o>=0 ; --o){
-          if(m(j) > boundaries_min(o) ){
-            boundary_min = boundaries_min(o) ;
-            break;
-          }
-        }
-      }else{
-        boundary_max = m(j) + dm ;
-        boundary_min = m(j) - dm ;
-        if(boundary_max > p) boundary_max = p ;
-        if(boundary_min < 1) boundary_min = 1 ;
-      }
-
-      if(boundary_max - boundary_min + 1 > 0){
-        probs = ones<vec>( boundary_max - boundary_min + 1 ) ;
-        m_tmp(j)  = sample_weight( probs ) + boundary_min ;
-      }
-    }
-    // change a l_k
-    if(choice == 3){
-      // choose an interval
-      j = sample_weight(choice_prob_interval);
-
-      // Simulate a new l_k
-      if(k > 1){
-        boundaries_max = zeros<vec>(k-1);
-        boundaries_min = zeros<vec>(k-1);
-        boundaries_max = abs(vec_drop_k(m,j) + vec_drop_k(l,j) - m(j))-1 ;
-        boundaries_min = abs(vec_drop_k(m,j) - vec_drop_k(l,j) - m(j))-1 ;
-
-        boundaries = zeros<vec>(2*k-1);
-        boundaries(0) = dl;
-        boundaries.subvec(1,k-1)   = boundaries_min.subvec(0,k-2);
-        boundaries.subvec(k,2*(k-1)) = boundaries_max.subvec(0,k-2);
-        boundaries = sort(boundaries);
-        boundary_max = boundaries(0);
-
-        if(boundary_max > 1){
-          l_tmp(j) = sample_weight( ones<vec>(boundary_max) ) + 1 ;
-        }
-      }
-    }
-    // birth
-    if(choice == 4){
-      // compute the difference ...
-      difference = posterior_expe - d;
-      // ... and its smoothed version
-      difference = moving_average_cpp(difference,floor(p/10));
-
-      // Which intervals are possible ?
-      for(int o=0 ; o<k ; ++o){
-        if( m(o) - l(o) -1 > 0  ) boundary_min = m(o) - l(o) -1; else
-          boundary_min = 1;
-        if( m(o) + l(o) +1 < p+1) boundary_max = m(o) + l(o) +1; else
-          boundary_max = p;
-        for(int z=boundary_min; z < boundary_max+1 ; ++z){
-          difference(z-1) = 0;
-        }
-      }
-      if(sum(abs(difference)) > 0){
-        // update k
-        k_tmp = k+1;
-        // Simulate a new m
-        new_m = sample_weight(abs(difference)) +1;
-        m_tmp = zeros<vec>(k_tmp);
-        m_tmp.subvec(0,k-1) = m;
-        m_tmp(k_tmp-1)      = new_m;
-        // Simulate a new l
-        boundaries_max = zeros<vec>(k_tmp-1);
-        boundaries_min = zeros<vec>(k_tmp-1);
-
-        boundaries_min = abs(m - l - new_m)-1 ;
-        boundaries_max = abs(m + l - new_m)+1 ;
-
-        boundaries = zeros<vec>(2*k+1);
-        boundaries(0) = l_max;
-        boundaries.subvec(1  ,k  ) = boundaries_min;
-        boundaries.subvec(1+k,k+k) = boundaries_max;
-        boundaries = sort(boundaries);
-        boundary_max = boundaries(0);
-
-        new_l = sample_weight( ones<vec>(boundary_max) ) + 1 ;
-        l_tmp = zeros<vec>(k_tmp);
-        l_tmp.subvec(0,k-1) = l;
-        l_tmp(k_tmp-1)      = new_l;
-
-        // Simulate a new b (from the smoothed difference)
-        if( new_m - new_l -1 > 0  ) boundary_min = new_m - new_l -1; else boundary_min = 1;
-        if( new_m + new_l +1 < p+1) boundary_max = new_m + new_l +1; else boundary_max = p;
-        new_b = mean( difference.subvec(boundary_min-1 , boundary_max-1) );
-        b_tmp = zeros<vec>(k_tmp);
-        b_tmp.subvec(0,k_tmp-2) = b;
-        b_tmp(k_tmp-1)          = new_b;
-      }
-    }
-    // death
-    if(choice == 5){
-      // Choose an interval to drop
-      j = sample_weight(choice_prob_interval);
-
-      // Drop the interval
-      k_tmp = k-1;
-      b_tmp = zeros<vec>(k_tmp);
-      m_tmp    = zeros<vec>(k_tmp);
-      l_tmp    = zeros<vec>(k_tmp);
-
-      b_tmp = vec_drop_k(b,j);
-      m_tmp    = vec_drop_k(m   ,j);
-      l_tmp    = vec_drop_k(l   ,j);
-    }
-
-    // Compute the acceptance probability
-    d_tmp      = compute_beta_cpp(b_tmp,m_tmp,l_tmp,grid,p,k_tmp,basis,
-                                normalization_values);
-    d_loss_tmp = loss_cpp(d_tmp,grid,posterior_expe);
-
-    proba_acceptance = exp( -( d_loss_tmp-d_loss )/ Temperature );
-
-    // Accept/reject
-    u = R::runif(0,1) ;
-    if(u < proba_acceptance){
-      b = zeros<vec>(k_tmp)     ;
-      l = zeros<vec>(k_tmp)     ;
-      m = zeros<vec>(k_tmp)     ;
-      accepted  = 1             ;
-      b = b_tmp.subvec(0,k_tmp-1) ;
-      m         = m_tmp.subvec(0,k_tmp-1)         ;
-      l         = l_tmp.subvec(0,k_tmp-1)         ;
-      k         = k_tmp         ;
-      d         = d_tmp         ;
-      d_loss    = d_loss_tmp    ;
-    }
-
-    // Update the trace
-    trace.row(i+1).subvec( 0       ,           k-1) = trans(b.subvec( 0,k-1)) ;
-    trace.row(i+1).subvec( k_max   , k_max   + k-1) = trans(m.subvec( 0,k-1))         ;
-    trace.row(i+1).subvec( k_max*2 , k_max*2 + k-1) = trans(l.subvec( 0,k-1))         ;
-    trace(i+1,3*k_max  ) = accepted ;
-    trace(i+1,3*k_max+1) = k        ;
-    trace(i+1,3*k_max+2) = d_loss   ;
-  }
-
-  // Return the result
-  if(progress) Rcpp::Rcout << "\t Return the result." <<  std::endl;
-  return  List::create(_["trace"]         =trace,
-                       _["posterior_expe"]=posterior_expe);
+ // Return the result
+ if(progress) Rcpp::Rcout << "\t Return the result." <<  std::endl;
+ return  List::create(_["trace"]         =trace,
+                      _["posterior_expe"]=posterior_expe);
 }
-
-
-
-
 
 // Perform the Simulated Annealing algorithm to minimize the loss function
 // [[Rcpp::export]]
-arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N, unsigned K,
-                    NumericVector & potential_intervals, arma::vec & potential_intervals_dims,
-                    double lambda, double l_max){
+arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
+                          arma::vec & K, List & potential_intervals,
+                          List & potential_intervals_dims, arma::vec & p_l,
+                          unsigned Q){
+  int      sum_K = sum(K)       ;
   mat      res = zeros<mat>(N,6);
   unsigned n   = y.size()       ;
   double   RSS = 0              ;
 
-  vec    b_tilde = zeros<vec>(K+1) ;
+  vec    b_tilde = zeros<vec>(sum_K+1) ;
   double sigma_sq ;
-  vec    m        ;
-  vec    l        ;
+  vec    m = zeros<vec>(sum_K) ;
+  vec    l = zeros<vec>(sum_K) ;
+  vec    m_temp   ;
+  vec    l_temp   ;
 
-  double posterior_d      ;
-  double log_posterior_d  ;
-  double prior_d      ;
-  double log_prior_d  ;
-  double lkh     ;
-  double log_lkh ;
+  double posterior_d     ;
+  double log_posterior_d ;
+  double prior_d         ;
+  double log_prior_d     ;
+  double lkh             ;
+  double log_lkh         ;
+  double lambda = 5      ;
+  unsigned count         ;
+  unsigned count2        ;
 
+  mat W_inv     ;
+  vec a_l = 5*K ;
 
-  mat    W_inv  ;
-  double a_l = 5*K ;
-
-  mat    x_tilde  = ones<mat>(n,K+1) ;
-  mat lambda_id0  = zeros<mat>(K+1,K+1) ;
-  lambda_id0(0,0) = 100*var(y);
-  for( unsigned i=1 ; i<K+1; ++i){
+  mat    x_tilde  = ones<mat>(n,sum_K+1) ;
+  mat lambda_id0  = zeros<mat>(sum_K+1,sum_K+1) ;
+  lambda_id0(0,0) = 100*var(y); //XXXXXXXXXXX
+  for( unsigned i=1 ; i<sum_K+1; ++i){
     lambda_id0(i,i) = lambda ;
   }
-  vec K_vec = ones<vec>(1) ;
-  K_vec(0)  = K ;
 
   for(unsigned j=0 ; j<N ; ++j ){
     // load the parameter value
-    b_tilde(0)          = rposterior(j,3*K  ) ;
-    b_tilde.subvec(1,K) = trans(rposterior.row(j).subvec(  0,  K-1)) ;
-    sigma_sq = rposterior(j,3*K+1) ;
-    m        = trans(rposterior.row(j).subvec(  K,2*K-1)) ;
-    l        = trans(rposterior.row(j).subvec(2*K,3*K-1)) ;
+    b_tilde(0) = rposterior(j,3*sum_K  ) ;
+    sigma_sq   = rposterior(j,3*sum_K+1) ;
+    count = 0 ;
+    count2 = 0;
+    for(unsigned q=0 ; q<Q ; ++q){
+     b_tilde.subvec(count+1,count+K(q)) =
+      trans(rposterior.row(j).subvec(  count2,  count2 + K(q)-1)) ;
+     count2 += K(q);
+     m.subvec(count,count+K(q)-1) =
+      trans(rposterior.row(j).subvec(  count2,  count2 + K(q)-1)) ;
+     count2 += K(q);
+     l.subvec(count,count+K(q)-1) =
+      trans(rposterior.row(j).subvec(  count2,  count2 + K(q)-1)) ;
+     count2 += K(q);
+     count += K(q);
+    }
 
     // compute x_tilde
-    for(unsigned k=0 ; k<K ; ++k) {
-      x_tilde.col(k+1) = potential_intervals_extract(potential_intervals,m(k),l(k),
-                  potential_intervals_dims);
+    int count = 0;
+    for( unsigned q=0 ; q<Q ; ++q){
+     for(unsigned k=0 ; k<K(q) ; ++k) {
+      m_temp = m.subvec(count,count+K(q)-1) ;
+      l_temp = l.subvec(count,count+K(q)-1) ;
+      NumericVector potential_intervals_temp = potential_intervals[q];
+      vec potential_intervals_dims_temp = potential_intervals_dims[q];
+      x_tilde.col(k+1+count) = potential_intervals_extract(potential_intervals_temp,
+                  m_temp(k),l_temp(k),potential_intervals_dims_temp);
+     }
+     count += K(q);
     }
+
     // compute Sigma
-    W_inv = compute_W_inv_List (1,K_vec,n, x_tilde,K,lambda_id0) ;
+    W_inv = compute_W_inv_List (Q,K,n, x_tilde,sum_K,lambda_id0) ;
 
     RSS   = sum(square(y - x_tilde * b_tilde)) ;
     // compute the (log) likelihood
@@ -1299,7 +1248,14 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N, uns
 
     // compute the (log) prior density
     log_prior_d = -1./(2.*sigma_sq) * dot(b_tilde, W_inv * b_tilde) -
-      (K+3.)/2. * log(sigma_sq) - a_l * sum(l) / l_max + log(det(W_inv)) / 2.;
+      (sum_K+3.)/2. * log(sigma_sq)  + log(det(W_inv)) / 2.;
+    count =0;
+    for(unsigned q=0 ; q<Q ; ++q){
+     l_temp = l.subvec(count,count+K(q)-1);
+     log_prior_d -=  a_l(q) * sum(l_temp) / p_l(q);
+     count += K(q) ;
+    }
+
     prior_d = exp(log_prior_d);
     // compute the (log) posterior density
 
@@ -1318,3 +1274,7 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N, uns
   // return the (log) densities
   return(res);
 }
+
+
+
+

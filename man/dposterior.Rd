@@ -4,17 +4,18 @@
 \alias{dposterior}
 \title{dposterior}
 \usage{
-dposterior(res.Gibbs_Sampler, data, theta = NULL)
+dposterior(posterior_sample, data, Q, theta = NULL)
 }
 \arguments{
-\item{res.Gibbs_Sampler}{a list given by the "Bliss_Gibbs_Sampler" function.}
+\item{posterior_sample}{a list given by the "Bliss_Gibbs_Sampler" function.}
 
 \item{data}{a list containing
 \describe{
-\item{Q}{an integer, the number of covariates,}
 \item{x}{a list of matrices, the functions x_qi(t) observed at time points given by grids,}
 \item{y}{a numerical vector, the outcome values y_i.}
 }}
+
+\item{Q}{an integer, the number of covariates}
 
 \item{theta}{a matrix or a vector which contains the parameter set. XXXX}
 }
@@ -23,7 +24,7 @@ Return the (log) posterior density, the (log) likelihood and the
         (log) prior density for the given parameter set.
 }
 \description{
-Compute the posterior density for a given parameter set.
+Compute the posterior density for a given parameter set. XXX (non normalisé)
 }
 \details{
 If the option theta is NULL, the posterior density is computed for

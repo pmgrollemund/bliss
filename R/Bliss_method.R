@@ -12,17 +12,17 @@
 #'  \item{bliss_estimate}{a list of numerical vectors corresponding to the
 #'  Bliss estimates of each coefficient function.}
 #'  \item{chain}{a list. XXXXX}
-#'  \item{param.beta_density}{a list. XXXX}
+#'  \item{param_beta_density}{a list. XXXX}
 #'  \item{beta_posterior_density}{a list of Q items. Each item contains: XXXX des trucs a changer ? XXXX
 #'  Firts level: a matrix containing a posterior sample of coefficient function.
 #'  Second level: for each covariate, there is a list of three levels containing
 #'  1) a grid x, 2) a grid y and 3) matrix z containing approximations of the
 #'  posterior density of the coefficient function on the 2-dimensional grid
-#'  defined from x and y.}#'
-#'  \item{res.Simulated_Annealing}{a list: the qth item is the result of the
+#'  defined from x and y.}
+#'  \item{res_Simulated_Annealing}{a list: the qth item is the result of the
 #'        function Bliss_Simulated_Annealing applied for the qth functional
 #'        covariate.}
-#'  \item{res.Gibbs_Sampler}{a list: the qth item is the result of the function
+#'  \item{res_Gibbs_Sampler}{a list: the qth item is the result of the function
 #'        Bliss_Gibbs_Sampler for the qth covariate.}
 #'  \item{support_estimate}{XXXXX}
 #' }
@@ -52,6 +52,7 @@
 #'       approximation of the posterior density of beta(t). (optional)}
 #' \item{iter_sann}{an integer, the number of iteration of the Simulated
 #'       Annealing algorithm. (optional)}
+#' \item{times_sann}{an integer, XXXXXXXXXX. (optional)}
 #' \item{n_chains}{number of chains to do in the Gibbs sampler. (optional)}
 #' \item{theta_posterior_density}{a logical value. XXXXX (optional)}
 #' \item{Temp_init}{a nonnegative value, the initial temperatures for the
@@ -66,8 +67,8 @@
 #' @export
 #' @examples
 #' # see the vignette BlissIntro.
-fit_Bliss   <- function(data,param,do_beta_posterior_density=FALSE,sann=FALSE,
-                    progress=FALSE){
+fit_Bliss <- function(data,param,do_beta_posterior_density=TRUE,sann=TRUE,
+                      progress=FALSE){
  # define Q
  Q <- data[["Q"]]
  if(is.null(Q))
@@ -80,7 +81,6 @@ fit_Bliss   <- function(data,param,do_beta_posterior_density=FALSE,sann=FALSE,
   data$x[[q]] <- scale(data$x[[q]],scale=F)
  }
 
-
  # How many chains i have to do ?
  if(is.null(param[["n_chains"]])){
   param[["n_chains"]] <- 1
@@ -88,68 +88,80 @@ fit_Bliss   <- function(data,param,do_beta_posterior_density=FALSE,sann=FALSE,
  n_chains <- param[["n_chains"]]
  # Initialize the list "chains"
  chains <- list()
+ chains_info <- list()
 
+ if(progress) cat("Sample from the posterior distribution.\n")
  # For each chain :
  for(j in 1:n_chains){
   if(progress & n_chains > 1) cat("Chain ",j,": \n",sep="")
   chains[[j]] <- list()
 
   # Execute the Gibbs Sampler algorithm to sample the posterior distribution
-  param.Gibbs_Sampler <- list(iter  = param[["iter"]],
+  param_Gibbs_Sampler <- list(iter  = param[["iter"]],
                               K     = param[["K"]],
                               basis = param[["basis"]],
                               g     = param[["g"]],
                               p     = param[["p"]],
                               grids = data[["grids"]])
-  chains[[j]]$posterior_sample <- Bliss_Gibbs_Sampler(data,param.Gibbs_Sampler,progress)
+  chains[[j]]$posterior_sample <- Bliss_Gibbs_Sampler(data,param_Gibbs_Sampler,progress)
 
-  # Compute a posterior sample of coefficient function
-  chains[[j]]$beta_sample <- compute_beta_sample(chains[[j]]$posterior_sample,param.Gibbs_Sampler,progress) # XXXXXXXXX
+  chains_info[[j]] <- compute_chains_info(chains[[j]])
  }
 
  # Choose a chain for inference
  j <- sample(n_chains,1)
  posterior_sample <- chains[[j]]$posterior_sample
- beta_sample      <- chains[[j]]$beta_sample
+
+ # Compute a posterior sample of coefficient function
+ if(progress) cat("Coefficient function: Bliss estimate.\n")
+ beta_sample <- compute_beta_sample(posterior_sample,param_Gibbs_Sampler,Q)
 
  # Execute the Simulated Annealing algorithm to estimate the coefficient function
+ if(progress) cat("Coefficient function: smooth estimate.\n")
  Bliss_estimation <- list()
- Bliss_estimate <- list()
+ Bliss_estimate   <- list()
+ trace_sann       <- list()
+ Smooth_estimate  <- list()
  for(q in 1:Q){
-  param.Simulated_Annealing <- list( grid = data[["grids"]][[q]],
+  param_Simulated_Annealing <- list( grid = data[["grids"]][[q]],
                                      iter = param[["iter"]],
                                      p    = param[["p"]][q],
-                                     Temp = param[["Temp"]][q],
+                                     Temp_init = param[["Temp_init"]],
                                      K    = param[["K"]][[q]],
                                      k_max = param[["k_max"]][q],
                                      iter_sann = param[["iter_sann"]],
+                                     times_sann= param[["times_sann"]],
                                      burnin    = param[["burnin"]],
                                      l_max     = param[["l_max_sann"]][q],
                                      basis     = param[["basis"]][q])
 
   Bliss_estimation[[q]] <- Bliss_Simulated_Annealing(beta_sample[[q]],
                                                      posterior_sample$param$normalization_values[[q]],
-                                                     param.Simulated_Annealing)
-  Bliss_estimate[[q]] <- Bliss_estimation[[q]]$Bliss_estimate
+                                                     param_Simulated_Annealing)
+  Bliss_estimate[[q]]  <- Bliss_estimation[[q]]$Bliss_estimate
+  trace_sann[[q]]      <- Bliss_estimation[[q]]$trace
+  Smooth_estimate[[q]] <- Bliss_estimation[[q]]$Smooth_estimate
  }
+ rm(Bliss_estimation)
 
  # Compute an approximation of the posterior density of the coefficient function
+ if(progress) cat("Compute the heat map of the posterior distribution.\n")
  beta_posterior_density <- list()
  if (do_beta_posterior_density){
   for(q in 1:Q){
-   param.beta_density <- list(grid= data[["grids"]][[q]],
+   param_beta_density <- list(grid= data[["grids"]][[q]],
                               iter= param[["iter"]],
                               p   = param[["p"]][q],
                               n        = length(data[["y"]]),
                               thin     = param[["thin"]],
                               burnin   = param[["burnin"]],
-                              lims.kde = param[["lims.kde"]][[q]],
+                              lims_kde = param[["lims_kde"]][[q]],
                               new_grid = param[["new_grids"]][[q]],
-                              lims_estimate = range(Bliss_estimation[[q]]$Smooth_estimate),
+                              lims_estimate = range(Smooth_estimate[[q]]),
                               progress = progress)
 
    beta_posterior_density[[q]] <-
-    compute_beta_posterior_density(beta_sample[[q]],param.beta_density)
+    compute_beta_posterior_density(beta_sample[[q]],param_beta_density)
   }
  }
 
@@ -158,10 +170,12 @@ fit_Bliss   <- function(data,param,do_beta_posterior_density=FALSE,sann=FALSE,
  # Compute the support estimate
  if(progress) cat("Support estimation.\n")
  support_estimate <- list()
+ support_estimate2 <- list()
  alpha <- list()
  for(q in 1:Q){
   res_support <- support_estimation(beta_sample[[q]])
-  support_estimate[[q]] <- res_support$estimate
+  support_estimate[[q]]  <- res_support$estimate
+  support_estimate2[[q]] <- res_support$estimate2
   alpha[[q]]            <- res_support$alpha
  }
 
@@ -169,26 +183,25 @@ fit_Bliss   <- function(data,param,do_beta_posterior_density=FALSE,sann=FALSE,
  if(n_chains == 1) chains <- NULL
 
  # compute the posterior density of theta=(mu,(b)_k,(m)_k,(l)_k,sigma)
- if(length(param$K)==1) #XXXXXXXX
-  if(param$theta_posterior_density){
-   if(progress) cat("Compute the (log) densities. \n")  #XXXXXXXX mettrte lkh et prior
-   posterior_sample$posterior_density <- dposterior(posterior_sample,data)
-  }
+ if(progress) cat("Compute the (log) densities. \n")  #XXXXXXXX mettrte lkh et prior
+ posterior_sample$posterior_density <- dposterior(posterior_sample,data,Q)
 
  # The object to return
  res <- list(alpha                  = alpha,
              beta_posterior_density = beta_posterior_density,
              beta_sample            = beta_sample,
              Bliss_estimate         = Bliss_estimate,
-             Bliss_estimation       = Bliss_estimation, # A enlever ?
-             chains                 = chains,
+             Smooth_estimate        = Smooth_estimate,
+             chains_info            = chains_info,
              param                  = param, # voir si c'est utile de le renvoyer et s'il faut en renvoyer d'autres aussi
              posterior_sample       = posterior_sample,
-             support_estimate       = support_estimate
+             support_estimate       = support_estimate,
+             trace_sann             = trace_sann
  )
  class(res) = c("bliss")
  return(invisible(res))
 }
+
 ### XXXXXXXXXXX : changer ce qui suit en fonction du resultat final
 
 #' Print a bliss Object
@@ -199,12 +212,10 @@ fit_Bliss   <- function(data,param,do_beta_posterior_density=FALSE,sann=FALSE,
 #' @importFrom utils str
 #' @export
 #' @examples
-#' \donttest{
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
-#' printbliss(res_Bliss_mult)
-#' }
+#' #res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
+#' # printbliss(res_Bliss_mult)
 printbliss<-function(x,...){
  if(!any(class(x) == "bliss"))
   stop("Input must have class \"bliss\".")

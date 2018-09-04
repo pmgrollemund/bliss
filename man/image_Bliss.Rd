@@ -22,11 +22,11 @@ image_Bliss(beta_posterior_density, param)
 Plot an approximation of the posterior density.
 }
 \examples{
-\donttest{
 library(RColorBrewer)
 data(data1)
 data(param1)
-res_Bliss_mult <- fit_Bliss(data=data1,param=param1,density=TRUE)
+\donttest{
+res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
 param1$cols <- colorRampPalette(brewer.pal(9,"Reds"))(1e2)
 image_Bliss(res_Bliss_mult$beta_posterior_density[[1]],param1)
 lines(param1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s",lwd=2)
