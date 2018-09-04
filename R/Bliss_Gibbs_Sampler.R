@@ -33,10 +33,9 @@
 #' @importFrom stats var
 #' @export
 #' @examples
-#' data(data1)
-#' data(param1)
-#' res_Bliss_Gibbs_Sampler <- Bliss_Gibbs_Sampler(data1,param1)
-#' K       <- param1$K
+#' param_sim <- list(Q=1,n=25,p=50,grids_lim=list(c(0,1)),iter=1e4,K=2)
+#' data_sim <- sim(param_sim,progress=FALSE)
+#' res_Bliss_Gibbs_Sampler <- Bliss_Gibbs_Sampler(data_sim,param_sim)
 #' theta_1 <- res_Bliss_Gibbs_Sampler$trace[1,]
 #' theta_1
 Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
