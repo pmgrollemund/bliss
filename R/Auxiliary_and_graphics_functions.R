@@ -596,7 +596,6 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
  if(n_chains < 5){
   cols_chains <- 1:n_chains+1
  } else cols_chains  <- colorRampPalette(brewer.pal(n_chains,"Spectral"))(n_chains)
- cols_chains2 <- makeTransparent(cols_chains,alpha=1/(max(5,n_chains)))
  lags    <- res_diagnostics$lags
  ts      <- res_diagnostics$ts
  l_ts    <- length(ts)
@@ -687,7 +686,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    axis(1) ; axis(2)
    for(j in 1:n_chains){
     hist_mu[[j]]$counts <- hist_mu[[j]]$density
-    lines(hist_mu[[j]],border = 0,col = cols_chains2[j])
+    lines(hist_mu[[j]],border = 0,col = cols_chains[j],lty=2)
     lines(density_mu[[j]],col=cols_chains[j])
    }
    plot(c(0,1),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = '')
@@ -731,7 +730,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    axis(1) ; axis(2)
    for(j in 1:n_chains){
     hist_sigma[[j]]$counts <- hist_sigma[[j]]$density
-    lines(hist_sigma[[j]],border = 0,col = cols_chains2[j])
+    lines(hist_sigma[[j]],border = 0,col = cols_chains[j],lty=2)
     lines(density_sigma[[j]],col=cols_chains[j])
    }
    plot(c(0,1),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = '')
@@ -787,7 +786,7 @@ plot_diagnostics <- function(res_diagnostics,param,chain=NULL,which_plot=NULL,ti
    axis(1) ; axis(2)
    for(j in 1:n_chains){
     hist_beta[[ts_index]][[j]]$counts <- hist_beta[[ts_index]][[j]]$density
-    lines(hist_beta[[ts_index]][[j]],border = 0,col = cols_chains2[j])
+    lines(hist_beta[[ts_index]][[j]],border = 0,col = cols_chains[j],lty=2)
     lines(density_beta[[ts_index]][[j]],col=cols_chains[j])
    }
    plot(c(0,1),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = '')

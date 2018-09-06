@@ -183,7 +183,7 @@ fit_Bliss <- function(data,param,do_beta_posterior_density=TRUE,sann=TRUE,
  if(n_chains == 1) chains <- NULL
 
  # compute the posterior density of theta=(mu,(b)_k,(m)_k,(l)_k,sigma)
- if(progress) cat("Compute the (log) densities. \n")  #XXXXXXXX mettrte lkh et prior
+ if(progress) cat("Compute the (log) densities. \n")  #XXXXXXXX mettre lkh et prior
  posterior_sample$posterior_density <- dposterior(posterior_sample,data,Q)
 
  # The object to return
@@ -193,7 +193,8 @@ fit_Bliss <- function(data,param,do_beta_posterior_density=TRUE,sann=TRUE,
              Bliss_estimate         = Bliss_estimate,
              Smooth_estimate        = Smooth_estimate,
              chains_info            = chains_info,
-             param                  = param, # voir si c'est utile de le renvoyer et s'il faut en renvoyer d'autres aussi
+             param                  = param,
+             data                   = data,
              posterior_sample       = posterior_sample,
              support_estimate       = support_estimate,
              trace_sann             = trace_sann
@@ -212,14 +213,13 @@ fit_Bliss <- function(data,param,do_beta_posterior_density=TRUE,sann=TRUE,
 #' @importFrom utils str
 #' @export
 #' @examples
-#' data(data1)
-#' data(param1)
-#' #res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
-#' # printbliss(res_Bliss_mult)
+#' # See fit_Bliss() function
 printbliss<-function(x,...){
  if(!any(class(x) == "bliss"))
   stop("Input must have class \"bliss\".")
 
- cat("This is a bliss x\n")
+ cat("This is a bliss object:\n")
+ cat("----- \n")
+ cat("\n")
  print(str(x))
 }

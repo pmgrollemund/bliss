@@ -10,3 +10,9 @@
 #' @format a list of param for bliss model
 "param1"
 
+#'
+#'
+#' A result of the BliSS method
+#' @format a Bliss object (list)
+"res_bliss1"
+

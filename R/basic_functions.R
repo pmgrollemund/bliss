@@ -317,7 +317,8 @@ interval_detection <- function(beta_sample){
                      c(begin,
                        i,
                        beta_sample[i]))
- names(intervals) <- c("begin", "end", "value")
+ # temp IS 06/09/2018
+ #names(intervals) <- c("begin", "end", "value")
  return(intervals)
 }
 
