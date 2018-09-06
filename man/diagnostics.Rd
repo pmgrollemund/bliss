@@ -42,6 +42,7 @@ The implementation does not tackle the issue of several
 }
 \examples{
 \donttest{
+# Not run!!!
 data(data1)
 data(param1)
 param1$n_chains <- 3

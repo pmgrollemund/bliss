@@ -31,17 +31,10 @@ If the option theta is NULL, the posterior density is computed for
          the MCMC sample given in the "res.Gibbs_Sampler" object.
 }
 \examples{
-\donttest{
 data(data1)
 data(param1)
-res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
+# result of res_bliss1<-fit_Bliss(data=data1,param=param1)
+data(res_bliss1)
 # Compute the posterior density of the MCMC sample :
-res_poste <- dposterior(res_Bliss_mult$res.Gibbs_Sampler,data1)
-### Compute the posterior density of the MCMC sample :
-theta <- list( beta= rbind(c(3,4,-1), c(3,2,1)),
-m = rbind(c(10,50,80),c(50,10,10)),
-l = rbind(c(10,10,5),c(10,5,5)),
-mu=c(1,1.5),sigma_sq=c(1,0.5))
-dposterior(res_Bliss_mult$res.Gibbs_Sampler,data1,theta=theta)
-}
+res_poste <- dposterior(res_bliss1$posterior_sample,data1,Q=2)
 }

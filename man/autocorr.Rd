@@ -27,10 +27,9 @@ A symmetric matrix.
 Compute the autocorrelation of the functional covariate sample.
 }
 \examples{
-\donttest{
 library(RColorBrewer)
 ### Autocorrelation of the function x_i(t)
-param <- list(n=50,p=100,beta_type="smooth")
+param <- list(n=50,p=100,beta_type="smooth",Q=1)
 data <- sim(param)
 res_autocorr <- autocorr(data)
 cols <- rev(colorRampPalette(brewer.pal(9,"YlOrRd"))(50))
@@ -38,9 +37,12 @@ image(res_autocorr,col=cols)
 ### Autocorrelation of the function beta_j(t).
 data(data1)
 data(param1)
-res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
+# result of res_bliss1<-fit_Bliss(data=data1,param=param1)
+data(res_bliss1)
+\donttest{
+# Example to modify!!
 beta_functions_autocorr <- autocorr(list(grid = data1$grids[[1]],
-                                         x = res_Bliss_mult$beta_functions[[1]]))
+                                         x = res_bliss1[[1]]))
 image(beta_functions_autocorr)
 }
 }

@@ -29,10 +29,12 @@ Provide a graphical representation of the functional data
 }
 \examples{
 \donttest{
+# Not run!!
 data(data1)
 data(param1)
-res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
-interpretation_plot(res_Bliss_mult$Bliss_estimate[[1]],data1)
-interpretation_plot(res_Bliss_mult$Bliss_estimate[[1]],data1,centered=FALSE)
+res_bliss1 <- fit_Bliss(data=data1,param=param1,progress=TRUE)
+data(res_bliss1)
+interpretation_plot(res_bliss1$Bliss_estimate[[1]],data1)
+interpretation_plot(res_bliss1$Bliss_estimate[[1]],data1,centered=FALSE)
 }
 }

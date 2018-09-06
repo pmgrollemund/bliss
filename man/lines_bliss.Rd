@@ -22,4 +22,15 @@ A suitable representation of the Bliss estimate.
 }
 \examples{
 ### Plot the BLiss estimate on a suitable grid
+\donttest{
+data(data1)
+data(param1)
+res_bliss1 <- fit_Bliss(data=data1,param=param1,progress=TRUE)
+}
+data(res_bliss1)
+### Plot the BLiss estimate on a suitable grid
+plot_bliss(res_bliss1$data$grids[[1]],
+           res_bliss1$Bliss_estimate[[1]],lwd=2,bound=FALSE)
+lines_bliss(res_bliss1$data$grids[[1]],
+            res_bliss1$Smooth_estimate[[1]],lty=2)
 }

@@ -29,6 +29,7 @@ a graph
 }
 \examples{
 \donttest{
+# Not run!
 data(data1)
 data(param1)
 param1$n_chains <- 3
