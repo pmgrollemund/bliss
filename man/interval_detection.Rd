@@ -19,25 +19,18 @@ a matrix with 3 columns : "begin", "end" and "value". The two first
 Determine for which intervals a functions ???
 }
 \examples{
-\donttest{
 data(data1)
 data(param1)
-res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
-intervals <- interval_detection(res_Bliss_mult$Bliss_estimate[[1]])
+# result of res_bliss1<-fit_Bliss(data=data1,param=param1)
+data(res_bliss1)
+intervals <- interval_detection(res_bliss1$Bliss_estimate[[1]])
+\donttest{
 par(mfrow=c(2,1))
-plot(data1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s")
-plot(data1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="n")
+plot(data1$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s")
 for(k in 1:nrow(intervals)){
   segments(intervals[k,1],intervals[k,3],
           intervals[k,2],intervals[k,3],col=2,lwd=2)
 }
 par(mfrow=c(1,1))
-intervals <- interval_detection(res_Bliss_mult$res_Simulated_Annealing[[1]]$posterior_expe,
-                               smooth=TRUE)
-plot(data1$grids[[1]],res_Bliss_mult$res_Simulated_Annealing[[1]]$posterior_expe,type="l")
-for(k in 1:nrow(intervals)){
-   segments(intervals[k,1],intervals[k,3],
-            intervals[k,2],intervals[k,3],col=2,lwd=2)
-}
 }
 }

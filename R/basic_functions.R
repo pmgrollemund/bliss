@@ -22,16 +22,17 @@
 #'         (optional)
 #' @export
 #' @examples
-#' \donttest{
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
-#' beta_sample <- compute_beta_sample_mult(res_Bliss_mult$res_Gibbs_Sampler,param1)
+#' param1$grids<-data1$grids
+#' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
+#' data(res_bliss1)
+#' beta_sample <- compute_beta_sample(posterior_sample=res_bliss1$posterior_sample,
+#'                                    param=param1,Q=2)
 #' indexes <- sample(nrow(beta_sample[[1]]),1e2,replace=FALSE)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
 #' matplot(param1$grids[[1]],t(beta_sample[[1]][indexes,]),type="l",lty=1,col=cols)
-#' }
 compute_beta_sample <- function(posterior_sample,param,Q,progress=FALSE){
  if(progress) cat("Compute the coefficient function posterior sample. \n")
  # Initialize parameters
@@ -88,11 +89,12 @@ compute_beta_sample <- function(posterior_sample,param,Q,progress=FALSE){
 #' @importFrom MASS bandwidth.nrd kde2d
 #' @export
 #' @examples
-#' \donttest{
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
+#' param1$grids<-data1$grids
+#' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
+#' data(res_bliss1)
 #' q <- 1
 #' diff_grid <- diff(param1$grids[[q]])[1]
 #' param1$grids2[[q]] <- c(param1$grids[[q]]-diff_grid/2,
@@ -103,16 +105,18 @@ compute_beta_sample <- function(posterior_sample,param,Q,progress=FALSE){
 #'                     p   = param1[["p"]][q],
 #'                     n        = param1[["n"]],
 #'                     thin     = 10,
-#'                     burnin   = param1[["burnin"]],
+#'                     burnin   = 2e2,
 #'                     lims_kde = param1$lims_kde[[q]],
 #'                     h1       = param1$h1,
 #'                     new_grid = param1[["new_grid"]],
 #'                     xlim = range(param1$grids[[q]]) + c(-diff_grid,diff_grid),
+#'                     lims_estimate=range(res_bliss1$Smooth_estimate[[1]]),
 #'                     progress = FALSE
 #' )
-#' density_estimate <- density_estimation(res_Bliss_mult$beta_sample[[1]],param_density)
-#' image(density_estimate$res_kde2d,col=rev(heat.colors(100)))
-#' }
+#' density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample[[1]],param_density)
+#' image(density_estimate$grid_t,
+#'       density_estimate$grid_beta_t,
+#'       density_estimate$density,col=rev(heat.colors(100)))
 compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
  if(progress)
   cat("Compute an approximation of the posterior density of the coefficient function.\n")
@@ -206,6 +210,7 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
  if(progress)
   cat("\t Done.\n")
 }
+
 ################################# ----
 #' between
 ################################# ----
@@ -236,24 +241,23 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
 #' }
 #' @export
 #' @examples
-#' \donttest{
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
-#' res_support <- support_estimation(res_Bliss_mult$beta_sample[[1]])
+#' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
+#' data(res_bliss1)
+#' res_support <- support_estimation(res_bliss1$beta_sample[[1]])
 #'  ### The estimate
 #'  res_support$estimate
 #'  ### Plot the result
-#'  grid <- res_Bliss_mult$param$grids[[1]]
+#'  grid <- res_bliss1$data$grids[[1]]
 #'  plot(grid,res_support$alpha_t,ylim=c(0,1),type="l",xlab="",ylab="")
 #'  for(k in 1:nrow(res_support$estimate)){
 #'     segments(grid[res_support$estimate[k,1]],0.5,
-#'            grid[res_support$estimate[k,2]],0.5,lwd=2,col=2)
-#'    points(grid[res_support$estimate[k,1]],0.5,pch="|",lwd=2,col=2)
-#'    points(grid[res_support$estimate[k,2]],0.5,pch="|",lwd=2,col=2)
+#'              grid[res_support$estimate[k,2]],0.5,lwd=2,col=2)
+#'     points(grid[res_support$estimate[k,1]],0.5,pch="|",lwd=2,col=2)
+#'     points(grid[res_support$estimate[k,2]],0.5,pch="|",lwd=2,col=2)
 #'  }
 #'  abline(h=0.5,col=2,lty=2)
-#' }
 support_estimation <- function(beta_sample,gamma=0.5){
  alpha <- apply(beta_sample,2, function(vec) sum(vec != 0)/length(vec))
  tmp   <- rep(0,ncol(beta_sample))
@@ -278,48 +282,39 @@ support_estimation <- function(beta_sample,gamma=0.5){
 #' @importFrom stats qnorm sd
 #' @export
 #' @examples
-#' \donttest{
 #' data(data1)
 #' data(param1)
-#' res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
-#' intervals <- interval_detection(res_Bliss_mult$Bliss_estimate[[1]])
+#' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
+#' data(res_bliss1)
+#' intervals <- interval_detection(res_bliss1$Bliss_estimate[[1]])
+#' \donttest{
 #' par(mfrow=c(2,1))
-#' plot(data1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="s")
-#' plot(data1$grids[[1]],res_Bliss_mult$Bliss_estimate[[1]],type="n")
+#' plot(data1$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s")
 #' for(k in 1:nrow(intervals)){
 #'   segments(intervals[k,1],intervals[k,3],
 #'           intervals[k,2],intervals[k,3],col=2,lwd=2)
 #' }
 #' par(mfrow=c(1,1))
-#' intervals <- interval_detection(res_Bliss_mult$res_Simulated_Annealing[[1]]$posterior_expe,
-#'                                smooth=TRUE)
-#' plot(data1$grids[[1]],res_Bliss_mult$res_Simulated_Annealing[[1]]$posterior_expe,type="l")
-#' for(k in 1:nrow(intervals)){
-#'    segments(intervals[k,1],intervals[k,3],
-#'             intervals[k,2],intervals[k,3],col=2,lwd=2)
-#' }
 #' }
 interval_detection <- function(beta_sample){
- intervals <- data.frame()
- begin <- 1
- for (i in 2:length(beta_sample)){
-  if (beta_sample[i] != beta_sample[i-1]) {
-   end <- i - 1
-   intervals <- rbind(intervals,
-                      c(begin,
+  intervals <- data.frame()
+  begin <- 1
+  for (i in 2:length(beta_sample)){
+    if (beta_sample[i] != beta_sample[i-1]) {
+      end <- i - 1
+      intervals <- rbind(intervals,
+                        c(begin,
                         i-1,
                         beta_sample[i-1]))
-   begin <- i
+      begin <- i
+    }
   }
- }
- if(begin == length(beta_sample))
-  intervals <- rbind(intervals,
-                     c(begin,
-                       i,
-                       beta_sample[i]))
- # temp IS 06/09/2018
- #names(intervals) <- c("begin", "end", "value")
- return(intervals)
+  if(begin == length(beta_sample))
+    intervals <- rbind(intervals,c(begin,i,beta_sample[i]))
+
+  # IS 06/09/2018
+  if(nrow(intervals) != 0) names(intervals) <- c("begin", "end", "value")
+  return(intervals)
 }
 
 #' compute_starting_point

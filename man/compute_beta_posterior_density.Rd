@@ -37,11 +37,12 @@ The sample is thinned in order to reduce the correlation and
           so the time of the computation of the function \code{\link[=kde2d]{kde2d}}.
 }
 \examples{
-\donttest{
 library(RColorBrewer)
 data(data1)
 data(param1)
-res_Bliss_mult <- fit_Bliss(data=data1,param=param1)
+param1$grids<-data1$grids
+# result of res_bliss1<-fit_Bliss(data=data1,param=param1)
+data(res_bliss1)
 q <- 1
 diff_grid <- diff(param1$grids[[q]])[1]
 param1$grids2[[q]] <- c(param1$grids[[q]]-diff_grid/2,
@@ -52,14 +53,16 @@ param_density<-list(grid= param1$grids[[q]],
                     p   = param1[["p"]][q],
                     n        = param1[["n"]],
                     thin     = 10,
-                    burnin   = param1[["burnin"]],
+                    burnin   = 2e2,
                     lims_kde = param1$lims_kde[[q]],
                     h1       = param1$h1,
                     new_grid = param1[["new_grid"]],
                     xlim = range(param1$grids[[q]]) + c(-diff_grid,diff_grid),
+                    lims_estimate=range(res_bliss1$Smooth_estimate[[1]]),
                     progress = FALSE
 )
-density_estimate <- density_estimation(res_Bliss_mult$beta_sample[[1]],param_density)
-image(density_estimate$res_kde2d,col=rev(heat.colors(100)))
-}
+density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample[[1]],param_density)
+image(density_estimate$grid_t,
+      density_estimate$grid_beta_t,
+      density_estimate$density,col=rev(heat.colors(100)))
 }
