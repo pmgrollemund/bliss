@@ -48,15 +48,21 @@ a list containing:
 }
 \description{
 A Simulated Annealing algorithm to determine the Bliss estimate
-             (for only functional covariate), i.e. the minimum of the 
+             (for only functional covariate), i.e. the minimum of the
              posterior expectation of the Bliss loss.
 }
 \examples{
 data(data1)
 data(param1)
-#res_Simulated_Annealing <- Bliss_Simulated_Annealing(beta_functions,param1)
-#ylim <- range(c(res_Simulated_Annealing$Bliss_estimate,
- #                res_Simulated_Annealing$posterior_expe))
-#plot(param$grid,res_Simulated_Annealing$Bliss_estimate,type="l",ylim=ylim)
-#lines(param$grid,res_Simulated_Annealing$posterior_expe,lty=2)
+param1$grids<-data1$grids
+# result of res_bliss1<-fit_Bliss(data=data1,param=param1)
+data(res_bliss1)
+beta_sample <- compute_beta_sample(posterior_sample=res_bliss1$posterior_sample,
+                                   param=param1,Q=2)
+param_test<-list(grid=param1$grids[[1]],iter=1e4,K=2)
+test<-Bliss_Simulated_Annealing(beta_sample[[1]],
+                 res_bliss1$posterior_sample$param$normalization_values[[1]],
+                 param=param_test)
+plot(param_test$grid,test$Bliss_estimate,type="l")
+lines(param_test$grid,test$Smooth_estimate,lty=2)
 }
