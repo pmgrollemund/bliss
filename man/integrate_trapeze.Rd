@@ -20,6 +20,5 @@ integrate_trapeze XXXXXXXXXXX
 integrate_trapeze
 }
 \examples{
-data(data1)
-data(param1)
+integrate_trapeze(data1$grids[[1]][1:25],data1$y)
 }

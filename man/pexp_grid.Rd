@@ -2,7 +2,7 @@
 % Please edit documentation in R/basic_functions.R
 \name{pexp_grid}
 \alias{pexp_grid}
-\title{dexp_grid}
+\title{pexp_grid}
 \usage{
 pexp_grid(a, l_values)
 }
@@ -18,6 +18,5 @@ a numerical vector, which is the prability function on "l_values".
 Compute the probability function of the Exponential prior on l. #XXXXXXXX
 }
 \examples{
-data(data1)
-data(param1)
+pexp_grid(10,seq(0,1,1))
 }

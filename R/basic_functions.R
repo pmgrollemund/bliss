@@ -432,7 +432,7 @@ change_grid <- function(fct,grid,new_grid){
 
 
 ################################# ----
-#' dexp_grid
+#' pexp_grid
 ################################# ----
 #' @description Compute the probability function of the Exponential prior on l. #XXXXXXXX
 #' @return a numerical vector, which is the prability function on "l_values".
@@ -441,11 +441,10 @@ change_grid <- function(fct,grid,new_grid){
 #' @importFrom stats pgamma
 #' @export
 #' @examples
-#' data(data1)
-#' data(param1)
+#' pexp_grid(10,seq(0,1,1))
 pexp_grid <- function(a,l_values){
- step <- diff(l_values)[1] / 2
- probs <- pexp(l_values + step ,a) -
+  step <- diff(l_values)[1] / 2
+  probs <- pexp(l_values + step ,a) -
   pexp(l_values - step ,a)
 
  return(probs)
@@ -464,10 +463,9 @@ pexp_grid <- function(a,l_values){
 #' @return a graphic
 #' @export
 #' @examples
-#' data(data1)
-#' data(param1)
+#' integrate_trapeze(data1$grids[[1]][1:25],data1$y)
 integrate_trapeze <- function(x,y){
- apply(as.matrix(y),2,function(vect)
+  apply(as.matrix(y),2,function(vect)
   sum(diff(x)*(vect[-1]+vect[-length(vect)]))/2)
 }
 
