@@ -9,13 +9,13 @@
 #' @description Compute a coefficient function for the Function Linear Regression
 #'              model.
 #' @details Several shapes are available.
-#' @return A numerical vector which is the observation of the coefficient function
-#'         at the given grid of times points (\code{grid}).
+#' @return A numerical vector which corresponds to the coefficient function
+#'         at given times points (\code{grid}).
 #' @param param a list containing:
 #' \describe{
-#'  \item{grid}{a numerical vector, the observation time points.}
+#'  \item{grid}{a numerical vector, the time points.}
 #'  \item{p}{a numerical value, the length of the vector \code{grid}.}
-#'  \item{shape}{a character vector to choose between "smooth", "random_smooth",
+#'  \item{shape}{a character vector: "smooth", "random_smooth",
 #'               "simple", "simple_bis", "random_simple", "sinusoid",
 #'               "flat_sinusoid" and "sharp"}
 #' }
@@ -140,42 +140,41 @@ choose_beta <- function(param){
 #' \describe{
 #'  \item{Q}{an integer, the number of functional covariates.}
 #'  \item{y}{a numerical vector, the outcome observations.}
-#'  \item{x}{a list of matrices, the qth matrix contains the observation of the
-#'        qth functional covariate on a grid of time points given with \code{grids}.}
+#' \item{x}{a list of matrices, the qth matrix contains the observations of the
+#'       qth functional covariate at time points given by \code{grids}.}
 #'  \item{grids}{a list of numerical vectors, the qth vector is the grid of
 #'        time points for the qth functional covariate.}
-#'  \item{betas}{a list of numerical vectors, the qth vector is the coefficient
+#'  \item{betas}{a list of numerical vectors, the qth vector is the 'true' coefficient
 #'        function associated to the qth covariate on a grid of time points
 #'        given with \code{grids}.}
 #' }
 #' @param param a list containing:
 #' \describe{
-#'  \item{Q}{an integer, the number of functional covariates.}
+#'  \item{beta_shapes}{a character vector. The qth item indicates the shape of
+#'        the coefficient function associated to the qth functional covariate.}
 #'  \item{n}{an integer, the sample size.}
 #'  \item{p}{a vector of integers, the qth component is the number of
 #'        times for the qth covariate.}
-#'  \item{grids}{a list of numerical vectors, the qth vector is the grid
-#'        of time points for the qth functional covariate (optional, can be
-#'        deduced from grid_lim and p if it is \code{NULL}).}
-#'  \item{grids_lim}{a list of numerical vectors, the qth item is the lower
-#'        and upper boundaries of the domain for the qth functional covariate. (optional)}
-#'  \item{mu}{a numerical value, the intercept of the model. (optional)}
-#'  \item{r}{a nonnegative value, the signal to noise ratio. (optional)}
-#'  \item{link}{a function. XXXX (optional)}
-#'  \item{beta_shapes}{a character vector. The qth item indicates the shape of
-#'        the coefficient function associated to the qth functional covariate.}
-#'  \item{x_shapes}{a character vector. The qth item indicates the shape of the
-#'        functional covariate observations. (optional)}
-#'  \item{autocorr_diag}{a list of numerical vectors, the qth vector is the
+#'  \item{Q}{an integer, the number of functional covariates.}
+#'  \item{autocorr_diag}{a list of numerical vectors (optional), the qth vector is the
 #'        diagonal of the autocorrelation matrix of the qth functional
-#'        covariate (optional).}
-#'  \item{autocorr_spread}{a vector of numerical values which are related to the
-#'        autocorrelation of the functional covariates. (optional)}
-#'  \item{correlation}{a matrix which gives the correlation structure between the
-#'        functional covariates (optional).}
+#'        covariate.}
+#'  \item{autocorr_spread}{a vector of numerical values (optional) which are related to the
+#'        autocorrelation of the functional covariates.}
+#'  \item{correlation}{a matrix (optional) which gives the correlation structure between the
+#'        functional covariates.}
+#'  \item{grids}{a list of numerical vectors (optional), the qth vector is the grid
+#'        of time points for the qth functional covariate.}
+#'  \item{grids_lim}{a list of numerical vectors  (optional), the qth item is the lower
+#'        and upper boundaries of the domain for the qth functional covariate.}
+#'  \item{link}{a function (optional) to simulate data from the Generalized Functional
+#'        Linear Regression model.}
+#'  \item{mu}{a numerical value (optional), the 'true' intercept of the model.}
+#'  \item{r}{a nonnegative value (optional), the signal to noise ratio.}
+#'  \item{x_shapes}{a character vector (optional). The qth item indicates the shape of the
+#'        functional covariate observations.}
 #' }
-#' @param progress a logical value. If TRUE, the algorithm progress is displayed.
-#'         (optional)
+#' @param verbose write stuff if TRUE.
 #' @export
 #' @examples
 #' library(RColorBrewer)
@@ -190,8 +189,8 @@ choose_beta <- function(param){
 #' plot(data$grids[[q]],data$beta_function_mult[[q]],type="l")
 #' abline(h=0,lty=2,col="gray")
 #' par(mfrow=c(1,1))
-sim <- function(param,progress=FALSE){
- if(progress) cat("Simulation of the data.\n")
+sim <- function(param,verbose=FALSE){
+ if(verbose) cat("Simulation of the data.\n")
  # load objects
  Q <- param[['Q']]
  n <- param[['n']]
@@ -233,7 +232,7 @@ sim <- function(param,progress=FALSE){
  }
 
  # Simulate the functional covariate observed on the grids.
- if(progress) cat("\t Simulate functional covariate observations.\n")
+ if(verbose) cat("\t Simulate functional covariate observations.\n")
  if( (Q == 1) && !(is.null(correlation)) )
   stop("'Correlation' is a correlation structure between different functional covariates.")
  if( (Q > 1) && !(is.null(correlation)) ){
@@ -250,14 +249,14 @@ sim <- function(param,progress=FALSE){
  }
 
  # Choose a coefficient function beta
- if(progress) cat("\t Choose a coefficient function.\n")
+ if(verbose) cat("\t Choose a coefficient function.\n")
  betas <- list()
  for (q in 1:Q){
   param_choose_beta <- list(p=p[q],grid=grids[[q]],shape=beta_shapes[q])
   betas[[q]] <- choose_beta(param_choose_beta)
  }
 
- if(progress) cat("\t Compute the outcome values.\n")
+ if(verbose) cat("\t Compute the outcome values.\n")
  # Compute the expectation of the outcome
  y_expe <- rep(mu,n)
  for(i in 1:n){
@@ -285,20 +284,23 @@ sim <- function(param,progress=FALSE){
 ################################# ----
 #' sim_x
 ################################# ----
-#' @description simulate the functions x_qi(t) for a given q.
-#' @details Several shape are available for the functions x_qi(t): "Fourier", "Fourier2", "random_walk", "random_sharp",
-#'          "uniform", "gaussian", "mvgauss", "mvgauss_different_scale", "mvgauss_different_scale2", "mvgauss_different_scale3",
-#'          "mvgauss_different_scale4"
-#' @return a matrix. Each row is a function x_qi(t) (i=1,...,n and q is fixed).
+#' @description Simulate functional covariate observations.
+#' @details Several shape are available for the observations: "Fourier",
+#'          "Fourier2", "random_walk", "random_sharp", "uniform", "gaussian",
+#'          "mvgauss", "mvgauss_different_scale", "mvgauss_different_scale2",
+#'          "mvgauss_different_scale3" and "mvgauss_different_scale4".
+#' @return a matrix which contains the functional covariate observations at time
+#'         points given by \code{grid}.
 #' @param param a list containing :
 #' \describe{
-#'  \item{n}{an integer, the number of functions.}
+#'  \item{grid}{a numerical vector, the observation times.}
+#'  \item{n}{an integer, the sample size.}
 #'  \item{p}{an integer, the number of observation times.}
-#'  \item{grid}{a numerical vector, the grid of observation times.}
-#'  \item{x_shape}{a character vector, the shape of the functions x_i(t). (optional)}
-#'  \item{dim}{a numerical value, the dimension of the Fourier basis, if "shape" is "Fourier" or "Fourier2". (optional)}
-#'  \item{ksi}{a numerical value, a "coefficient of correlation", see the Bliss article Section 3.1 for more details.}
-#'  \item{diagVar}{a numerical vector, the diagonal of the autocorrelation matrix of the functions x_i(t).}
+#'  \item{diagVar}{a numerical vector (optional), the diagonal of the autocorrelation matrix.}
+#'  \item{dim}{a numerical value (optional), the dimension of the Fourier basis,
+#'             if "shape" is "Fourier" or "Fourier2". }
+#'  \item{ksi}{a numerical value (optional) related to the observations correlation.}
+#'  \item{x_shape}{a character vector (optional), the shape of the observations. }
 #' }
 #' @importFrom rockchalk mvrnorm
 #' @importFrom stats pexp runif
@@ -476,10 +478,16 @@ sim_x <- function(param){
 ################################# ----
 #' sim_correlated_x
 ################################# ----
-#' @description todo
-#' @return todo
+#' @description Simulate functional covariates observations when correlation
+#'              between functional covariate is nonnull.
+#' @details Several shape are available for the observations: "Fourier",
+#'          "Fourier2", "random_walk", "random_sharp", "uniform", "gaussian",
+#'          "mvgauss", "mvgauss_different_scale", "mvgauss_different_scale2",
+#'          "mvgauss_different_scale3" and "mvgauss_different_scale4".
+#' @return a list of Q matrices which contains the functional covariate observations
+#'         at time points given by \code{grid}.
 #' @param param a list containing :
-#' \describe{
+#' \describe{ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 #'  \item{n}{an integer, the number of functions.}
 #'  \item{p}{an integer, the number of observation times.}
 #'  \item{grid}{a numerical vector, the grid of observation times.}
@@ -490,7 +498,7 @@ sim_x <- function(param){
 #' }
 #' @export
 #' @examples
-#' #todo
+#' #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxxxx
 sim_correlated_functions <- function(param){
  # load objects
  n <- param$n
@@ -569,37 +577,37 @@ sim_correlated_functions <- function(param){
  return(x_mult)
 }
 
-
 ################################# ----
 #' build_Fourier_basis
 ################################# ----
-#' @description Define a Fourier basis to simulate functional covariate observation.
+#' @description Define a Fourier basis to simulate functional covariate observations.
 #' @return a matrix. Each row is an functional observation evaluated on the
 #'         \code{grid} time points.
 #' @param grid a numerical vector.
-#' @param dim a numerical value. It corresponds to dim(basis)/2.
+#' @param dim a numerical value. It corresponds to \code{dim(basis)/2}.
 #' @param per a numerical value which corresponds to the period of the sine and
 #'        cosine functions.
 #' @details See the \code{\link[=sim_x]{sim_x}} function.
 #' @export
 #' @examples
-#' # See the sim_x() function.
+#' # See the function \code{sim_x}.
 build_Fourier_basis <- function(grid,dim,per=2*pi){
  sapply(grid,function(x) c(cos(2*pi*x*(1:dim)/per),sin(2*pi*x*(1:dim)/per) )  )
 }
+
 ################################# ----
 #' compute_random_walk
 ################################# ----
-#' @description compute a random walk. (gaussian)
+#' @description Compute a (Gaussian) random walk.
 #' @return a matrix where each row is a random walk.
-#' @param n an integer, the number of random walk.
+#' @param n an integer, the number of random walks.
 #' @param p an integer, the length of the random walks.
-#' @param mu a numerical vector, the average random walk.
+#' @param mu a numerical vector, the mean of the random walks.
 #' @param sigma a numerical value which is the standard deviation of the
-#'                 gaussian distribution used to compute the random walk.
-#' @param start a numerical vector which is the initial value of
-#'                 the random walks. (optional)
-#' @details see the \code{\link[=sim_x]{sim_x}} function.
+#'                 gaussian distribution used to compute the random walks.
+#' @param start a numerical vector (optional) which is the initial value of
+#'                 the random walks.
+#' @details See the \code{\link[=sim_x]{sim_x}} function.
 #' @importFrom stats rnorm
 #' @export
 #' @examples
@@ -618,12 +626,11 @@ compute_random_walk <- function(n,p,mu,sigma,start=rep(0,n)){
 ################################# ----
 #' sigmoid
 ################################# ----
-#' @description compute a sigmoid function.
-#' @details used to simulate a coefficient function or functions x_i(t).
+#' @description Compute a sigmoid function.
 #' @return a numerical vector.
-#' @param x a numerical vector, a grid of points.
-#' @param asym the value of the asymptote of the sigmoid function. (optional)
-#' @param v a numerical value which is related to the slope at the origin. (optional)
+#' @param x a numerical vector, time points.
+#' @param asym a numerical value (optional), the asymptote of the sigmoid function.
+#' @param v a numerical value (optional), related to the slope at the origin.
 #' @details see the function \code{\link[=sim_x]{sim_x}}.
 #' @export
 #' @examples
@@ -646,12 +653,11 @@ sigmoid <- function(x,asym=1,v=1){
 ################################# ----
 #' sigmoid_sharp
 ################################# ----
-#' @description compute a sharp function from the sigmoid function
-#' @details used to simulate a coefficient function or functions x_i(t).
+#' @description Compute a sharp sigmoid function.
 #' @return a numerical vector.
-#' @param x a numerical vector, a grid of points.
-#' @param loc a numerical value, the instant of the sharp. (optional)
-#' @param ... Arguments to be passed to the function sigmoid. (optional)
+#' @param x a numerical vector, time points.
+#' @param loc a numerical value (optional), the time of the sharp.
+#' @param ... Arguments (optional) for the function sigmoid.
 #' @details see the function \code{\link[=sim_x]{sim_x}}.
 #' @export
 #' @examples
@@ -675,10 +681,10 @@ sigmoid_sharp <- function(x,loc=0,...){
 ################################# ----
 #' corr_matrix
 ################################# ----
-#' @description compute an autocorrelation matrix to simulate functions x_i(t).
+#' @description Compute an autocorrelation matrix.
 #' @return a symmetric matrix.
-#' @param diagonal a numerical vector corresponding to the diagonal of the final matrix.
-#' @param ksi a "coefficient of correlation". See the article Bliss, Section 3.1 for more details.
+#' @param diagonal a numerical vector corresponding to the diagonal.
+#' @param ksi a numerical value, related to the correlation.
 #' @export
 #' @examples
 #' ### Test 1 : weak autocorrelation

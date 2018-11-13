@@ -1,44 +1,43 @@
 ################################# ----
 #' Bliss_Gibbs_Sampler
 ################################# ----
-#' @description A Gibbs Sampler algorithm to sample posterior distribution of
+#' @description A Gibbs Sampler algorithm to sample the posterior distribution of
 #'              the Bliss model.
 #' @return a list containing :
 #' \describe{
-#'  \item{trace}{a matrix. Each row is a draw from the posterior.}
-#'  \item{param}{a list containing K and normalization_values} # XXXXXX
+#'  \item{trace}{a matrix, the trace of the Gibbs Sampler.}
+#'  \item{param}{a list containing parameters used to run the function. }
 #' }
 #' @param data a list containing:
 #' \describe{
-#' \item{Q}{an integer, the number of covariates,}
-#' \item{x}{a list of matrices, the qth matrix contains the observation of the
-#'       qth functional covariate at time points given by grids,}
+#' \item{Q}{an integer, the number of functional covariates.}
 #' \item{y}{a numerical vector, the outcome values y_i.}
+#' \item{x}{a list of matrices, the qth matrix contains the observations of the
+#'       qth functional covariate at time points given by \code{grids}.}
 #' \item{grids}{a list of numerical vectors, the qth vector is the grid of
-#'       observation points of the qth covariate.}
+#'        time points for the qth functional covariate.}
 #' }
 #' @param param a list containing:
 #' \describe{
 #' \item{iter}{an integer, the number of iterations of the Gibbs sampler algorithm.}
 #' \item{K}{a vector of integers, corresponding to the numbers of intervals for
 #'       each covariate.}
-#' \item{basis}{a vector of characters among : "uniform" (default),
+#' \item{p}{an integer, the number of time points.}
+#' \item{basis}{a character vector (optional). The possible values are "uniform" (default),
 #'       "epanechnikov", "gauss" and "triangular" which correspond to
 #'       different basis functions to expand the coefficient function and the
-#'       functional covariates (optional)}
-#' \item{p}{XXXXXX}
+#'       functional covariates}
 #' }
-#' @param progress a logical value. If TRUE, the algorithm progress is displayed.
-#'         (optional)
+#' @param verbose write stuff if TRUE (optional).
 #' @importFrom stats var
 #' @export
 #' @examples
 #' param_sim <- list(Q=1,n=25,p=50,grids_lim=list(c(0,1)),iter=1e4,K=2)
-#' data_sim <- sim(param_sim,progress=FALSE)
+#' data_sim <- sim(param_sim,verbose=FALSE)
 #' res_Bliss_Gibbs_Sampler <- Bliss_Gibbs_Sampler(data_sim,param_sim)
 #' theta_1 <- res_Bliss_Gibbs_Sampler$trace[1,]
 #' theta_1
-Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
+Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE){
  # load objects
  x     <- data[["x"]]
  y     <- data[["y"]]
@@ -82,19 +81,19 @@ Bliss_Gibbs_Sampler <- function(data,param,progress=FALSE){
  # Determine the prior distribution of l
  Probs_l <- l_values
  for(q in 1:Q){
-  Probs_l[[q]] <- pexp_grid( 5*K[q] , l_values[[q]] )
+  Probs_l[[q]] <- pdexp( 5*K[q] , l_values[[q]] )
  }
 
- if(progress){
-  progress_cpp <- TRUE
+ if(verbose){
+  verbose_cpp <- TRUE
  }else{
-  progress_cpp <- FALSE
+  verbose_cpp <- FALSE
  }
  # Perfome the Gibbs Sampler and return the result.
  res <- Bliss_Gibbs_Sampler_cpp(Q,y,x,grids,
                                 iter,K,basis,
                                 g,lambda,V_tilde, l_values,l_values_length,Probs_l,
-                                progress_cpp,tol=sqrt(.Machine$double.eps))
+                                verbose_cpp,tol=sqrt(.Machine$double.eps))
 
  trace_names <- NULL
  if(Q == 1){

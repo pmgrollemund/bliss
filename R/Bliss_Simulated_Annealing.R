@@ -1,41 +1,42 @@
 ################################# ----
 #' Bliss_Simulated_Annealing
 ################################# ----
-#' @description A Simulated Annealing algorithm to determine the Bliss estimate
-#'              (for only functional covariate), i.e. the minimum of the
-#'              posterior expectation of the Bliss loss.
+#' @description A Simulated Annealing algorithm to compute the Bliss estimate.
 #' @return a list containing:
 #' \describe{
 #'  \item{Bliss_estimate}{a numerical vector, corresponding to the Bliss estimate
 #'        of the coefficient function.}
 #'  \item{Smooth_estimate}{a numerical vector, which is the posterior expectation
-#'        of beta(t), for each t in the grid ot time points.}
-#'  \item{trace}{Each row is an iteration of the Simulated Annealing algorithm.}
-#'  \item{argmin}{an integer, which is the index of the iteration minimizing
-#'        the Bliss loss.}
+#'        of the coefficient function for each time points.}
+#'  \item{trace}{a matrix, the trace of the algorithm.}
+#'  \item{argmin}{an integer, the index of the iteration minimizing the Bliss loss.}
+#'  \item{difference}{a numerical vector, the difference between the Bliss
+#'        estimate and the smooth estimate.}
+#'  \item{sdifference}{a numerical vector, a smooth version of \code{difference}.}
 #' }
 #' @param beta_sample a matrix. Each row is a coefficient function computed from the
 #'        posterior sample.
-#' @param normalization_values a matrix given by the function "Bliss_Gibbs_Sampler". XXXXXXX
+#' @param normalization_values a matrix given by the function \code{Bliss_Gibbs_Sampler}.
 #' @param param a list containing:
 #' \describe{
-#' \item{grid}{a numerical vector, the observation time points.}
-#' \item{burnin}{an integer, the number of iterations to drop from the Gibbs
-#'       sample. (optional)}
-#' \item{iter}{an integer, the number of iteration of the Gibbs Sampler algorithm.}
-#' \item{iter_sann}{an integer, the number of iteration of the Simulated
-#'       Annealing algorithm. (optional)} XXXXXXX
-#' \item{Temp_init}{a non negative value, the initial temperature for the
-#'       cooling function of the Simulated Annealing. (optional)}
-#' \item{k_max}{an integer, the maximum number of intervals. (optional)} XXXXXXX
-#' \item{l_max_sann}{an integer, the maximum value for the parameter l. (optional)} XXXXXXX
-#' \item{basis}{a character vectors, used to compute the coefficient function,
-#'       see the function beta_build. (optional)} XXXXXXX
-#' \item{K}{a vector of integers, corresponding to the numbers of intervals for
-#'       each covariate.}
+#' \item{grid}{a numerical vector, the time points.}
+#' \item{K}{an integer, the number of intervals.}
+#' \item{basis}{a character vector (optional). The possible values are "uniform"
+#'       (default), "epanechnikov", "gauss" and "triangular" which correspond to
+#'       different basis functions to expand the coefficient function and the
+#'       functional covariates}
+#' \item{burnin}{an integer (optional), the number of iteration to drop from the
+#'       posterior sample.}
+#' \item{iter_sann}{an integer (optional), the number of iteration of the Simulated
+#'       Annealing algorithm.}
+#' \item{k_max}{an integer (optional), the maximal number of intervals for the
+#'       Simulated Annealing algorithm.}
+#' \item{l_max}{an integer (optional), the maximal interval length for the
+#'       Simulated Annealing algorithm.}
+#' \item{Temp_init}{a nonnegative value (optional), the initial temperature for
+#'      the cooling function of the Simulated Annealing algorithm.}
 #' }
-#' @param progress a logical value. If TRUE, the algorithm progress is displayed.
-#'         (optional)
+#' @param verbose write stuff if TRUE (optional).
 #' @importFrom stats median
 #' @export
 #' @examples
@@ -52,10 +53,10 @@
 #'                  param=param_test)
 #' plot(param_test$grid,test$Bliss_estimate,type="l")
 #' lines(param_test$grid,test$Smooth_estimate,lty=2)
-Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,progress=FALSE){
+  Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,verbose=FALSE){
  # load optional objects
  grid <- param[["grid"]]
- iter <- param[["iter"]]
+ # iter <- param[["iter"]] # PMG 11/11/18
  Temp_init <- param[["Temp_init"]]
  K         <- param[["K"]]
  k_max     <- param[["k_max"]]
@@ -65,12 +66,13 @@ Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,pro
  l_max     <- param[["l_max"]] # pas bon : changement de nom
  basis     <- param[["basis"]]
  p    <- length(grid)
+ iter <- nrow(beta_sample)-1 # PMG 11/11/18
 
  # Initialize the necessary unspecified objects
  if(is.null(Temp_init)) Temp_init <- 1000
  if(is.null(k_max))     k_max     <- K  # PMG 22/06/18
  if(is.null(iter_sann)) iter_sann <- 5e4
- if(is.null(times_sann))times_sann<- 100
+ if(is.null(times_sann))times_sann<- 50
  if(is.null(burnin))    burnin    <- floor(iter/5)
  if(is.null(l_max))     l_max     <- floor(p/5) # XXX a changer ?
  if(is.null(basis))     basis     <- "Uniform"
@@ -78,7 +80,7 @@ Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,pro
  # Check if the burnin isn't too large.
  if(2*burnin > iter){
   burnin <- floor(iter/5)
-  if(progress)
+  if(verbose)
    cat("\t Burnin is too large. New burnin : ",burnin,".\n")
  }
 
@@ -87,7 +89,7 @@ Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,pro
  dl <- floor(l_max/2)+1
 
  # Compute the starting point
- starting_point = compute_starting_point(apply(beta_sample,2,mean))
+ starting_point = compute_starting_point_sann(apply(beta_sample,2,mean))
  if(k_max < nrow(starting_point)) k_max <- nrow(starting_point)  # PMG 04/08/18
 
  # Compute the Simulated Annealing algorithm (3 times to find a suitable value
@@ -96,16 +98,16 @@ Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,pro
                                            grid,burnin,Temp_init,k_max,
                                            l_max,dm,dl,p,basis,
                                            normalization_values,
-                                           progress,starting_point)
+                                           verbose,starting_point)
  min_loss <- min(res_sann$trace[,3*k_max+4])
  for(times in 1:times_sann ){
-  if(progress)
+  if(verbose)
    cat("\t ",times,".\n")
   res_sann_tmp <- Bliss_Simulated_Annealing_cpp(iter_sann,beta_sample,
                                                 grid,burnin,Temp_init,k_max,
                                                 l_max,dm,dl,p,basis,
                                                 normalization_values,
-                                                progress,starting_point)
+                                                verbose,starting_point)
   min_loss_tmp <- min(res_sann_tmp$trace[,3*k_max+4])
   if(min_loss_tmp < min_loss){
    res_sann <- res_sann_tmp

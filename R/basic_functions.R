@@ -1,25 +1,22 @@
 ################################# ----
 #' compute_beta_sample
 ################################# ----
-#' @description Compute the coefficient function for each iteration of the
-#'              Gibbs sample.
-#' @return return a matrix. Each row is a function evaluated on the grid of
-#'         time points.
-#' @param posterior_sample a list provided by the function Bliss_Gibbs_Sampler.
-#' @param param a list containing: (optional)
+#' @description Compute the posterior coefficient function from the posterior
+#'              sample.
+#' @return return a matrix containing the coefficient function posterior sample.
+#' @param posterior_sample a list provided by the function \code{Bliss_Gibbs_Sampler}.
+#' @param param a list containing:
 #' \describe{
-#' \item{p}{XXXXXX}
 #' \item{K}{a vector of integers, corresponding to the numbers of intervals for
 #'       each covariate.}
 #' \item{grids}{a numerical vector, the observation time points.}
-#' \item{basis}{a vector of characters among : "uniform" (default),
+#' \item{basis}{a vector of characters (optional) among : "uniform" (default),
 #'       "epanechnikov", "gauss" and "triangular" which correspond to
 #'       different basis functions to expand the coefficient function and the
-#'       functional covariates (optional)}
+#'       functional covariates.}
 #' }
 #' @param Q numeric
-#' @param progress a logical value. If TRUE, the algorithm progress is displayed.
-#'         (optional)
+#' @param verbose write stuff if TRUE (optional).
 #' @export
 #' @examples
 #' library(RColorBrewer)
@@ -33,14 +30,13 @@
 #' indexes <- sample(nrow(beta_sample[[1]]),1e2,replace=FALSE)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
 #' matplot(param1$grids[[1]],t(beta_sample[[1]][indexes,]),type="l",lty=1,col=cols)
-compute_beta_sample <- function(posterior_sample,param,Q,progress=FALSE){
- if(progress) cat("Compute the coefficient function posterior sample. \n")
+compute_beta_sample <- function(posterior_sample,param,Q,verbose=FALSE){
+ if(verbose) cat("Compute the coefficient function posterior sample. \n")
  # Initialize parameters
  Ks     <- param[["K"]]
  grids  <- param[["grids"]]
- ps     <- param[["p"]]
  basiss <- param[["basis"]]
- if(is.null(ps)) ps <- sapply(grids,length)
+ ps <- sapply(grids,length)
  if(is.null(basiss)) basiss <- rep("Uniform",length(Ks))
 
  # Compute the coefficient function for each iteration of the Gibbs Sampler
@@ -66,26 +62,28 @@ compute_beta_sample <- function(posterior_sample,param,Q,progress=FALSE){
 ################################# ----
 #' compute_beta_posterior_density
 ################################# ----
-#' @description Compute a graphical representation of the marginal posterior
-#'              distributions of beta(t) for each t.
-#' @details The sample is thinned in order to reduce the correlation and
-#'           so the time of the computation of the function \code{\link[=kde2d]{kde2d}}.
-#' @return An approximation of the posterior density on a two-dimensional grid.
-#'         (corresponds to the result of the \code{\link[=kde2d]{kde2d}} function)
-#' @param beta_sample a list (given by the compute_beta function).
-#' @param param (optional), a list containing:
+#' @description Compute the posterior density of the coefficient function.
+#' @details The posterior densities correponds to approximations of the marginal
+#'          posterior distribitions (of beta(t) for each t).
+#'          The sample is thinned in order to reduce the correlation and the
+#'          computational time of the function \code{\link[=kde2d]{kde2d}}.
+#' @return An approximation of the posterior density on a two-dimensional grid
+#'         (corresponds to the result of the \code{\link[=kde2d]{kde2d}} function).
+#' @param beta_sample a matrix. Each row is a coefficient function computed from the
+#'        posterior sample.
+#' @param param a list containing:
 #' \describe{
-#' \item{grid}{a numerical vector, the observation time points.}
-#' \item{burnin}{an integer, the number of iteration to drop from the Gibbs
-#'       sample. (optional)}
-#' \item{thin}{an integer, used to thin the Gibbs sample to compute an
-#'       approximation of the posterior density of beta(t). (optional)}
-#'  \item{lims_kde}{a numerical vector (yl,yu) XXXXXXXXXXX (optional)}
-#'  \item{N}{an integer related to the precision of the approximation. (optional)}
-#'  \item{new_grid}{a numerical vector.}
+#' \item{grid}{a numerical vector, the time points.}
+#' \item{lims_estimate}{a numerical vector, the time points.}
+#' \item{burnin}{an integer (optional), the number of iteration to drop from the Gibbs
+#'       sample.}
+#' \item{lims_kde}{an integer (optional), correspond to the \code{lims} option
+#'       of the \code{kde2d} funtion.}
+#' \item{new_grid}{a numerical vector (optional) to compute beta sample on a
+#'       different grid.}
+#' \item{thin}{an integer (optional) to thin the posterior sample.}
 #' }
-#' @param progress a logical value. If TRUE, the algorithm progress is displayed.
-#'         (optional)
+#' @param verbose write stuff if TRUE (optional).
 #' @importFrom MASS bandwidth.nrd kde2d
 #' @export
 #' @examples
@@ -111,38 +109,36 @@ compute_beta_sample <- function(posterior_sample,param,Q,progress=FALSE){
 #'                     new_grid = param1[["new_grid"]],
 #'                     xlim = range(param1$grids[[q]]) + c(-diff_grid,diff_grid),
 #'                     lims_estimate=range(res_bliss1$Smooth_estimate[[1]]),
-#'                     progress = FALSE
+#'                     verbose = FALSE
 #' )
 #' density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample[[1]],param_density)
 #' image(density_estimate$grid_t,
 #'       density_estimate$grid_beta_t,
 #'       density_estimate$density,col=rev(heat.colors(100)))
-compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
- if(progress)
+compute_beta_posterior_density <- function(beta_sample,param,verbose=FALSE){
+ if(verbose)
   cat("Compute an approximation of the posterior density of the coefficient function.\n")
  # load optional objects
  grid <- param[["grid"]]
- iter <- param[["iter"]]
- p    <- param[["p"]]
- N        <- param[["N"]]
  thin     <- param[["thin"]]
  burnin   <- param[["burnin"]]
  lims_kde <- param[["lims_kde"]]
  new_grid <- param[["new_grid"]]
- lims_estimate <- param[["lims_estimate"]]
 
+ p <- length(grid) # PMG 11/11/18
+ N      <- 512 # PMG 11/11/18
+ iter <- nrow(beta_sample) -1 # PMG 11/11/18
+ lims_estimate <- range(apply(beta_sample,2,mean)) # PMG 11/11/18
 
  # Initialize the necessary unspecified objects
  max_points <- 1e5
- if(!is.null(new_grid)) p      <- length(new_grid)  # XXXXX
- if(is.null(N))         N      <- 512
- if(is.null(burnin))    burnin <- floor(iter/5)  # XXXXX
- if(is.null(thin))      thin   <- floor((iter-burnin)*p/max_points)
+ if(is.null(burnin)) burnin <- floor(iter/5)
+ if(is.null(thin))   thin   <- floor((iter-burnin)*p/max_points)
 
  # Check if the burnin isn't too large.
  if(2*burnin > iter){
   burnin <- floor(iter/5)
-  if(progress)
+  if(verbose)
    cat("\t Burnin is too large. New burnin : ",burnin,".\n")
  }
 
@@ -151,7 +147,7 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
  if(!is.null(new_grid)){
   old_beta_sample <- beta_sample
   beta_sample <- matrix(0,nrow(beta_sample),p)
-  if(progress)
+  if(verbose)
    cat("Compute the coefficient functions on the new grid.\n")
   for(i in 1:nrow(beta_sample)){
    beta_sample[i,] <- change_grid(old_beta_sample[i,],grid,new_grid)
@@ -165,17 +161,17 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
  # Thin the posterior sample
  thin_min   <- max(1,floor((iter-burnin)*p/max_points))
  if(thin <  thin_min){
-  if(progress)
+  if(verbose)
    cat("\t 'thin = ",thin,"' is too small. Now, thin = ",
       thin_min,".\n",sep="")
   thin <- thin_min
  }
- if(progress)
+ if(verbose)
   cat("\t Thin the sample.\n")
  beta_sample <- beta_sample[seq(1+burnin,iter,by=thin),]
 
  # Perform the kde2d function
- if(progress)
+ if(verbose)
   cat("\t Perform the 'kde2d' function.\n")
  beta_x <- rep(grid,nrow(beta_sample))
  beta_y <- as.vector(t(beta_sample))
@@ -207,17 +203,17 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
              density         = res_kde2d$z,
              new_beta_sample = beta_sample
              ))
- if(progress)
+ if(verbose)
   cat("\t Done.\n")
 }
 
 ################################# ----
 #' between
 ################################# ----
-#' @description Check if a number belong to an interval.
+#' @description Check if a number belong to a given interval.
 #' @return a logical value.
 #' @param value a numerical value.
-#' @param interval a numerical vector of lenght 2 : (lower,upper).
+#' @param interval a numerical vector: (lower,upper).
 #' @export
 #' @examples
 #' 1 %between% c(0,2)
@@ -228,16 +224,20 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
 }
 
 ################################# ----
-#' support_estimation XXXXXXXXX
+#' support_estimation
 ################################# ----
 #' @description Compute the support estimate.
 #' @param beta_sample a matrix. Each row is a coefficient function computed from the
 #'        posterior sample.
-#' @param gamma a numeric, default 0.5
+#' @param gamma a numeric value, the default value is \code{0.5}.
 #' @return a list containing:
 #' \describe{
-#'  \item{alpha}{a numerical vector. XXXXXXX}
-#'  \item{estimate}{a numerical vector. XXXXXXX}
+#'  \item{alpha}{a numerical vector. The approximated posterior probabilities
+#'        that the coefficient function support covers \code{t} for each time
+#'        points \code{t}.}
+#'  \item{estimate}{a numerical vector, the support estimate.}
+#'  \item{estimate_fct}{a numerical vector, another version of the support
+#'        estimate.}
 #' }
 #' @export
 #' @examples
@@ -258,27 +258,37 @@ compute_beta_posterior_density <- function(beta_sample,param,progress=FALSE){
 #'     points(grid[res_support$estimate[k,2]],0.5,pch="|",lwd=2,col=2)
 #'  }
 #'  abline(h=0.5,col=2,lty=2)
-support_estimation <- function(beta_sample,gamma=0.5){
- alpha <- apply(beta_sample,2, function(vec) sum(vec != 0)/length(vec))
- tmp   <- rep(0,ncol(beta_sample))
+support_estimation <- function(beta_sample_q,gamma=0.5){
+ # alpha: posterior probabilities
+ alpha <- apply(beta_sample_q,2, function(vec) sum(vec != 0)/length(vec))
+
+ # Support estimate
+ tmp   <- rep(0,ncol(beta_sample_q))
  tmp2  <- which(alpha >= gamma)
  tmp[tmp2] <- 1
- estimate  <- interval_detection(tmp)
+ estimate <- determine_intervals(tmp)
+ estimate <- estimate[estimate$value != 0,]
  estimate$value <- NULL
- # Rajouter d'autres calculs
- estimate2 <- NULL
- return(list(alpha=alpha,estimate=estimate,estimate2=estimate2))
+
+ # Support estimate (vectorial version)
+ estimate_fct <- rep(0,ncol(beta_sample_q))
+ for(i in 1:nrow(estimate)){
+   estimate_fct[estimate$begin[i]:estimate$end[i]] <- 1
+ }
+
+ return(list(alpha        = alpha,
+             estimate     = estimate,
+             estimate_fct = estimate_fct))
 }
 
 ################################# ----
-#' interval_detection XXXXXXXXX
+#' determine_intervals
 ################################# ----
-#' @description Determine for which intervals a functions ???
+#' @description Determine for which intervals a function is nonnull.
 #' @return a matrix with 3 columns : "begin", "end" and "value". The two first
-#'           columns define the begin and the end of the pieces and the third
-#'           gives the mean values of each piece.
-#'           Or something else.
-#' @param beta_sample a numerical vector.
+#'         columns define the begin and the end of the intervals and the third
+#'         gives the mean values of each interval.
+#' @param beta_fct a numerical vector.
 #' @importFrom stats qnorm sd
 #' @export
 #' @examples
@@ -286,7 +296,7 @@ support_estimation <- function(beta_sample,gamma=0.5){
 #' data(param1)
 #' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 #' data(res_bliss1)
-#' intervals <- interval_detection(res_bliss1$Bliss_estimate[[1]])
+#' intervals <- determine_intervals(res_bliss1$Bliss_estimate[[1]])
 #' \donttest{
 #' par(mfrow=c(2,1))
 #' plot(data1$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s")
@@ -296,37 +306,41 @@ support_estimation <- function(beta_sample,gamma=0.5){
 #' }
 #' par(mfrow=c(1,1))
 #' }
-interval_detection <- function(beta_sample){
+determine_intervals <- function(beta_fct){
   intervals <- data.frame()
   begin <- 1
-  for (i in 2:length(beta_sample)){
-    if (beta_sample[i] != beta_sample[i-1]) {
+  for (i in 2:length(beta_fct)){
+    if (beta_fct[i] != beta_fct[i-1]) {
       end <- i - 1
       intervals <- rbind(intervals,
                         c(begin,
                         i-1,
-                        beta_sample[i-1]))
+                        beta_fct[i-1]))
       begin <- i
     }
   }
-  if(begin == length(beta_sample))
-    intervals <- rbind(intervals,c(begin,i,beta_sample[i]))
+  intervals <- rbind(intervals,c(begin,i,beta_fct[i]))
 
   # IS 06/09/2018
   if(nrow(intervals) != 0) names(intervals) <- c("begin", "end", "value")
   return(intervals)
 }
 
-#' compute_starting_point
-#'
-#' @param beta_expe numeric
-#'
-#' @return a value
+################################# ----
+#' compute_starting_point_sann
+################################# ----
+#' @description Compute a starting point for the Simulated Annealing algorithm.
+#' @return a matrix with 3 columns : "m", "l" and "b". The two first
+#'         columns define the begin and the end of the intervals and the third
+#'         gives the mean values of each interval.
+#' @param beta_expe a numerical vector, the expectation of the coefficient
+#'        function posterior sample.
+#' @importFrom stats qnorm sd
 #' @export
 #' @examples
 #' data(data1)
 #' data(param1)
-compute_starting_point <- function(beta_expe){
+compute_starting_point_sann <- function(beta_expe){
  positive_vec <- unlist(sapply(beta_expe,function(value) if(value<0) 0  else value))
  negative_vec <- unlist(sapply(beta_expe,function(value) if(value>0) 0  else value))
 
@@ -394,15 +408,13 @@ compute_starting_point <- function(beta_expe){
 }
 
 ################################# ----
-#' change_grid XXXXXXXXXXXXx
+#' change_grid
 ################################# ----
-#' @description Compute an approximation of a (discretized) function on a new
-#'              finer grid.
+#' @description Compute a function (evaluated on a grid) on a given (finer) grid.
 #' @return a numerical vector, the approximation of the function on the new grid.
 #' @param fct a numerical vector, the function to evaluate on the new grid.
 #' @param grid a numerical vector, the initial grid.
-#' @param new_grid a numerical vector.
-#' @details This is nasty code. XXXXXXXXXXXXx
+#' @param new_grid a numerical vector, the new grid.
 #' @export
 #' @examples
 #' grid <- seq(0,1,l=1e1)
@@ -432,17 +444,18 @@ change_grid <- function(fct,grid,new_grid){
 
 
 ################################# ----
-#' pexp_grid
+#' pdexp
 ################################# ----
-#' @description Compute the probability function of the Exponential prior on l. #XXXXXXXX
+#' @description Probability function of a discretized Exponentiel distribution.
+#' Compute the probability function of the Exponential prior on l. #XXXXXXXX
 #' @return a numerical vector, which is the prability function on "l_values".
 #' @param a a positive value, the mean of the Exponential prior.
 #' @param l_values a numerical value, the discrete support of the parameter l.
 #' @importFrom stats pgamma
 #' @export
 #' @examples
-#' pexp_grid(10,seq(0,1,1))
-pexp_grid <- function(a,l_values){
+#' pdexp(10,seq(0,1,1))
+pdexp <- function(a,l_values){
   step <- diff(l_values)[1] / 2
   probs <- pexp(l_values + step ,a) -
   pexp(l_values - step ,a)
@@ -453,14 +466,13 @@ pexp_grid <- function(a,l_values){
 
 
 ################################# ----
-#' integrate_trapeze XXXXXXXXXXX
-################################# ----
 #' integrate_trapeze
-#'
-#' @param x numeric
-#' @param y numeric
-#'
-#' @return a graphic
+################################# ----
+#' @description Trapezoidal rule to approximate an integral.
+#' @return a numerical value, the approximation.
+#' @param x a numerical vector, the discretization of the domain.
+#' @param y a numerical value, the discretization of the function to integrate.
+#' @importFrom stats pgamma
 #' @export
 #' @examples
 #' integrate_trapeze(data1$grids[[1]][1:25],data1$y)
