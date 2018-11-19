@@ -116,66 +116,68 @@ fit_Bliss <- function(data,param,compute_density=TRUE,sann=TRUE,
                               basis = param[["basis"]],
                               p     = param[["p"]],
                               grids = data[["grids"]])
-  chains[[j]]$posterior_sample <- Bliss_Gibbs_Sampler(data,param_Gibbs_Sampler,verbose)
+  chains[[j]] <- Bliss_Gibbs_Sampler(data,param_Gibbs_Sampler,verbose)
 
-  chains_info[[j]] <- compute_chains_info(chains[[j]])
+  chains_info[[j]] <- compute_chains_info(chains[[j]],param_Gibbs_Sampler)
  }
 
  # Choose a chain for inference
  j <- sample(n_chains,1)
- posterior_sample <- chains[[j]]$posterior_sample
+ posterior_sample <- chains[[j]]
 
  # Compute a posterior sample of coefficient function
  if(verbose) cat("Coefficient function: smooth estimate.\n")
  beta_sample <- compute_beta_sample(posterior_sample,param_Gibbs_Sampler,Q)
 
  # Execute the Simulated Annealing algorithm to estimate the coefficient function
- if(verbose) cat("Coefficient function: Bliss estimate.\n")
  Bliss_estimation <- list()
  Bliss_estimate   <- list()
  trace_sann       <- list()
  Smooth_estimate  <- list()
- for(q in 1:Q){
-  param_Simulated_Annealing <- list( grid = data[["grids"]][[q]],
-                                     iter = param[["iter"]],
-                                     p    = param[["p"]][q],
-                                     Temp_init = param[["Temp_init"]],
-                                     K    = param[["K"]][q],
-                                     k_max = param[["k_max"]][q],
-                                     iter_sann = param[["iter_sann"]],
-                                     times_sann= param[["times_sann"]],
-                                     burnin    = param[["burnin"]],
-                                     l_max     = param[["l_max"]][q],
-                                     basis     = param[["basis"]][q])
+ if(sann){
+   if(verbose) cat("Coefficient function: Bliss estimate.\n")
+   for(q in 1:Q){
+     param_Simulated_Annealing <- list( grid = data[["grids"]][[q]],
+                                        iter = param[["iter"]],
+                                        p    = param[["p"]][q],
+                                        Temp_init = param[["Temp_init"]],
+                                        K    = param[["K"]][q],
+                                        k_max = param[["k_max"]][q],
+                                        iter_sann = param[["iter_sann"]],
+                                        times_sann= param[["times_sann"]],
+                                        burnin    = param[["burnin"]],
+                                        l_max     = param[["l_max"]][q],
+                                        basis     = param[["basis"]][q])
 
-  Bliss_estimation[[q]] <- Bliss_Simulated_Annealing(beta_sample[[q]],
-                                                     posterior_sample$param$normalization_values[[q]],
-                                                     param_Simulated_Annealing)
-  Bliss_estimate[[q]]  <- Bliss_estimation[[q]]$Bliss_estimate
-  trace_sann[[q]]      <- Bliss_estimation[[q]]$trace
-  Smooth_estimate[[q]] <- Bliss_estimation[[q]]$Smooth_estimate
+     Bliss_estimation[[q]] <- Bliss_Simulated_Annealing(beta_sample[[q]],
+                                                        posterior_sample$param$normalization_values[[q]],
+                                                        param_Simulated_Annealing)
+     Bliss_estimate[[q]]  <- Bliss_estimation[[q]]$Bliss_estimate
+     trace_sann[[q]]      <- Bliss_estimation[[q]]$trace
+     Smooth_estimate[[q]] <- Bliss_estimation[[q]]$Smooth_estimate
+   }
+   rm(Bliss_estimation)
  }
- rm(Bliss_estimation)
 
  # Compute an approximation of the posterior density of the coefficient function
- if(verbose) cat("Compute the approximation of the posterior distribution.\n")
  beta_posterior_density <- list()
  if (compute_density){
-  for(q in 1:Q){
-   param_beta_density <- list(grid= data[["grids"]][[q]],
-                              iter= param[["iter"]],
-                              p   = param[["p"]][q],
-                              n        = length(data[["y"]]),
-                              thin     = param[["thin"]],
-                              burnin   = param[["burnin"]],
-                              lims_kde = param[["lims_kde"]][[q]],
-                              new_grid = param[["new_grids"]][[q]],
-                              lims_estimate = range(Smooth_estimate[[q]]),
-                              verbose = verbose)
+   if(verbose) cat("Compute the approximation of the posterior distribution.\n")
+   for(q in 1:Q){
+     param_beta_density <- list(grid= data[["grids"]][[q]],
+                                iter= param[["iter"]],
+                                p   = param[["p"]][q],
+                                n        = length(data[["y"]]),
+                                thin     = param[["thin"]],
+                                burnin   = param[["burnin"]],
+                                lims_kde = param[["lims_kde"]][[q]],
+                                new_grid = param[["new_grids"]][[q]],
+                                lims_estimate = range(Smooth_estimate[[q]]),
+                                verbose = verbose)
 
-   beta_posterior_density[[q]] <-
-    compute_beta_posterior_density(beta_sample[[q]],param_beta_density)
-  }
+     beta_posterior_density[[q]] <-
+       compute_beta_posterior_density(beta_sample[[q]],param_beta_density)
+   }
  }
 
  # Compute the support estimate
@@ -184,10 +186,10 @@ fit_Bliss <- function(data,param,compute_density=TRUE,sann=TRUE,
  support_estimate_fct <- list()
  alpha <- list()
  for(q in 1:Q){
-  res_support <- support_estimation(beta_sample[[q]])
-  support_estimate[[q]]     <- res_support$estimate
-  support_estimate_fct[[q]] <- res_support$estimate_fct
-  alpha[[q]]                <- res_support$alpha
+   res_support <- support_estimation(beta_sample[[q]])
+   support_estimate[[q]]     <- res_support$estimate
+   support_estimate_fct[[q]] <- res_support$estimate_fct
+   alpha[[q]]                <- res_support$alpha
  }
  rm(res_support)
 

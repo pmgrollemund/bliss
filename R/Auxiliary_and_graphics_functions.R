@@ -347,15 +347,76 @@ dposterior <- function(posterior_sample,data,theta=NULL){
 ################################# ----
 #' compute_chains_info
 ################################# ----
-#' compute_chains_info
-#'
-#' @param x numeric
-#'
-#' @return numeric
+#' @description Compute summaries of Gibbs Sampler chains.
+#' @param chain a list given by the \code{Bliss_Gibbs_Sampler} function.
+#' @param param a list containing:
+#' \describe{
+#' \item{K}{a vector of integers, corresponding to the numbers of intervals for
+#'       each covariate.}
+#' \item{grids}{a numerical vector, the observation time points.}
+#' \item{basis}{a vector of characters (optional) among : "uniform" (default),
+#'       "epanechnikov", "gauss" and "triangular" which correspond to
+#'       different basis functions to expand the coefficient function and the
+#'       functional covariates.}
+#' }
+#' @return Return a list containing the estimates of mu and sigma_sq, the
+#'         Smooth estimate and the chain autocorrelation for mu, sigma_qs and beta.
+#' @useDynLib bliss
+#' @importFrom Rcpp sourceCpp
 #' @export
-#'
 #' @examples
-#' # compute x
-compute_chains_info <- function(x){
-  x
+#' param_sim <- list(Q=1,
+#'                   n=100,
+#'                   p=c(50),
+#'                   grids_lim=list(c(0,1)))
+#' data <- sim(param_sim,verbose=TRUE)
+#'
+#' param <- list(iter=5e2,
+#'               K=c(3),
+#'               n_chains = 3)
+#' res_bliss <- fit_Bliss(data,param,verbose=T,compute_density=F,sann=F)
+#'
+#' param$grids <- data$grids
+#' chains_info <- compute_chains_info(res_bliss$chains[[1]],param)
+compute_chains_info <- function(chain,param){
+  # Trace
+  trace <- chain$trace
+  # Beta sample
+  Q <- length(param$K)
+  beta_sample <- compute_beta_sample(chain,param,Q)
+
+  # Estimate mu beta sigma
+  mu_hat <- mean(trace[,'mu'])
+  sigma_sq_hat <- mean(trace[,'sigma_sq'])
+  Smooth_estimate <- apply(beta_sample[[1]],2,mean)
+
+  # Autocorrelation
+  lags <- 1:50
+  n_iter <- nrow(trace)
+  autocorr_lag <- NULL
+  for(l in lags){
+    indice     <- 1:(n_iter-l)
+    indice_lag <- 1:(n_iter-l) + l
+
+    options(warn = -1)
+    cor_beta <- max(apply(beta_sample[[1]],2,function(v) {
+      cor(v[indice],
+          v[indice_lag])
+    }),na.rm=T)
+    options(warn = 0)
+
+    autocorr_lag <- rbind(autocorr_lag,
+                                c(cor(trace[indice,'mu'],
+                                      trace[indice_lag,'mu']),
+                                cor(trace[indice,'sigma_sq'],
+                                    trace[indice_lag,'sigma_sq']),
+                                cor_beta))
+  }
+  colnames(autocorr_lag) <- c("mu","sigma_sq","beta")
+
+  # Result
+  return(list(estimates = list(mu_hat          = mu_hat,
+                               sigma_sq_hat    = sigma_sq_hat,
+                               Smooth_estimate = Smooth_estimate),
+              autocorr_lag = autocorr_lag))
 }
