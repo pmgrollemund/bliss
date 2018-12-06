@@ -4,7 +4,15 @@
 \name{param1}
 \alias{param1}
 \title{A list of param for bliss model}
-\format{a list of param for bliss model}
+\format{a list of param for bliss model
+\describe{
+  \item{Q}{the number of functional covariate}
+  \item{n}{n is the sample size}
+  \item{p}{p is the number of time observations of the curves}
+  \item{iter}{The number of iteration of the main numerical algorithm of Bliss}
+  \item{grids_lim}{The grid of the time observations}
+  \item{K}{The number of intervals of the beta}
+}}
 \usage{
 param1
 }

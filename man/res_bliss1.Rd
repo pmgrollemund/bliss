@@ -4,7 +4,19 @@
 \name{res_bliss1}
 \alias{res_bliss1}
 \title{A result of the BliSS method}
-\format{a Bliss object (list)}
+\format{a Bliss object (list)
+\describe{
+  \item{alpha}{a list}
+  \item{beta_posterior_density}{a list containing grid_t, grid_beta_t, density and new_beta_sample}
+  \item{beta_sample}{a list of beta sample}
+  \item{Bliss_estimate}{a list of bliss estimate}
+  \item{chains_info}{a list of information of computed chains}
+  \item{param}{a list of the parameters used in the method}
+  \item{data}{a list of the used data}
+  \item{posterior_sample}{a list posterior_sample}
+  \item{support_estimate}{a list support_estimate}
+  \item{trace_sann}{a list of trace_sann if simulated annealing algo was used}
+}}
 \usage{
 res_bliss1
 }
