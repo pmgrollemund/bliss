@@ -2,21 +2,46 @@
 % Please edit documentation in R/Auxiliary_and_graphics_functions.R
 \name{compute_chains_info}
 \alias{compute_chains_info}
-\title{compute_chains_info
-compute_chains_info}
+\title{compute_chains_info}
 \usage{
-compute_chains_info(x)
+compute_chains_info(chain, param)
 }
 \arguments{
-\item{x}{numeric}
+\item{chain}{a list given by the \code{Bliss_Gibbs_Sampler} function.}
+
+\item{param}{a list containing:
+\describe{
+\item{K}{a vector of integers, corresponding to the numbers of intervals for
+      each covariate.}
+\item{grids}{a numerical vector, the observation time points.}
+\item{basis}{a vector of characters (optional) among : "uniform" (default),
+      "epanechnikov", "gauss" and "triangular" which correspond to
+      different basis functions to expand the coefficient function and the
+      functional covariates.}
+}}
 }
 \value{
-numeric
+Return a list containing the estimates of mu and sigma_sq, the
+        Smooth estimate and the chain autocorrelation for mu, sigma_qs and beta.
 }
 \description{
-compute_chains_info
-compute_chains_info
+Compute summaries of Gibbs Sampler chains.
 }
 \examples{
-# compute x
+\donttest{
+# May take a while...
+param_sim <- list(Q=1,
+                  n=100,
+                  p=c(50),
+                  grids_lim=list(c(0,1)))
+data <- sim(param_sim,verbose=TRUE)
+
+param <- list(iter=5e2,
+              K=c(3),
+              n_chains = 3)
+res_bliss <- fit_Bliss(data,param,verbose=T,compute_density=F,sann=F)
+
+param$grids <- data$grids
+chains_info <- compute_chains_info(res_bliss$chains[[1]],param)
+}
 }

@@ -9,7 +9,7 @@ build_Fourier_basis(grid, dim, per = 2 * pi)
 \arguments{
 \item{grid}{a numerical vector.}
 
-\item{dim}{a numerical value. It corresponds to dim(basis)/2.}
+\item{dim}{a numerical value. It corresponds to \code{dim(basis)/2}.}
 
 \item{per}{a numerical value which corresponds to the period of the sine and
 cosine functions.}
@@ -19,11 +19,11 @@ a matrix. Each row is an functional observation evaluated on the
         \code{grid} time points.
 }
 \description{
-Define a Fourier basis to simulate functional covariate observation.
+Define a Fourier basis to simulate functional covariate observations.
 }
 \details{
 See the \code{\link[=sim_x]{sim_x}} function.
 }
 \examples{
-# See the sim_x() function.
+# See the function \\code{sim_x}.
 }

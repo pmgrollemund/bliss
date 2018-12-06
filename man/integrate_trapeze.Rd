@@ -2,22 +2,20 @@
 % Please edit documentation in R/basic_functions.R
 \name{integrate_trapeze}
 \alias{integrate_trapeze}
-\title{integrate_trapeze XXXXXXXXXXX
-integrate_trapeze}
+\title{integrate_trapeze}
 \usage{
 integrate_trapeze(x, y)
 }
 \arguments{
-\item{x}{numeric}
+\item{x}{a numerical vector, the discretization of the domain.}
 
-\item{y}{numeric}
+\item{y}{a numerical value, the discretization of the function to integrate.}
 }
 \value{
-a graphic
+a numerical value, the approximation.
 }
 \description{
-integrate_trapeze XXXXXXXXXXX
-integrate_trapeze
+Trapezoidal rule to approximate an integral.
 }
 \examples{
 integrate_trapeze(data1$grids[[1]][1:25],data1$y)

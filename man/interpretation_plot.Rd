@@ -4,24 +4,26 @@
 \alias{interpretation_plot}
 \title{interpretation_plot}
 \usage{
-interpretation_plot(estimate, data, q = 1, centered = FALSE, cols = NULL)
+interpretation_plot(data, Bliss_estimate, q = 1, centered = FALSE,
+  cols = NULL)
 }
 \arguments{
-\item{estimate}{a numerical vector, the Bliss estimate.}
-
 \item{data}{a list containing:
 \describe{
-\item{Q}{an integer, the number of covariates,}
-\item{x}{a list of matrices, the qth matrix contains the observation of the
-      qth functional covariate at time points given by grids,}
-\item{y}{a numerical vector, the outcome values y_i.}
+\item{y}{a numerical vector, the outcomes.}
+\item{x}{a list of matrices, the qth matrix contains the observations of the
+      qth functional covariate at time points given by \code{grids}.}
+\item{grids}{a list of numerical vectors, the qth vector is the grid of
+       time points for the qth functional covariate.}
 }}
 
-\item{q}{an integer, the index of the functional covariate to plot.}
+\item{Bliss_estimate}{a numerical vector, the Bliss estimate.}
 
-\item{centered}{a logical value. If TRUE, the functional data are centered.}
+\item{q}{an integer (optional), the index of the functional covariate to plot.}
 
-\item{cols}{a numerical vector of colours.}
+\item{centered}{a logical value (optional), If TRUE, the functional data are centered.}
+
+\item{cols}{a numerical vector of colours (optional).}
 }
 \description{
 Provide a graphical representation of the functional data
@@ -29,12 +31,11 @@ Provide a graphical representation of the functional data
 }
 \examples{
 \donttest{
-# Not run!!
 data(data1)
 data(param1)
-res_bliss1 <- fit_Bliss(data=data1,param=param1,progress=TRUE)
-data(res_bliss1)
-interpretation_plot(res_bliss1$Bliss_estimate[[1]],data1)
-interpretation_plot(res_bliss1$Bliss_estimate[[1]],data1,centered=FALSE)
+res_bliss1 <- fit_Bliss(data=data1,param=param1,verbose=TRUE)
 }
+data(res_bliss1)
+interpretation_plot(data1,res_bliss1$Bliss_estimate,centered=TRUE)
+interpretation_plot(data1,res_bliss1$Bliss_estimate,centered=FALSE)
 }

@@ -7,21 +7,19 @@
 sigmoid_sharp(x, loc = 0, ...)
 }
 \arguments{
-\item{x}{a numerical vector, a grid of points.}
+\item{x}{a numerical vector, time points.}
 
-\item{loc}{a numerical value, the instant of the sharp. (optional)}
+\item{loc}{a numerical value (optional), the time of the sharp.}
 
-\item{...}{Arguments to be passed to the function sigmoid. (optional)}
+\item{...}{Arguments (optional) for the function sigmoid.}
 }
 \value{
 a numerical vector.
 }
 \description{
-compute a sharp function from the sigmoid function
+Compute a sharp sigmoid function.
 }
 \details{
-used to simulate a coefficient function or functions x_i(t).
-
 see the function \code{\link[=sim_x]{sim_x}}.
 }
 \examples{

@@ -2,21 +2,25 @@
 % Please edit documentation in R/basic_functions.R
 \name{support_estimation}
 \alias{support_estimation}
-\title{support_estimation XXXXXXXXX}
+\title{support_estimation}
 \usage{
-support_estimation(beta_sample, gamma = 0.5)
+support_estimation(beta_sample_q, gamma = 0.5)
 }
 \arguments{
-\item{beta_sample}{a matrix. Each row is a coefficient function computed from the
+\item{beta_sample_q}{a matrix. Each row is a coefficient function computed from the
 posterior sample.}
 
-\item{gamma}{a numeric, default 0.5}
+\item{gamma}{a numeric value, the default value is \code{0.5}.}
 }
 \value{
 a list containing:
 \describe{
- \item{alpha}{a numerical vector. XXXXXXX}
- \item{estimate}{a numerical vector. XXXXXXX}
+ \item{alpha}{a numerical vector. The approximated posterior probabilities
+       that the coefficient function support covers \code{t} for each time
+       points \code{t}.}
+ \item{estimate}{a numerical vector, the support estimate.}
+ \item{estimate_fct}{a numerical vector, another version of the support
+       estimate.}
 }
 }
 \description{

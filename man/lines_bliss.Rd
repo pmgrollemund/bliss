@@ -4,18 +4,19 @@
 \alias{lines_bliss}
 \title{lines_bliss}
 \usage{
-lines_bliss(extended_grid, fct, bound = FALSE, ...)
+lines_bliss(x, y, connect = FALSE, ...)
 }
 \arguments{
-\item{extended_grid}{a numerical vector, a new grid to provide a suitable
-representation.}
+\item{x}{the coordinates of points in the plot.}
 
-\item{fct}{a numerical vector, the function to plot.}
+\item{y}{the y coordinates of points in the plot.}
 
-\item{bound}{a logical value. If bound is TRUE, the plot of fct is one line.
-Otherwise, several lines are used to plot fct.}
+\item{connect}{a logical value (optional), to handle discontinuous function.
+If \code{connect} is TRUE, the plot is one line. Otherwise, several
+lines are used.}
 
-\item{...}{Arguments to be passed to methods, such as graphical parameters (see par).}
+\item{...}{Arguments to be passed to methods, such as graphical parameters
+(see \code{par}).}
 }
 \description{
 A suitable representation of the Bliss estimate.
@@ -25,12 +26,12 @@ A suitable representation of the Bliss estimate.
 \donttest{
 data(data1)
 data(param1)
-res_bliss1 <- fit_Bliss(data=data1,param=param1,progress=TRUE)
+res_bliss1 <- fit_Bliss(data=data1,param=param1,verbose=TRUE)
 }
 data(res_bliss1)
 ### Plot the BLiss estimate on a suitable grid
 plot_bliss(res_bliss1$data$grids[[1]],
-           res_bliss1$Bliss_estimate[[1]],lwd=2,bound=FALSE)
+           res_bliss1$Bliss_estimate[[1]],lwd=2)
 lines_bliss(res_bliss1$data$grids[[1]],
             res_bliss1$Smooth_estimate[[1]],lty=2)
 }

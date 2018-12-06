@@ -4,37 +4,39 @@
 \alias{compute_beta_posterior_density}
 \title{compute_beta_posterior_density}
 \usage{
-compute_beta_posterior_density(beta_sample, param, progress = FALSE)
+compute_beta_posterior_density(beta_sample, param, verbose = FALSE)
 }
 \arguments{
-\item{beta_sample}{a list (given by the compute_beta function).}
+\item{beta_sample}{a matrix. Each row is a coefficient function computed from the
+posterior sample.}
 
-\item{param}{(optional), a list containing:
+\item{param}{a list containing:
 \describe{
-\item{grid}{a numerical vector, the observation time points.}
-\item{burnin}{an integer, the number of iteration to drop from the Gibbs
-      sample. (optional)}
-\item{thin}{an integer, used to thin the Gibbs sample to compute an
-      approximation of the posterior density of beta(t). (optional)}
- \item{lims_kde}{a numerical vector (yl,yu) XXXXXXXXXXX (optional)}
- \item{N}{an integer related to the precision of the approximation. (optional)}
- \item{new_grid}{a numerical vector.}
+\item{grid}{a numerical vector, the time points.}
+\item{lims_estimate}{a numerical vector, the time points.}
+\item{burnin}{an integer (optional), the number of iteration to drop from the Gibbs
+      sample.}
+\item{lims_kde}{an integer (optional), correspond to the \code{lims} option
+      of the \code{kde2d} funtion.}
+\item{new_grid}{a numerical vector (optional) to compute beta sample on a
+      different grid.}
+\item{thin}{an integer (optional) to thin the posterior sample.}
 }}
 
-\item{progress}{a logical value. If TRUE, the algorithm progress is displayed.
-(optional)}
+\item{verbose}{write stuff if TRUE (optional).}
 }
 \value{
-An approximation of the posterior density on a two-dimensional grid.
-        (corresponds to the result of the \code{\link[=kde2d]{kde2d}} function)
+An approximation of the posterior density on a two-dimensional grid
+        (corresponds to the result of the \code{\link[=kde2d]{kde2d}} function).
 }
 \description{
-Compute a graphical representation of the marginal posterior
-             distributions of beta(t) for each t.
+Compute the posterior density of the coefficient function.
 }
 \details{
-The sample is thinned in order to reduce the correlation and
-          so the time of the computation of the function \code{\link[=kde2d]{kde2d}}.
+The posterior densities correponds to approximations of the marginal
+         posterior distribitions (of beta(t) for each t).
+         The sample is thinned in order to reduce the correlation and the
+         computational time of the function \code{\link[=kde2d]{kde2d}}.
 }
 \examples{
 library(RColorBrewer)
@@ -59,10 +61,12 @@ param_density<-list(grid= param1$grids[[q]],
                     new_grid = param1[["new_grid"]],
                     xlim = range(param1$grids[[q]]) + c(-diff_grid,diff_grid),
                     lims_estimate=range(res_bliss1$Smooth_estimate[[1]]),
-                    progress = FALSE
+                    verbose = FALSE
 )
+\donttest{
 density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample[[1]],param_density)
 image(density_estimate$grid_t,
       density_estimate$grid_beta_t,
       density_estimate$density,col=rev(heat.colors(100)))
+}
 }

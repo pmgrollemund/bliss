@@ -54,82 +54,82 @@
 #' beta_function <- choose_beta(param)
 #' plot(param$grid,beta_function,type="l")
 choose_beta <- function(param){
- # load objects
- p    <- param[["p"]]
- grid <- param[["grid"]]
- shape <- param[["shape"]]
+  # load objects
+  p    <- param[["p"]]
+  grid <- param[["grid"]]
+  shape <- param[["shape"]]
 
- # Compute a grid on (0,1).
- grid_01 <- (grid - min(grid))/ (max(grid) - min(grid))
- # Choose a function beta
- if(shape == "smooth"){
-  beta <- 5*exp(-((grid_01-0.25)*20)^2) +
-   2*exp(-((grid_01-0.75)*20)^2) -
-   2*exp(-((grid_01-0.5)*20)^2)
- }
- if(shape == "random_smooth"){
-  beta <- runif(1,-5,5)*exp(-((grid_01-runif(1,0,1))*20)^2) +
-   runif(1,-5,5)*exp(-((grid_01-runif(1,0,1))*20)^2) +
-   runif(1,-5,5)*exp(-((grid_01-runif(1,0,1))*20)^2)
- }
- if(shape == "simple2"){
-  beta <- rep(0,p)
-  beta[round(p/10):round(3*p/10)] <- 3
-  beta[round(5*p/10):round(6*p/10)] <- 4
-  beta[round(8*p/10):round(9.5*p/10)] <- -1
- }
- if(shape == "simple"){
-  beta <- rep(0,p)
-  beta[round(p/10):round(3*p/10)] <- 3
-  beta[round(5*p/10):round(6*p/10)] <- 4
-  beta[round(8*p/10):round(9.5*p/10)] <- -3
- }
- if(shape == "simple_bis"){
-  beta <- rep(0,p)
-  beta[1:round(2*p/10)] <- 3
-  beta[round(5*p/10):round(6*p/10)] <- 4
-  beta[round(6*p/10):round(7.5*p/10)] <- -1
- }
- if(shape == "simple_K10"){
-  beta <- rep(0,p)
-  beta[round(0.5*p/10):round(2*p/10)]   <- 1 + beta[round(0.5*p/10):round(2*p/10)]
-  beta[round(p/10):round(2*p/10)]       <- 2 + beta[round(p/10):round(2*p/10)]
-  beta[round(0.8*p/10):round(1.7*p/10)] <- 1 + beta[round(0.8*p/10):round(1.7*p/10)]
-  beta[round(4.5*p/10):round(7*p/10)]   <- 2 + beta[round(4.5*p/10):round(7*p/10)]
-  beta[round(5*p/10):round(7*p/10)]     <- 1 + beta[round(5*p/10):round(7*p/10)]
-  beta[round(5*p/10):round(6*p/10)]     <- 2 + beta[round(5*p/10):round(6*p/10)]
-  beta[round(8*p/10):round(9.5*p/10)]   <- -0.5 + beta[round(8*p/10):round(9.5*p/10)]
-  beta[round(8*p/10):round(10*p/10)]    <- -1 + beta[round(8*p/10):round(10*p/10)]
-  beta[round(8*p/10):round(9.5*p/10)]   <- -1 + beta[round(8*p/10):round(9.5*p/10)]
-  beta[round(8.8*p/10):round(9.5*p/10)] <- -0.5 + beta[round(8.8*p/10):round(9.5*p/10)]
- }
- if(shape == "random_simple"){
-  beta <- rep(0,p)
-  boundaries <- sort(sample(1:p,6))
-  beta[boundaries[1]:boundaries[2]] <- runif(1,-5,5)
-  beta[boundaries[3]:boundaries[4]] <- runif(1,-5,5)
-  beta[boundaries[5]:boundaries[6]] <- runif(1,-5,5)
- }
- if(shape == "sinusoid"){
-  beta <- sin(grid_01 * 2* pi)
- }
- if(shape == "flat_sinusoid"){
-  beta <- rep(0,p)
-  flat          <- round(p/3)
-  beta[1:flat]  <- sin(10/(p-flat+10)               * 2* pi)
-  beta[flat:p]  <- sin((10:(p-flat+10))/(p-flat+10) * 2* pi)
-  beta          <- beta * sigmoid(1:p-flat)
- }
- if(shape == "sharp"){
-  beta  <- rep(0,p)
-  shift <- max(grid_01) - min(grid_01)
-  beta  <- beta +
-   2 * sigmoid_sharp(grid_01,min(grid_01) + 0.2 * shift,v=100,asym=1) -
-   3 * sigmoid_sharp(grid_01,min(grid_01) + 0.6 * shift,v=100,asym=1)
- }
+  # Compute a grid on (0,1).
+  grid_01 <- (grid - min(grid))/ (max(grid) - min(grid))
+  # Choose a function beta
+  if(shape == "smooth"){
+    beta <- 5*exp(-((grid_01-0.25)*20)^2) +
+      2*exp(-((grid_01-0.75)*20)^2) -
+      2*exp(-((grid_01-0.5)*20)^2)
+  }
+  if(shape == "random_smooth"){
+    beta <- runif(1,-5,5)*exp(-((grid_01-runif(1,0,1))*20)^2) +
+      runif(1,-5,5)*exp(-((grid_01-runif(1,0,1))*20)^2) +
+      runif(1,-5,5)*exp(-((grid_01-runif(1,0,1))*20)^2)
+  }
+  if(shape == "simple2"){
+    beta <- rep(0,p)
+    beta[round(p/10):round(3*p/10)] <- 3
+    beta[round(5*p/10):round(6*p/10)] <- 4
+    beta[round(8*p/10):round(9.5*p/10)] <- -1
+  }
+  if(shape == "simple"){
+    beta <- rep(0,p)
+    beta[round(p/10):round(3*p/10)] <- 3
+    beta[round(5*p/10):round(6*p/10)] <- 4
+    beta[round(8*p/10):round(9.5*p/10)] <- -3
+  }
+  if(shape == "simple_bis"){
+    beta <- rep(0,p)
+    beta[1:round(2*p/10)] <- 3
+    beta[round(5*p/10):round(6*p/10)] <- 4
+    beta[round(6*p/10):round(7.5*p/10)] <- -1
+  }
+  if(shape == "simple_K10"){
+    beta <- rep(0,p)
+    beta[round(0.5*p/10):round(2*p/10)]   <- 1 + beta[round(0.5*p/10):round(2*p/10)]
+    beta[round(p/10):round(2*p/10)]       <- 2 + beta[round(p/10):round(2*p/10)]
+    beta[round(0.8*p/10):round(1.7*p/10)] <- 1 + beta[round(0.8*p/10):round(1.7*p/10)]
+    beta[round(4.5*p/10):round(7*p/10)]   <- 2 + beta[round(4.5*p/10):round(7*p/10)]
+    beta[round(5*p/10):round(7*p/10)]     <- 1 + beta[round(5*p/10):round(7*p/10)]
+    beta[round(5*p/10):round(6*p/10)]     <- 2 + beta[round(5*p/10):round(6*p/10)]
+    beta[round(8*p/10):round(9.5*p/10)]   <- -0.5 + beta[round(8*p/10):round(9.5*p/10)]
+    beta[round(8*p/10):round(10*p/10)]    <- -1 + beta[round(8*p/10):round(10*p/10)]
+    beta[round(8*p/10):round(9.5*p/10)]   <- -1 + beta[round(8*p/10):round(9.5*p/10)]
+    beta[round(8.8*p/10):round(9.5*p/10)] <- -0.5 + beta[round(8.8*p/10):round(9.5*p/10)]
+  }
+  if(shape == "random_simple"){
+    beta <- rep(0,p)
+    boundaries <- sort(sample(1:p,6))
+    beta[boundaries[1]:boundaries[2]] <- runif(1,-5,5)
+    beta[boundaries[3]:boundaries[4]] <- runif(1,-5,5)
+    beta[boundaries[5]:boundaries[6]] <- runif(1,-5,5)
+  }
+  if(shape == "sinusoid"){
+    beta <- sin(grid_01 * 2* pi)
+  }
+  if(shape == "flat_sinusoid"){
+    beta <- rep(0,p)
+    flat          <- round(p/3)
+    beta[1:flat]  <- sin(10/(p-flat+10)               * 2* pi)
+    beta[flat:p]  <- sin((10:(p-flat+10))/(p-flat+10) * 2* pi)
+    beta          <- beta * sigmoid(1:p-flat)
+  }
+  if(shape == "sharp"){
+    beta  <- rep(0,p)
+    shift <- max(grid_01) - min(grid_01)
+    beta  <- beta +
+      2 * sigmoid_sharp(grid_01,min(grid_01) + 0.2 * shift,v=100,asym=1) -
+      3 * sigmoid_sharp(grid_01,min(grid_01) + 0.6 * shift,v=100,asym=1)
+  }
 
- # Return the chosen function
- return(beta)
+  # Return the chosen function
+  return(beta)
 }
 
 ################################# ----
@@ -161,8 +161,6 @@ choose_beta <- function(param){
 #'        covariate.}
 #'  \item{autocorr_spread}{a vector of numerical values (optional) which are related to the
 #'        autocorrelation of the functional covariates.}
-#'  \item{correlation}{a matrix (optional) which gives the correlation structure between the
-#'        functional covariates.}
 #'  \item{grids}{a list of numerical vectors (optional), the qth vector is the grid
 #'        of time points for the qth functional covariate.}
 #'  \item{grids_lim}{a list of numerical vectors  (optional), the qth item is the lower
@@ -190,95 +188,87 @@ choose_beta <- function(param){
 #' abline(h=0,lty=2,col="gray")
 #' par(mfrow=c(1,1))
 sim <- function(param,verbose=FALSE){
- if(verbose) cat("Simulation of the data.\n")
- # load objects
- Q <- param[['Q']]
- n <- param[['n']]
- p <- param[['p']]
+  if(verbose) cat("Simulation of the data.\n")
+  # load objects
+  Q <- param[['Q']]
+  n <- param[['n']]
+  p <- param[['p']]
 
- # load optional objects
- grids_lim <- param[['grids_lim']]
- mu     <- param[['mu']]
- r      <- param[['r']]
- link   <- param[['link']]
- grids  <- param[['grids']]
- beta_shapes <- param[['beta_shapes']]
- x_shapes    <- param[['x_shapes']]
- autocorr_spread <- param[['autocorr_spread']]
- autocorr_diag   <- param[['autocorr_diag']]
- correlation     <- param[['correlation']]
+  # load optional objects
+  grids_lim <- param[['grids_lim']]
+  mu     <- param[['mu']]
+  r      <- param[['r']]
+  link   <- param[['link']]
+  grids  <- param[['grids']]
+  beta_shapes <- param[['beta_shapes']]
+  x_shapes    <- param[['x_shapes']]
+  autocorr_spread <- param[['autocorr_spread']]
+  autocorr_diag   <- param[['autocorr_diag']]
 
- # Initialize the required unspecified objects
- if(is.null(grids_lim)){
-  grids_lim <- list()
-  for(q in 1:Q) grids_lim[[q]] <- c(0,1)
- }
- if(is.null(mu))   mu   <- 1
- if(is.null(r))    r    <- 5
- if(is.null(link)) link <- function(expectation) expectation
- if(is.null(x_shapes))    x_shapes    <- rep(NULL,Q)
- if(is.null(beta_shapes)) beta_shapes <- rep("simple",Q)
+  # Initialize the required unspecified objects
+  if(is.null(grids_lim)){
+    grids_lim <- list()
+    for(q in 1:Q) grids_lim[[q]] <- c(0,1)
+  }
+  if(is.null(mu))   mu   <- 1
+  if(is.null(r))    r    <- 5
+  if(is.null(link)) link <- function(expectation) expectation
+  if(is.null(x_shapes))    x_shapes    <- rep(NULL,Q)
+  if(is.null(beta_shapes)) beta_shapes <- rep("simple",Q)
 
- # Derive some objects
- if(is.null(grids)) {
-  grids  <- list()
-  for (q in 1:Q) grids[[q]] <- seq(grids_lim[[q]][1],grids_lim[[q]][2],length=p[q])
-  param[['grids']] <- grids
- }
- if(!is.null(grids)) {
-  check <- TRUE
-  for (q in 1:Q) check <- check & length(grids[[q]])==p[q]
-  if(check == FALSE) stop("The length of each grid (parameter grids) should correspond to the number of observation times (parameter p).")
- }
+  # Derive some objects
+  if(is.null(grids)) {
+    grids  <- list()
+    for (q in 1:Q) grids[[q]] <- seq(grids_lim[[q]][1],grids_lim[[q]][2],length=p[q])
+    param[['grids']] <- grids
+  }
+  if(!is.null(grids)) {
+    check <- TRUE
+    for (q in 1:Q) check <- check & length(grids[[q]])==p[q]
+    if(check == FALSE) stop("The length of each grid (parameter grids) should correspond to the number of observation times (parameter p).")
+  }
 
- # Simulate the functional covariate observed on the grids.
- if(verbose) cat("\t Simulate functional covariate observations.\n")
- if( (Q == 1) && !(is.null(correlation)) )
-  stop("'Correlation' is a correlation structure between different functional covariates.")
- if( (Q > 1) && !(is.null(correlation)) ){
-  x <- sim_correlated_x(param)
- }
- if( is.null(correlation)){
+  # Simulate the functional covariate observed on the grids.
+  if(verbose) cat("\t Simulate functional covariate observations.\n")
   x <- list()
   for (q in 1:Q){
-   param_sim_x <- list(n=n,p=p[q],grid=grids[[q]],shape=x_shapes[q],
-                       autocorr_spread=autocorr_spread[q],
-                       autocorr_diag=autocorr_diag[[q]])
-   x[[q]] <- sim_x(param_sim_x)
+    param_sim_x <- list(n=n,p=p[q],grid=grids[[q]],shape=x_shapes[q],
+                        autocorr_spread=autocorr_spread[q],
+                        autocorr_diag=autocorr_diag[[q]])
+    x[[q]] <- sim_x(param_sim_x)
   }
- }
 
- # Choose a coefficient function beta
- if(verbose) cat("\t Choose a coefficient function.\n")
- betas <- list()
- for (q in 1:Q){
-  param_choose_beta <- list(p=p[q],grid=grids[[q]],shape=beta_shapes[q])
-  betas[[q]] <- choose_beta(param_choose_beta)
- }
-
- if(verbose) cat("\t Compute the outcome values.\n")
- # Compute the expectation of the outcome
- y_expe <- rep(mu,n)
- for(i in 1:n){
-  for(q in 1:Q){
-   x_beta    <- x[[q]][i,] * betas[[q]]
-   y_expe[i] <- y_expe[i] + integrate_trapeze(grids[[q]],x_beta)
+  # Choose a coefficient function beta
+  if(verbose) cat("\t Choose a coefficient function.\n")
+  betas <- list()
+  for (q in 1:Q){
+    param_choose_beta <- list(p=p[q],grid=grids[[q]],shape=beta_shapes[q])
+    betas[[q]] <- choose_beta(param_choose_beta)
   }
- }
 
- # Compute the error
- err <- rnorm(n,0,1)
- err <- sd(y_expe) * err / (sd(err) * sqrt(r))
+  if(verbose) cat("\t Compute the outcome values.\n")
+  # Compute the expectation of the outcome
+  y_expe <- rep(mu,n)
+  for(i in 1:n){
+    for(q in 1:Q){
+      x_beta    <- x[[q]][i,] * betas[[q]]
+      y_expe[i] <- y_expe[i] + integrate_trapeze(grids[[q]],x_beta)
+    }
+  }
 
- # Compute the outcome values
- y <- link(y_expe) + err
+  # Compute the error
+  err <- rnorm(n,0,1)
+  err <- sd(y_expe) * err / (sd(err) * sqrt(r))
 
- # Return the data.
- return(list(Q     = Q,
-             y     = y,
-             x     = x,
-             betas = betas,
-             grids = grids))
+  # Compute the outcome values
+  y <- link(y_expe) + err
+
+  # Return the data.
+  return(list(Q     = Q,
+              y     = y,
+              x     = x,
+              betas = betas,
+              grids = grids))
 }
 
 ################################# ----
@@ -343,238 +333,136 @@ sim <- function(param,verbose=FALSE){
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
 sim_x <- function(param){
- # load objects
- n <- param$n
- p <- param$p
- grid <- param$grid
+  # load objects
+  n <- param$n
+  p <- param$p
+  grid <- param$grid
 
- # load optional objects
- shape    <- param$shape
- dim     <- param$dim
- ksi     <- param$ksi
- diagVar <- param$diagVar
+  # load optional objects
+  shape    <- param$shape
+  dim     <- param$dim
+  ksi     <- param$ksi
+  diagVar <- param$diagVar
 
- # Initialize the necessary unspecified objects
- if(is.null(shape))   shape   <- "mvgauss"
- if(is.null(dim))     dim     <- 4
- if(is.null(ksi))     ksi     <- 1
- if(is.null(diagVar)) diagVar <- abs(rnorm(p,1,1/10))
+  # Initialize the necessary unspecified objects
+  if(is.null(shape))   shape   <- "mvgauss"
+  if(is.null(dim))     dim     <- 4
+  if(is.null(ksi))     ksi     <- 1
+  if(is.null(diagVar)) diagVar <- abs(rnorm(p,1,1/10))
 
- # Deduce objects
- by <- diff(grid)[1]
+  # Deduce objects
+  by <- diff(grid)[1]
 
- # Simulate the functions x_i(t)
- if(shape == "Fourier"){
-  # Set a Fourier basis
-  Fourier_basis <- build_Fourier_basis(grid = grid,
-                                       dim  = dim,
-                                       per  = 1.5*(max(grid)-min(grid)))
-  # Choose the coefficients
-  a_n <- rockchalk::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
-  b_n <- rockchalk::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
+  # Simulate the functions x_i(t)
+  if(shape == "Fourier"){
+    # Set a Fourier basis
+    Fourier_basis <- build_Fourier_basis(grid = grid,
+                                         dim  = dim,
+                                         per  = 1.5*(max(grid)-min(grid)))
+    # Choose the coefficients
+    a_n <- rockchalk::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
+    b_n <- rockchalk::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
 
-  # Compute the functions x_i(t)
-  x <- a_n %*% Fourier_basis[1:dim,] + b_n %*% Fourier_basis[(dim+1):(2*dim),]
- }
- if(shape == "Fourier2"){
-  # Set a Fourier basis
-  Fourier_basis <- build_Fourier_basis(grid = grid,
-                                       dim  = dim,
-                                       per  = 1.5*(max(grid)-min(grid)))
-  # Choose the coefficients
-  a_n <- runif(n*dim,-3,3)
-  dim(a_n) <- c(n,dim)
-  b_n <- runif(n*dim,-3,3)
-  dim(b_n) <- c(n,dim)
-
-  # Determiner les courbes
-  x <- a_n %*% Fourier_basis[1:dim,] + b_n %*% Fourier_basis[(dim+1):(2*dim),]
- }
- if(shape == "random_walk"){
-  start <- rnorm(n,0,2)
-  x <- compute_random_walk(n,p,0,1,start)
- }
- if(shape == "random_sharp"){
-  locs <- runif(n*2,grid[1],tail(grid,1))
-  dim(locs) <- c(n,2)
-
-  asyms <- runif(n*2,1,5)
-  dim(asyms) <- c(n,2)
-
-  vs <- runif(n*2, 1/(4*by), 1/(3*by) )
-  dim(vs) <- c(n,2)
-
-  s <- sample(c(-1,1),2*n,replace=T)
-  dim(s) <- c(n,2)
-
-  x <- matrix(0,n,p)
-  for(i in 1:n){
-   x[i,] <- s[i,1] * sigmoid_sharp(grid,locs[i,1],asyms[i,1],vs[i,1]) +
-    s[i,2] * sigmoid_sharp(grid,locs[i,2],asyms[i,2],vs[i,2])
+    # Compute the functions x_i(t)
+    x <- a_n %*% Fourier_basis[1:dim,] + b_n %*% Fourier_basis[(dim+1):(2*dim),]
   }
- }
- if(shape == "uniform"){
-  x <- matrix(0,n,p)
-  for(j in 1:p){
-   x[,j] <- runif(n,-5,5)
-  }
- }
- if(shape == "gaussian"){
-  x <- matrix(0,n,p)
-  for(j in 1:p){
-   x[,j] <- rnorm(n,0,4)
-  }
- }
- if(shape == "mvgauss"){
-  mu      <- (1:p-p/2)^2/(p^2/4)
-  Sigma   <- corr_matrix(diagVar,ksi^2)
-  x       <- matrix(0,n,p)
-  for(i in 1:n){
-   x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
-  }
- }
- if(shape == "mvgauss_different_scale"){
-  mu      <- (1:p-p/2)^2/(p^2/4)
-  diagVar[1:floor(p/3)] <- 10 * diagVar[1:floor(p/3)]
-  Sigma   <- corr_matrix(diagVar,ksi^2)
-  x       <- matrix(0,n,p)
-  for(i in 1:n){
-   x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
-  }
- }
- if(shape == "mvgauss_different_scale2"){
-  mu      <- (1:p-p/2)^2/(p^2/4)
-  diagVar[1:floor(p/3)] <- 100 * diagVar[1:floor(p/3)]
-  Sigma   <- corr_matrix(diagVar,ksi^2)
-  x       <- matrix(0,n,p)
-  for(i in 1:n){
-   x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
-  }
- }
- if(shape == "mvgauss_different_scale3"){
-  mu      <- (1:p-p/2)^2/(p^2/4)
-  diagVar[1:floor(p/3)] <- 1000 * diagVar[1:floor(p/3)]
-  Sigma   <- corr_matrix(diagVar,ksi^2)
-  x       <- matrix(0,n,p)
-  for(i in 1:n){
-   x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
-  }
- }
- if(shape == "mvgauss_different_scale4"){
-  mu      <- (1:p-p/2)^2/(p^2/4)
-  diagVar[floor(2*p/3):p] <- 100 * diagVar[floor(2*p/3):p]
-  Sigma   <- corr_matrix(diagVar,ksi^2)
-  x       <- matrix(0,n,p)
-  for(i in 1:n){
-   x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
-  }
+  if(shape == "Fourier2"){
+    # Set a Fourier basis
+    Fourier_basis <- build_Fourier_basis(grid = grid,
+                                         dim  = dim,
+                                         per  = 1.5*(max(grid)-min(grid)))
+    # Choose the coefficients
+    a_n <- runif(n*dim,-3,3)
+    dim(a_n) <- c(n,dim)
+    b_n <- runif(n*dim,-3,3)
+    dim(b_n) <- c(n,dim)
 
- }
-
- # Return the functions
- return(x)
-}
-
-################################# ----
-#' sim_correlated_x
-################################# ----
-#' @description Simulate functional covariates observations when correlation
-#'              between functional covariate is nonnull.
-#' @details Several shape are available for the observations: "Fourier",
-#'          "Fourier2", "random_walk", "random_sharp", "uniform", "gaussian",
-#'          "mvgauss", "mvgauss_different_scale", "mvgauss_different_scale2",
-#'          "mvgauss_different_scale3" and "mvgauss_different_scale4".
-#' @return a list of Q matrices which contains the functional covariate observations
-#'         at time points given by \code{grid}.
-#' @param param a list containing :
-#' \describe{ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-#'  \item{n}{an integer, the number of functions.}
-#'  \item{p}{an integer, the number of observation times.}
-#'  \item{grid}{a numerical vector, the grid of observation times.}
-#'  \item{x_shape}{a character vector, the shape of the functions x_i(t). (optional)}
-#'  \item{dim}{a numerical value, the dimension of the Fourier basis, if "shape" is "Fourier" or "Fourier2". (optional)}
-#'  \item{ksi}{a numerical value, a "coefficient of correlation", see the Bliss article Section 3.1 for more details.}
-#'  \item{diagVar}{a numerical vector, the diagonal of the autocorrelation matrix of the functions x_i(t).}
-#' }
-#' @export
-#' @examples
-#' #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxxxx
-sim_correlated_functions <- function(param){
- # load objects
- n <- param$n
- p <- param$p
- grids <- param$grids
-
- # load optional objects
- shape    <- param$shape
- dim     <- param$dim
- ksi     <- param$ksi
- diagVar <- param$diagVar
- correlation <- param$correlation # IS 16/02/2018
-
- # Initialize the necessary unspecified objects
- Q <- length(p) # IS 06/02/2018
- if(is.null(correlation))  correlation <- diag(Q)  # IS 16/02/2018
- if(is.null(shape))    shape    <- "mvgauss"
- if(is.null(ksi))     ksi     <- c(1,1)
- diagVar <- list()
- for(q in 1:Q){
-  diagVar[[q]] <- abs(rnorm(p[q],1,1/10))
- }
-
- # Simulate the functions x_i(t)
- if(shape == "mvgauss"){
-  mu <- NULL
-  for(q in 1:Q){
-   mu <- c(mu,q*(1:p[q]-p[q]/2)^2/(p[q]^2/4))
-   # mu <- c(mu,rnorm(1,0,0.001)+(1:p[q]/p[q])^rnorm(1,3,1)/(rnorm(1,1,1))^2/4)
+    # Determiner les courbes
+    x <- a_n %*% Fourier_basis[1:dim,] + b_n %*% Fourier_basis[(dim+1):(2*dim),]
   }
-  Sigma <- matrix(0,sum(p),sum(p))
+  if(shape == "random_walk"){
+    start <- rnorm(n,0,2)
+    x <- compute_random_walk(n,p,0,1,start)
+  }
+  if(shape == "random_sharp"){
+    locs <- runif(n*2,grid[1],tail(grid,1))
+    dim(locs) <- c(n,2)
 
-  count <- 0
-  for(q in 1:Q){
-   count2 <- 0
-   for(qq in 1:Q){
-    if(q == qq){
-     tmp <- diag(diagVar[[q]])
-    }else{
-     tmp <- matrix(0,p[q],p[qq])
+    asyms <- runif(n*2,1,5)
+    dim(asyms) <- c(n,2)
+
+    vs <- runif(n*2, 1/(4*by), 1/(3*by) )
+    dim(vs) <- c(n,2)
+
+    s <- sample(c(-1,1),2*n,replace=T)
+    dim(s) <- c(n,2)
+
+    x <- matrix(0,n,p)
+    for(i in 1:n){
+      x[i,] <- s[i,1] * sigmoid_sharp(grid,locs[i,1],asyms[i,1],vs[i,1]) +
+        s[i,2] * sigmoid_sharp(grid,locs[i,2],asyms[i,2],vs[i,2])
+    }
+  }
+  if(shape == "uniform"){
+    x <- matrix(0,n,p)
+    for(j in 1:p){
+      x[,j] <- runif(n,-5,5)
+    }
+  }
+  if(shape == "gaussian"){
+    x <- matrix(0,n,p)
+    for(j in 1:p){
+      x[,j] <- rnorm(n,0,4)
+    }
+  }
+  if(shape == "mvgauss"){
+    mu      <- (1:p-p/2)^2/(p^2/4)
+    Sigma   <- corr_matrix(diagVar,ksi^2)
+    x       <- matrix(0,n,p)
+    for(i in 1:n){
+      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
+    }
+  }
+  if(shape == "mvgauss_different_scale"){
+    mu      <- (1:p-p/2)^2/(p^2/4)
+    diagVar[1:floor(p/3)] <- 10 * diagVar[1:floor(p/3)]
+    Sigma   <- corr_matrix(diagVar,ksi^2)
+    x       <- matrix(0,n,p)
+    for(i in 1:n){
+      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
+    }
+  }
+  if(shape == "mvgauss_different_scale2"){
+    mu      <- (1:p-p/2)^2/(p^2/4)
+    diagVar[1:floor(p/3)] <- 100 * diagVar[1:floor(p/3)]
+    Sigma   <- corr_matrix(diagVar,ksi^2)
+    x       <- matrix(0,n,p)
+    for(i in 1:n){
+      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
+    }
+  }
+  if(shape == "mvgauss_different_scale3"){
+    mu      <- (1:p-p/2)^2/(p^2/4)
+    diagVar[1:floor(p/3)] <- 1000 * diagVar[1:floor(p/3)]
+    Sigma   <- corr_matrix(diagVar,ksi^2)
+    x       <- matrix(0,n,p)
+    for(i in 1:n){
+      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
+    }
+  }
+  if(shape == "mvgauss_different_scale4"){
+    mu      <- (1:p-p/2)^2/(p^2/4)
+    diagVar[floor(2*p/3):p] <- 100 * diagVar[floor(2*p/3):p]
+    Sigma   <- corr_matrix(diagVar,ksi^2)
+    x       <- matrix(0,n,p)
+    for(i in 1:n){
+      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
     }
 
-    for(i in 1:p[q]){
-     for(j in 1:p[qq]){
-      if( q==qq ){
-       tmp[i,j] <- exp(-ksi[q]*abs(grids[[q]][i]-grids[[q]][j]))*
-        sqrt(diagVar[[q]][i]*diagVar[[qq]][j])
-      }else{
-       # IS 06/02/2018: d'ou vient correlation???
-       tmp[i,j] <- correlation[q,qq] *
-        exp(-sqrt(ksi[q]*ksi[qq])*abs(grids[[q]][i]-grids[[qq]][j]))*
-        sqrt(diagVar[[q]][i]*diagVar[[qq]][j])
-      }
-     }
-    }
-    Sigma[ (1+count):(p[q]+count) , (1+count2):(p[qq]+count2)] <- tmp
-    count2 <- count2 + p[qq]
-   }
-   count <- count + p[q]
   }
 
-  x       <- matrix(0,n,sum(p))
-  for(i in 1:n){
-   x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
-  }
- }
-
- x_mult <- list()
- count <- 0
- for( q in 1:Q){
-  x_mult[[q]] <- x[,(1+count):(p[q]+count)]
-  count <- count + p[q]
- }
-
- # Return the functions
- return(x_mult)
+  # Return the functions
+  return(x)
 }
 
 ################################# ----
@@ -592,7 +480,7 @@ sim_correlated_functions <- function(param){
 #' @examples
 #' # See the function \code{sim_x}.
 build_Fourier_basis <- function(grid,dim,per=2*pi){
- sapply(grid,function(x) c(cos(2*pi*x*(1:dim)/per),sin(2*pi*x*(1:dim)/per) )  )
+  sapply(grid,function(x) c(cos(2*pi*x*(1:dim)/per),sin(2*pi*x*(1:dim)/per) )  )
 }
 
 ################################# ----
@@ -613,14 +501,14 @@ build_Fourier_basis <- function(grid,dim,per=2*pi){
 #' @examples
 #' # see the sim_x() function.
 compute_random_walk <- function(n,p,mu,sigma,start=rep(0,n)){
- res <- matrix(0,n,p)
- for(i in 1:n){
-  add     <- rnorm(p,mu,sigma)
-  res[i,] <- cumsum(add)
-  res[i,] <- start[i] + res[i,]
- }
- res <- start + res
- return(res)
+  res <- matrix(0,n,p)
+  for(i in 1:n){
+    add     <- rnorm(p,mu,sigma)
+    res[i,] <- cumsum(add)
+    res[i,] <- start[i] + res[i,]
+  }
+  res <- start + res
+  return(res)
 }
 
 ################################# ----
@@ -647,7 +535,7 @@ compute_random_walk <- function(n,p,mu,sigma,start=rep(0,n)){
 #' lines(x,y2,col=2)
 #' lines(x,y3,col=3)
 sigmoid <- function(x,asym=1,v=1){
- (asym^-1 + exp(-v*x))^-1
+  (asym^-1 + exp(-v*x))^-1
 }
 
 ################################# ----
@@ -674,10 +562,12 @@ sigmoid <- function(x,asym=1,v=1){
 #' lines(x,y2,col=2)
 #' lines(x,y3,col=3)
 sigmoid_sharp <- function(x,loc=0,...){
- # 4 should be replace by (a+1)^2 such that the maximum of the curve
- # provided by sigmoid_sharp is 1.
- 4*(sigmoid(x-loc,...) * sigmoid(-x+loc,...))
+  # 4 should be replace by (a+1)^2 such that the maximum of the curve
+  # provided by sigmoid_sharp is 1.
+  4*(sigmoid(x-loc,...) * sigmoid(-x+loc,...))
 }
+
+
 ################################# ----
 #' corr_matrix
 ################################# ----
@@ -698,18 +588,18 @@ sigmoid_sharp <- function(x,loc=0,...){
 #' Sigma   <- corr_matrix(diagVar,ksi^2)
 #' persp(Sigma)
 corr_matrix <- function(diagonal,ksi){
- # Initialize
- p <- length(diagonal)
- res <- diag(diagonal)
+  # Initialize
+  p <- length(diagonal)
+  res <- diag(diagonal)
 
- # Compute the correlation matrix
- for(i in 1:(p-1)){
-  for(j in (i+1):p){
-   res[i,j] <- exp(-ksi*(i-j)^2/p)*sqrt(res[i,i]*res[j,j])
-   res[j,i] <- exp(-ksi*(i-j)^2/p)*sqrt(res[i,i]*res[j,j])
+  # Compute the correlation matrix
+  for(i in 1:(p-1)){
+    for(j in (i+1):p){
+      res[i,j] <- exp(-ksi*(i-j)^2/p)*sqrt(res[i,i]*res[j,j])
+      res[j,i] <- exp(-ksi*(i-j)^2/p)*sqrt(res[i,i]*res[j,j])
+    }
   }
- }
 
- # return the matrix
- return(res)
+  # return the matrix
+  return(res)
 }

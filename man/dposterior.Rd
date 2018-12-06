@@ -4,31 +4,30 @@
 \alias{dposterior}
 \title{dposterior}
 \usage{
-dposterior(posterior_sample, data, Q, theta = NULL)
+dposterior(posterior_sample, data, theta = NULL)
 }
 \arguments{
-\item{posterior_sample}{a list given by the "Bliss_Gibbs_Sampler" function.}
+\item{posterior_sample}{a list given by the \code{Bliss_Gibbs_Sampler} function.}
 
 \item{data}{a list containing
 \describe{
-\item{x}{a list of matrices, the functions x_qi(t) observed at time points given by grids,}
-\item{y}{a numerical vector, the outcome values y_i.}
+\item{y}{a numerical vector, the outcomes.}
+\item{x}{a list of matrices, the qth matrix contains the observations of the
+      qth functional covariate at time points given by \code{grids}.}
 }}
 
-\item{Q}{an integer, the number of covariates}
-
-\item{theta}{a matrix or a vector which contains the parameter set. XXXX}
+\item{theta}{a matrix or a vector which contains the parameter set.}
 }
 \value{
 Return the (log) posterior density, the (log) likelihood and the
         (log) prior density for the given parameter set.
 }
 \description{
-Compute the posterior density for a given parameter set. XXX (non normalisé)
+Compute (non-normalized) posterior densities for a given parameter set.
 }
 \details{
-If the option theta is NULL, the posterior density is computed for
-         the MCMC sample given in the "res.Gibbs_Sampler" object.
+If the \code{theta} is NULL, the posterior density is computed from
+         the MCMC sample given in the \code{posterior_sample}.
 }
 \examples{
 data(data1)
@@ -36,5 +35,5 @@ data(param1)
 # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 data(res_bliss1)
 # Compute the posterior density of the MCMC sample :
-res_poste <- dposterior(res_bliss1$posterior_sample,data1,Q=2)
+res_poste <- dposterior(res_bliss1$posterior_sample,data1)
 }

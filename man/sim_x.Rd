@@ -9,25 +9,28 @@ sim_x(param)
 \arguments{
 \item{param}{a list containing :
 \describe{
- \item{n}{an integer, the number of functions.}
+ \item{grid}{a numerical vector, the observation times.}
+ \item{n}{an integer, the sample size.}
  \item{p}{an integer, the number of observation times.}
- \item{grid}{a numerical vector, the grid of observation times.}
- \item{x_shape}{a character vector, the shape of the functions x_i(t). (optional)}
- \item{dim}{a numerical value, the dimension of the Fourier basis, if "shape" is "Fourier" or "Fourier2". (optional)}
- \item{ksi}{a numerical value, a "coefficient of correlation", see the Bliss article Section 3.1 for more details.}
- \item{diagVar}{a numerical vector, the diagonal of the autocorrelation matrix of the functions x_i(t).}
+ \item{diagVar}{a numerical vector (optional), the diagonal of the autocorrelation matrix.}
+ \item{dim}{a numerical value (optional), the dimension of the Fourier basis,
+            if "shape" is "Fourier" or "Fourier2". }
+ \item{ksi}{a numerical value (optional) related to the observations correlation.}
+ \item{x_shape}{a character vector (optional), the shape of the observations. }
 }}
 }
 \value{
-a matrix. Each row is a function x_qi(t) (i=1,...,n and q is fixed).
+a matrix which contains the functional covariate observations at time
+        points given by \code{grid}.
 }
 \description{
-simulate the functions x_qi(t) for a given q.
+Simulate functional covariate observations.
 }
 \details{
-Several shape are available for the functions x_qi(t): "Fourier", "Fourier2", "random_walk", "random_sharp",
-         "uniform", "gaussian", "mvgauss", "mvgauss_different_scale", "mvgauss_different_scale2", "mvgauss_different_scale3",
-         "mvgauss_different_scale4"
+Several shape are available for the observations: "Fourier",
+         "Fourier2", "random_walk", "random_sharp", "uniform", "gaussian",
+         "mvgauss", "mvgauss_different_scale", "mvgauss_different_scale2",
+         "mvgauss_different_scale3" and "mvgauss_different_scale4".
 }
 \examples{
 library(RColorBrewer)

@@ -7,21 +7,19 @@
 sigmoid(x, asym = 1, v = 1)
 }
 \arguments{
-\item{x}{a numerical vector, a grid of points.}
+\item{x}{a numerical vector, time points.}
 
-\item{asym}{the value of the asymptote of the sigmoid function. (optional)}
+\item{asym}{a numerical value (optional), the asymptote of the sigmoid function.}
 
-\item{v}{a numerical value which is related to the slope at the origin. (optional)}
+\item{v}{a numerical value (optional), related to the slope at the origin.}
 }
 \value{
 a numerical vector.
 }
 \description{
-compute a sigmoid function.
+Compute a sigmoid function.
 }
 \details{
-used to simulate a coefficient function or functions x_i(t).
-
 see the function \code{\link[=sim_x]{sim_x}}.
 }
 \examples{

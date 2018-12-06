@@ -5,34 +5,35 @@
 \title{Bliss_Simulated_Annealing}
 \usage{
 Bliss_Simulated_Annealing(beta_sample, normalization_values, param,
-  progress = FALSE)
+  verbose = FALSE)
 }
 \arguments{
 \item{beta_sample}{a matrix. Each row is a coefficient function computed from the
 posterior sample.}
 
-\item{normalization_values}{a matrix given by the function "Bliss_Gibbs_Sampler". XXXXXXX}
+\item{normalization_values}{a matrix given by the function \code{Bliss_Gibbs_Sampler}.}
 
 \item{param}{a list containing:
 \describe{
-\item{grid}{a numerical vector, the observation time points.}
-\item{burnin}{an integer, the number of iterations to drop from the Gibbs
-      sample. (optional)}
-\item{iter}{an integer, the number of iteration of the Gibbs Sampler algorithm.}
-\item{iter_sann}{an integer, the number of iteration of the Simulated
-      Annealing algorithm. (optional)} XXXXXXX
-\item{Temp_init}{a non negative value, the initial temperature for the
-      cooling function of the Simulated Annealing. (optional)}
-\item{k_max}{an integer, the maximum number of intervals. (optional)} XXXXXXX
-\item{l_max_sann}{an integer, the maximum value for the parameter l. (optional)} XXXXXXX
-\item{basis}{a character vectors, used to compute the coefficient function,
-      see the function beta_build. (optional)} XXXXXXX
-\item{K}{a vector of integers, corresponding to the numbers of intervals for
-      each covariate.}
+\item{grid}{a numerical vector, the time points.}
+\item{K}{an integer, the number of intervals.}
+\item{basis}{a character vector (optional). The possible values are "uniform"
+      (default), "epanechnikov", "gauss" and "triangular" which correspond to
+      different basis functions to expand the coefficient function and the
+      functional covariates}
+\item{burnin}{an integer (optional), the number of iteration to drop from the
+      posterior sample.}
+\item{iter_sann}{an integer (optional), the number of iteration of the Simulated
+      Annealing algorithm.}
+\item{k_max}{an integer (optional), the maximal number of intervals for the
+      Simulated Annealing algorithm.}
+\item{l_max}{an integer (optional), the maximal interval length for the
+      Simulated Annealing algorithm.}
+\item{Temp_init}{a nonnegative value (optional), the initial temperature for
+     the cooling function of the Simulated Annealing algorithm.}
 }}
 
-\item{progress}{a logical value. If TRUE, the algorithm progress is displayed.
-(optional)}
+\item{verbose}{write stuff if TRUE (optional).}
 }
 \value{
 a list containing:
@@ -40,16 +41,16 @@ a list containing:
  \item{Bliss_estimate}{a numerical vector, corresponding to the Bliss estimate
        of the coefficient function.}
  \item{Smooth_estimate}{a numerical vector, which is the posterior expectation
-       of beta(t), for each t in the grid ot time points.}
- \item{trace}{Each row is an iteration of the Simulated Annealing algorithm.}
- \item{argmin}{an integer, which is the index of the iteration minimizing
-       the Bliss loss.}
+       of the coefficient function for each time points.}
+ \item{trace}{a matrix, the trace of the algorithm.}
+ \item{argmin}{an integer, the index of the iteration minimizing the Bliss loss.}
+ \item{difference}{a numerical vector, the difference between the Bliss
+       estimate and the smooth estimate.}
+ \item{sdifference}{a numerical vector, a smooth version of \code{difference}.}
 }
 }
 \description{
-A Simulated Annealing algorithm to determine the Bliss estimate
-             (for only functional covariate), i.e. the minimum of the
-             posterior expectation of the Bliss loss.
+A Simulated Annealing algorithm to compute the Bliss estimate.
 }
 \examples{
 data(data1)

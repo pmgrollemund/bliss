@@ -21,6 +21,7 @@ using namespace arma;
 //#############################################################################
 
 // The R function : ginv (generalized matrix inversion using SVD decomposition)
+// [[Rcpp::export]]
 arma::mat ginv_cpp (arma::mat & x, double tol){
   int p;
   mat u;
@@ -109,6 +110,7 @@ double cube_extract(NumericVector & cube, int x , int y, int z, arma::vec & dims
 }
 
 // Simulate from a multidimensional gaussian.
+// [[Rcpp::export]]
 arma::vec mvrnormArma(arma::vec mu, arma::mat VarCovar, double sigma_sq) {
   int ncols = VarCovar.n_cols;
   vec y = randn<vec>(ncols);
@@ -118,6 +120,7 @@ arma::vec mvrnormArma(arma::vec mu, arma::mat VarCovar, double sigma_sq) {
 }
 
 // Compute a trapezoidal approximation of area under curve.
+// [[Rcpp::export]]
 double integrate_trapeze_cpp (arma::vec & x, arma::vec & y){
  vec diff_x = vec_drop_k(x,0) - vec_drop_k(x,x.size()-1);
  vec cumu_y = vec_drop_k(y,0) + vec_drop_k(y,y.size()-1);
@@ -137,6 +140,7 @@ double L2_norm(arma::vec & x,arma::vec & y){
 }
 
 // Use to compute an uniform function, see function compute_beta.
+// [[Rcpp::export]]
 arma::vec uniform_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
   vec res = zeros<vec>(p);
@@ -154,6 +158,7 @@ arma::vec uniform_cpp (int m, int l, arma::vec & grid){
 }
 
 // Use to compute a triangular function, see function compute_beta.
+// [[Rcpp::export]]
 arma::vec triangular_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
   vec res = zeros<vec>(p);
@@ -177,6 +182,7 @@ arma::vec triangular_cpp (int m, int l, arma::vec & grid){
 }
 
 // Use to compute a gaussian function, see function compute_beta.
+// [[Rcpp::export]]
 arma::vec gaussian_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
   vec res = zeros<vec>(p);
@@ -200,6 +206,7 @@ arma::vec gaussian_cpp (int m, int l, arma::vec & grid){
 }
 
 // Use to compute a gaussian function, see function compute_beta.
+// [[Rcpp::export]]
 arma::vec Epanechnikov_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
   vec res = zeros<vec>(p);
@@ -279,6 +286,7 @@ arma::mat compute_beta_sample_cpp (arma::mat & posterior_sample,
 }
 
 // Compute all the alternative for the value of the intergral for all m and l.
+// [[Rcpp::export]]
 arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & p_l_vec,
                                     CharacterVector & basis_vec, int q){
   mat x = as<mat>(x_list[q]);
@@ -413,6 +421,7 @@ arma::mat compute_W_inv_List (int Q, arma::vec & K, double g, arma::mat & x_tild
 }
 
 // Extract a subvector from the cube potential_intervals with a m_k and a l_k.
+// [[Rcpp::export]]
 arma::vec potential_intervals_extract (NumericVector & potential_intervals, int mk ,
                                        int lk, arma::vec & dims) {
   vec res = zeros<vec>(dims(2));
@@ -423,6 +432,7 @@ arma::vec potential_intervals_extract (NumericVector & potential_intervals, int 
 }
 
 // Update the parameter m_k
+// [[Rcpp::export]]
 void update_mqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double sigma_sq,
                  arma::vec & m_q, arma::vec & l_q, arma::mat x_tilde,
                  NumericVector & potential_intervals_q, arma::vec & potential_intervals_dims_q,
@@ -460,6 +470,7 @@ void update_mqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
 }
 
 // Update the parameter l_k
+// [[Rcpp::export]]
 void update_lqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double sigma_sq,
                  arma::vec & m_q, arma::vec & l_q, arma::mat x_tilde,
                  NumericVector & potential_intervals_q, arma::vec & potential_intervals_dims_q,
@@ -511,6 +522,7 @@ void update_sigma_sq (arma::vec & y, arma::vec & b_tilde, arma::mat & W_inv,
 }
 
 // update the parameter b
+// [[Rcpp::export]]
 void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
                           arma::mat & Sigma_b_tilde_inv, double tol,
                           arma::vec & b_tilde) {
@@ -520,6 +532,7 @@ void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
 }
 
 // Compute the loss function for a proposal d
+// [[Rcpp::export]]
 double loss_cpp (arma::vec & d, arma::vec & grid, arma::vec & posterior_expe){
   vec tmp  = d-posterior_expe ;
 
@@ -606,8 +619,9 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   mat lambda_id0  = zeros<mat>(sum_K+1,sum_K+1) ;
   lambda_id0(0,0) = 100*var(y);                   // Weakly informative prior
   for( unsigned i=1 ; i<sum_K+1; ++i){
-   lambda_id0(i,i) = lambda ;
+    lambda_id0(i,i) = lambda ;
   }
+  // ... or the constant matrix if V does not depend on the intervals
 
   // Determine the start point
   if(progress) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
@@ -658,7 +672,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     // Check if there is a non-invertible matrix problem
     Sigma_b_tilde_inv = W_inv + trans(x_tilde) * x_tilde ;
     test            = ginv_cpp(Sigma_b_tilde_inv,tol)    ;
-    success         = accu(abs(test)) != 0                  ;
+    success         = accu(abs(test)) != 0               ;
   }
 
   // Initialization of b_tilde
@@ -765,7 +779,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     // the m's and l's)
     Sigma_b_tilde_inv = W_inv + trans(x_tilde) * x_tilde   ;
     test                 = ginv_cpp(Sigma_b_tilde_inv,tol) ;
-    success              = accu(abs(test)) != 0            ;
+    success              = accu(abs(test)) != 0               ;
 
     // Try to determine an update which not leads to a non-invertible
     // matrix problem. If there is a problem, go back to the beginning of the
@@ -1127,7 +1141,7 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
 
   mat    x_tilde  = ones<mat>(n,sum_K+1) ;
   mat lambda_id0  = zeros<mat>(sum_K+1,sum_K+1) ;
-  lambda_id0(0,0) = 100*var(y);                  // Weakly information prior: should be the same that in the Bliss_Gibbs_Sampler_cpp function
+  lambda_id0(0,0) = 100*var(y); // Weakly information prior: should be the same that in the Bliss_Gibbs_Sampler_cpp function
   for( unsigned i=1 ; i<sum_K+1; ++i){
     lambda_id0(i,i) = lambda ;
   }

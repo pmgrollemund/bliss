@@ -4,35 +4,32 @@
 \alias{compute_beta_sample}
 \title{compute_beta_sample}
 \usage{
-compute_beta_sample(posterior_sample, param, Q, progress = FALSE)
+compute_beta_sample(posterior_sample, param, Q, verbose = FALSE)
 }
 \arguments{
-\item{posterior_sample}{a list provided by the function Bliss_Gibbs_Sampler.}
+\item{posterior_sample}{a list provided by the function \code{Bliss_Gibbs_Sampler}.}
 
-\item{param}{a list containing: (optional)
+\item{param}{a list containing:
 \describe{
-\item{p}{XXXXXX}
 \item{K}{a vector of integers, corresponding to the numbers of intervals for
       each covariate.}
 \item{grids}{a numerical vector, the observation time points.}
-\item{basis}{a vector of characters among : "uniform" (default),
+\item{basis}{a vector of characters (optional) among : "uniform" (default),
       "epanechnikov", "gauss" and "triangular" which correspond to
       different basis functions to expand the coefficient function and the
-      functional covariates (optional)}
+      functional covariates.}
 }}
 
 \item{Q}{numeric}
 
-\item{progress}{a logical value. If TRUE, the algorithm progress is displayed.
-(optional)}
+\item{verbose}{write stuff if TRUE (optional).}
 }
 \value{
-return a matrix. Each row is a function evaluated on the grid of
-        time points.
+return a matrix containing the coefficient function posterior sample.
 }
 \description{
-Compute the coefficient function for each iteration of the
-             Gibbs sample.
+Compute the posterior coefficient function from the posterior
+             sample.
 }
 \examples{
 library(RColorBrewer)

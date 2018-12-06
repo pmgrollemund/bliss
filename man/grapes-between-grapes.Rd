@@ -9,13 +9,13 @@ value \%between\% interval
 \arguments{
 \item{value}{a numerical value.}
 
-\item{interval}{a numerical vector of lenght 2 : (lower,upper).}
+\item{interval}{a numerical vector: (lower,upper).}
 }
 \value{
 a logical value.
 }
 \description{
-Check if a number belong to an interval.
+Check if a number belong to a given interval.
 }
 \examples{
 1 \%between\% c(0,2)

@@ -7,15 +7,15 @@
 corr_matrix(diagonal, ksi)
 }
 \arguments{
-\item{diagonal}{a numerical vector corresponding to the diagonal of the final matrix.}
+\item{diagonal}{a numerical vector corresponding to the diagonal.}
 
-\item{ksi}{a "coefficient of correlation". See the article Bliss, Section 3.1 for more details.}
+\item{ksi}{a numerical value, related to the correlation.}
 }
 \value{
 a symmetric matrix.
 }
 \description{
-compute an autocorrelation matrix to simulate functions x_i(t).
+Compute an autocorrelation matrix.
 }
 \examples{
 ### Test 1 : weak autocorrelation

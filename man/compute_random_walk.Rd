@@ -7,26 +7,26 @@
 compute_random_walk(n, p, mu, sigma, start = rep(0, n))
 }
 \arguments{
-\item{n}{an integer, the number of random walk.}
+\item{n}{an integer, the number of random walks.}
 
 \item{p}{an integer, the length of the random walks.}
 
-\item{mu}{a numerical vector, the average random walk.}
+\item{mu}{a numerical vector, the mean of the random walks.}
 
 \item{sigma}{a numerical value which is the standard deviation of the
-gaussian distribution used to compute the random walk.}
+gaussian distribution used to compute the random walks.}
 
-\item{start}{a numerical vector which is the initial value of
-the random walks. (optional)}
+\item{start}{a numerical vector (optional) which is the initial value of
+the random walks.}
 }
 \value{
 a matrix where each row is a random walk.
 }
 \description{
-compute a random walk. (gaussian)
+Compute a (Gaussian) random walk.
 }
 \details{
-see the \code{\link[=sim_x]{sim_x}} function.
+See the \code{\link[=sim_x]{sim_x}} function.
 }
 \examples{
 # see the sim_x() function.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/basic_functions.R
 \name{change_grid}
 \alias{change_grid}
-\title{change_grid XXXXXXXXXXXXx}
+\title{change_grid}
 \usage{
 change_grid(fct, grid, new_grid)
 }
@@ -11,17 +11,13 @@ change_grid(fct, grid, new_grid)
 
 \item{grid}{a numerical vector, the initial grid.}
 
-\item{new_grid}{a numerical vector.}
+\item{new_grid}{a numerical vector, the new grid.}
 }
 \value{
 a numerical vector, the approximation of the function on the new grid.
 }
 \description{
-Compute an approximation of a (discretized) function on a new
-             finer grid.
-}
-\details{
-This is nasty code. XXXXXXXXXXXXx
+Compute a function (evaluated on a grid) on a given (finer) grid.
 }
 \examples{
 grid <- seq(0,1,l=1e1)

@@ -22,33 +22,31 @@
 #' data(param1)
 #' data(res_bliss1)
 #' param1$cols <- colorRampPalette(brewer.pal(9,"Reds"))(1e2)
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=3,lwd=2,type="s")
 #'
-#' \donttest{
 #' # ---- not run
 #' param1$cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=3,lwd=2,type="s")
 #'
 #' param1$cols <- rev(heat.colors(12))
 #' param1$col_scale <- "quantile"
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=3,lwd=2,type="s")
 #'
 #' param1$cols <- rev(terrain.colors(12))
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=2,lwd=2,type="s")
 #'
 #' param1$cols <- rev(topo.colors(12))
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=2,lwd=2,type="s")
-#' }
 image_Bliss <- function(beta_posterior_density,param=list(),q=1){
   if(length(param) != 0){ # PMG 2018-11-13
     cols      <- param[["cols"]] #Ceci n'est pas une modification pmg 08-03-18
@@ -63,36 +61,37 @@ image_Bliss <- function(beta_posterior_density,param=list(),q=1){
     xlab      <- NULL
     ylim      <- NULL
   }
- if(is.null(cols)){
-   cols <- rev(heat.colors(100))
- }
- if(is.null(main)){
-   main <- ""
- }
+  if(is.null(cols)){
+    cols <- rev(heat.colors(100))
+  }
+  if(is.null(main)){
+    main <- ""
+  }
   if(is.null(ylab)){
     ylab <- ""
   }
- if(is.null(xlab)){
-   xlab <- ""
- }
+  if(is.null(xlab)){
+    xlab <- ""
+  }
   if(is.null(ylim)){
     ylim <- NULL
   }
 
- image(beta_posterior_density[[q]]$grid_t,
-       beta_posterior_density[[q]]$grid_beta_t,
-       beta_posterior_density[[q]]$density,
-       col=cols,main=main,xlab=xlab,ylab=ylab,ylim=ylim)
+  image(beta_posterior_density[[q]]$grid_t,
+        beta_posterior_density[[q]]$grid_beta_t,
+        beta_posterior_density[[q]]$density,
+        col=cols,main=main,xlab=xlab,ylab=ylab,ylim=ylim)
 
- # Fix problems about the axis (PMG 2018-11-11)
- ylim  <- range(ylim , beta_posterior_density[[q]]$grid_beta_t)
- x_tmp <- max(abs(beta_posterior_density[[q]]$grid_t))
- y_tmp <- max(abs(beta_posterior_density[[q]]$grid_beta_t))
- axis(1,at=ylim+c(-x_tmp,x_tmp) )
- axis(2,at=ylim+c(-y_tmp,y_tmp) )
- axis(3,at=ylim+c(-x_tmp,x_tmp) )
- axis(4,at=ylim+c(-y_tmp,y_tmp) )
+  # Fix problems about the axis (PMG 2018-11-11)
+  ylim  <- range(ylim , beta_posterior_density[[q]]$grid_beta_t)
+  x_tmp <- max(abs(beta_posterior_density[[q]]$grid_t))
+  y_tmp <- max(abs(beta_posterior_density[[q]]$grid_beta_t))
+  axis(1,at=ylim+c(-x_tmp,x_tmp) )
+  axis(2,at=ylim+c(-y_tmp,y_tmp) )
+  axis(3,at=ylim+c(-x_tmp,x_tmp) )
+  axis(4,at=ylim+c(-y_tmp,y_tmp) )
 }
+
 
 ################################# ----
 #' plot_bliss
@@ -109,7 +108,7 @@ image_Bliss <- function(beta_posterior_density,param=list(),q=1){
 #' @param ... Arguments to be passed to methods, such as graphical parameters
 #'        (see \code{par}).
 #' @importFrom grDevices gray.colors
-#' @importFrom graphics abline segments
+#' @importFrom graphics abline segments axis image lines matplot text plot
 #' @export
 #' @examples
 #' \donttest{
@@ -120,12 +119,14 @@ image_Bliss <- function(beta_posterior_density,param=list(),q=1){
 #' data(res_bliss1)
 #' ### Plot the BLiss estimate on a suitable grid
 #' plot_bliss(res_bliss1$data$grids[[1]],
-#'            res_bliss1$Bliss_estimate[[1]],lwd=2,bound=FALSE)
+#'            res_bliss1$Bliss_estimate[[1]],lwd=2)
 plot_bliss <- function(x,y,connect=FALSE,xlab="",ylab="",ylim=NULL,...){
- if(is.null(ylim)) ylim <- range(y)
- plot(x,x,type="n",ylim=ylim,ylab=ylab,xlab=xlab,...)
- lines_bliss(x,y,connect=connect,...)
+  if(is.null(ylim)) ylim <- range(y)
+  plot(x,x,type="n",ylim=ylim,ylab=ylab,xlab=xlab,...)
+  lines_bliss(x,y,connect=connect,...)
 }
+
+
 
 ################################# ----
 #' lines_bliss
@@ -149,7 +150,7 @@ plot_bliss <- function(x,y,connect=FALSE,xlab="",ylab="",ylim=NULL,...){
 #' data(res_bliss1)
 #' ### Plot the BLiss estimate on a suitable grid
 #' plot_bliss(res_bliss1$data$grids[[1]],
-#'            res_bliss1$Bliss_estimate[[1]],lwd=2,bound=FALSE)
+#'            res_bliss1$Bliss_estimate[[1]],lwd=2)
 #' lines_bliss(res_bliss1$data$grids[[1]],
 #'             res_bliss1$Smooth_estimate[[1]],lty=2)
 lines_bliss <- function(x,y,connect=FALSE,...){
@@ -157,15 +158,15 @@ lines_bliss <- function(x,y,connect=FALSE,...){
   extended_grid <- x - 0.5*diff(x)[1]
   extended_grid <- c(extended_grid,max(extended_grid) + diff(extended_grid)[1]) # PMG 11-11-18
 
- for(i in 1:length(extended_grid)){
-  segments(extended_grid[i],y[i],
-           extended_grid[i+1],y[i],
-           ...)
-  if(connect & i > 1)
-   segments(extended_grid[i],y[i],
-            extended_grid[i],y[i-1],
-            ...)
- }
+  for(i in 1:length(extended_grid)){
+    segments(extended_grid[i],y[i],
+             extended_grid[i+1],y[i],
+             ...)
+    if(connect & i > 1)
+      segments(extended_grid[i],y[i],
+               extended_grid[i],y[i-1],
+               ...)
+  }
 }
 
 
@@ -190,14 +191,13 @@ lines_bliss <- function(x,y,connect=FALSE,...){
 #' @export
 #' @examples
 #' \donttest{
-#' # Not run!!
 #' data(data1)
 #' data(param1)
 #' res_bliss1 <- fit_Bliss(data=data1,param=param1,verbose=TRUE)
-#' data(res_bliss1)
-#' interpretation_plot(res_bliss1$Bliss_estimate[[1]],data1)
-#' interpretation_plot(res_bliss1$Bliss_estimate[[1]],data1,centered=FALSE)
 #' }
+#' data(res_bliss1)
+#' interpretation_plot(data1,res_bliss1$Bliss_estimate,centered=TRUE)
+#' interpretation_plot(data1,res_bliss1$Bliss_estimate,centered=FALSE)
 interpretation_plot <- function(data,Bliss_estimate,q=1,centered=FALSE,cols=NULL){
   # load some objects
   x <- data$x[[q]]
@@ -228,8 +228,8 @@ interpretation_plot <- function(data,Bliss_estimate,q=1,centered=FALSE,cols=NULL
   # Scale the data
   scaled_x <- scale(x,scale=F)
 
-  # Compute intervals
-  intervals <- interval_detection(Bliss_estimate[[q]])
+  # Compute intervals # IS 2018/11/30
+  intervals <- determine_intervals(Bliss_estimate[[q]])
   intervals_nonnull <- intervals[intervals[,3] != 0,]
   intervals_null    <- intervals[intervals[,3] == 0,]
 
@@ -313,36 +313,37 @@ interpretation_plot <- function(data,Bliss_estimate,q=1,centered=FALSE,cols=NULL
 #' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 #' data(res_bliss1)
 #' # Compute the posterior density of the MCMC sample :
-#' res_poste <- dposterior(res_bliss1$posterior_sample,data1,Q=2)
+#' res_poste <- dposterior(res_bliss1$posterior_sample,data1)
 dposterior <- function(posterior_sample,data,theta=NULL){
- if(!is.null(theta)){
-  if(is.null(dim(theta))){
-   rposterior <- as.matrix(t(theta))
+  if(!is.null(theta)){
+    if(is.null(dim(theta))){
+      rposterior <- as.matrix(t(theta))
+    }
+    K <- (ncol(theta)-2)/3
+  }else{
+    rposterior <- posterior_sample$trace
+    K <- posterior_sample$param$K
   }
-  K <- (ncol(theta)-2)/3
- }else{
-  rposterior <- posterior_sample$trace
-  K <- posterior_sample$param$K
- }
- N <- nrow(rposterior)
- Q <- length(as.vector(K))
+  N <- nrow(rposterior)
+  Q <- length(as.vector(K))
 
- y <- data$y
- potential_intervals  <- posterior_sample$param$potential_intervals
- potential_intervals_dims <- list()
- for(q in 1:Q){
-  potential_intervals_dims[[q]] <- c(ncol(data$x[[q]]),
-                                     posterior_sample$param$l_values_length[[q]],
-                                     length(data$y))
- }
+  y <- data$y
+  potential_intervals  <- posterior_sample$param$potential_intervals
+  potential_intervals_dims <- list()
+  for(q in 1:Q){
+    potential_intervals_dims[[q]] <- c(ncol(data$x[[q]]),
+                                       posterior_sample$param$l_values_length[[q]],
+                                       length(data$y))
+  }
 
- res <- dposterior_cpp(rposterior,y,N,as.vector(K),potential_intervals,potential_intervals_dims,
-                       as.vector(posterior_sample$param$l_values_length),Q)
- colnames(res) <- c("posterior density","log posterior density",
-                    "likelihood","log likelihood",
-                    "prior density","log prior density")
- return(res)
+  res <- dposterior_cpp(rposterior,y,N,as.vector(K),potential_intervals,potential_intervals_dims,
+                        as.vector(posterior_sample$param$l_values_length),Q)
+  colnames(res) <- c("posterior density","log posterior density",
+                     "likelihood","log likelihood",
+                     "prior density","log prior density")
+  return(res)
 }
+
 
 ################################# ----
 #' compute_chains_info
@@ -363,8 +364,11 @@ dposterior <- function(posterior_sample,data,theta=NULL){
 #'         Smooth estimate and the chain autocorrelation for mu, sigma_qs and beta.
 #' @useDynLib bliss
 #' @importFrom Rcpp sourceCpp
+#' @importFrom stats cor
 #' @export
 #' @examples
+#' \donttest{
+#' # May take a while...
 #' param_sim <- list(Q=1,
 #'                   n=100,
 #'                   p=c(50),
@@ -378,6 +382,7 @@ dposterior <- function(posterior_sample,data,theta=NULL){
 #'
 #' param$grids <- data$grids
 #' chains_info <- compute_chains_info(res_bliss$chains[[1]],param)
+#' }
 compute_chains_info <- function(chain,param){
   # Trace
   trace <- chain$trace
@@ -406,11 +411,11 @@ compute_chains_info <- function(chain,param){
     options(warn = 0)
 
     autocorr_lag <- rbind(autocorr_lag,
-                                c(cor(trace[indice,'mu'],
-                                      trace[indice_lag,'mu']),
-                                cor(trace[indice,'sigma_sq'],
-                                    trace[indice_lag,'sigma_sq']),
-                                cor_beta))
+                          c(cor(trace[indice,'mu'],
+                                trace[indice_lag,'mu']),
+                            cor(trace[indice,'sigma_sq'],
+                                trace[indice_lag,'sigma_sq']),
+                            cor_beta))
   }
   colnames(autocorr_lag) <- c("mu","sigma_sq","beta")
 

@@ -4,49 +4,46 @@
 \alias{sim}
 \title{sim}
 \usage{
-sim(param, progress = FALSE)
+sim(param, verbose = FALSE)
 }
 \arguments{
 \item{param}{a list containing:
 \describe{
- \item{Q}{an integer, the number of functional covariates.}
+ \item{beta_shapes}{a character vector. The qth item indicates the shape of
+       the coefficient function associated to the qth functional covariate.}
  \item{n}{an integer, the sample size.}
  \item{p}{a vector of integers, the qth component is the number of
        times for the qth covariate.}
- \item{grids}{a list of numerical vectors, the qth vector is the grid
-       of time points for the qth functional covariate (optional, can be
-       deduced from grid_lim and p if it is \code{NULL}).}
- \item{grids_lim}{a list of numerical vectors, the qth item is the lower
-       and upper boundaries of the domain for the qth functional covariate. (optional)}
- \item{mu}{a numerical value, the intercept of the model. (optional)}
- \item{r}{a nonnegative value, the signal to noise ratio. (optional)}
- \item{link}{a function. XXXX (optional)}
- \item{beta_shapes}{a character vector. The qth item indicates the shape of
-       the coefficient function associated to the qth functional covariate.}
- \item{x_shapes}{a character vector. The qth item indicates the shape of the
-       functional covariate observations. (optional)}
- \item{autocorr_diag}{a list of numerical vectors, the qth vector is the
+ \item{Q}{an integer, the number of functional covariates.}
+ \item{autocorr_diag}{a list of numerical vectors (optional), the qth vector is the
        diagonal of the autocorrelation matrix of the qth functional
-       covariate (optional).}
- \item{autocorr_spread}{a vector of numerical values which are related to the
-       autocorrelation of the functional covariates. (optional)}
- \item{correlation}{a matrix which gives the correlation structure between the
-       functional covariates (optional).}
+       covariate.}
+ \item{autocorr_spread}{a vector of numerical values (optional) which are related to the
+       autocorrelation of the functional covariates.}
+ \item{grids}{a list of numerical vectors (optional), the qth vector is the grid
+       of time points for the qth functional covariate.}
+ \item{grids_lim}{a list of numerical vectors  (optional), the qth item is the lower
+       and upper boundaries of the domain for the qth functional covariate.}
+ \item{link}{a function (optional) to simulate data from the Generalized Functional
+       Linear Regression model.}
+ \item{mu}{a numerical value (optional), the 'true' intercept of the model.}
+ \item{r}{a nonnegative value (optional), the signal to noise ratio.}
+ \item{x_shapes}{a character vector (optional). The qth item indicates the shape of the
+       functional covariate observations.}
 }}
 
-\item{progress}{a logical value. If TRUE, the algorithm progress is displayed.
-(optional)}
+\item{verbose}{write stuff if TRUE.}
 }
 \value{
 a list containing:
 \describe{
  \item{Q}{an integer, the number of functional covariates.}
  \item{y}{a numerical vector, the outcome observations.}
- \item{x}{a list of matrices, the qth matrix contains the observation of the
-       qth functional covariate on a grid of time points given with \code{grids}.}
+\item{x}{a list of matrices, the qth matrix contains the observations of the
+      qth functional covariate at time points given by \code{grids}.}
  \item{grids}{a list of numerical vectors, the qth vector is the grid of
        time points for the qth functional covariate.}
- \item{betas}{a list of numerical vectors, the qth vector is the coefficient
+ \item{betas}{a list of numerical vectors, the qth vector is the 'true' coefficient
        function associated to the qth covariate on a grid of time points
        given with \code{grids}.}
 }

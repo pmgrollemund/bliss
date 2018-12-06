@@ -9,16 +9,16 @@ choose_beta(param)
 \arguments{
 \item{param}{a list containing:
 \describe{
- \item{grid}{a numerical vector, the observation time points.}
+ \item{grid}{a numerical vector, the time points.}
  \item{p}{a numerical value, the length of the vector \code{grid}.}
- \item{shape}{a character vector to choose between "smooth", "random_smooth",
+ \item{shape}{a character vector: "smooth", "random_smooth",
               "simple", "simple_bis", "random_simple", "sinusoid",
               "flat_sinusoid" and "sharp"}
 }}
 }
 \value{
-A numerical vector which is the observation of the coefficient function
-        at the given grid of times points (\code{grid}).
+A numerical vector which corresponds to the coefficient function
+        at given times points (\code{grid}).
 }
 \description{
 Compute a coefficient function for the Function Linear Regression
