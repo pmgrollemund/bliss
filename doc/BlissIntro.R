@@ -8,38 +8,27 @@ knitr::opts_chunk$set(
   library(bliss)
 
 ## ----eval=TRUE,include = TRUE--------------------------------------------
-  param <- list(                        # define the "param" to simulate data 
+  param <- list(                        # define the "param" to simulate data
                 Q=1,                    # the number of functional covariate
-                n=25,                   # n is the sample size and p is the 
-                p=c(15),                # number of time observations of the curves
+                n=100,                  # n is the sample size and p is the
+                p=c(50),                # number of time observations of the curves
                 beta_types=c("smooth"), # define the shape of the "true" coefficient function
-                b_inf=c(0),             # Give the beginning of the observation's domain of the functions ...
-                b_sup=c(1))             # ... and the end.
+                grids_lim=list(c(0,1))) # Give the beginning and the end of the observation's domain of the functions.
 
   data <- sim(param) # Simulate the data
 
 ## ----eval=TRUE, include = TRUE-------------------------------------------
-  param <- list(               # define the required values of the Bliss method.
-                Q=1,                    # the number of functional covariate
-                n=25,                   # n is the sample size and p is the 
-                p=c(15),                # number of time observations of the curves
-                beta_types=c("smooth"), # define the shape of the "true" coefficient function
-                b_inf=c(0),             # Give the beginning of the observation's domain of the functions ...
-                b_sup=c(1),
+  param <- list(                        # define the required values of the Bliss method.
                 iter=1e3,               # The number of iteration of the main numerical algorithm of Bliss.
-                burnin=2e2,                 
-                K=c(3),                 # The number of intervals of the beta
-                grids=data$grids,       # The grid of the time observations 
-                prior_beta="Ridge_Zellner", 
-                phi_l=list("Gamma"))
-   
-  res_bliss<-fit_Bliss(data=data,param=param)
-  
+                K=c(3))                 # The number of intervals of the beta
+
+  res_bliss<-fit_Bliss(data=data,param=param,verbose=T)
+
   # Structure of a Bliss object
   str(res_bliss)
 
 ## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7------------------
-  param$cols <- rev(heat.colors(12))
+  param$cols <- rev(heat.colors(100))
   image_Bliss(res_bliss$beta_posterior_density,param,q=1)
   lines(res_bliss$data$grids[[1]],res_bliss$Bliss_estimate[[1]],type="s",lwd=2)
   lines(res_bliss$data$grids[[1]],res_bliss$data$betas[[1]],col=2,lwd=2,type="s")

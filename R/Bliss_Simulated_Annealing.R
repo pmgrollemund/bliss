@@ -47,11 +47,12 @@
 #' data(res_bliss1)
 #' beta_sample <- compute_beta_sample(posterior_sample=res_bliss1$posterior_sample,
 #'                                    param=param1,Q=2)
-#' param_test<-list(grid=param1$grids[[1]],iter=1e4,K=2)
+#' param_test<-list(grid=param1$grids[[1]],iter=1e3,K=2)
 #' test<-Bliss_Simulated_Annealing(beta_sample[[1]],
 #'                  res_bliss1$posterior_sample$param$normalization_values[[1]],
 #'                  param=param_test)
-#' plot(param_test$grid,test$Bliss_estimate,type="l")
+#' ylim <- range(range(test$Bliss_estimate),range(test$Smooth_estimate))
+#' plot(param_test$grid,test$Bliss_estimate,type="l",ylim=ylim)
 #' lines(param_test$grid,test$Smooth_estimate,lty=2)
 Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,verbose=FALSE){
   # load optional objects

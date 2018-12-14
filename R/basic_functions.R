@@ -73,7 +73,8 @@ BIC_model_choice <- function(Ks,iter,data,verbose=T){
 #'                                    param=param1,Q=2)
 #' indexes <- sample(nrow(beta_sample[[1]]),1e2,replace=FALSE)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
-#' matplot(param1$grids[[1]],t(beta_sample[[1]][indexes,]),type="l",lty=1,col=cols)
+#' matplot(param1$grids[[1]],t(beta_sample[[1]][indexes,]),type="l",lty=1,col=cols,
+#' xlab="grid",ylab="")
 compute_beta_sample <- function(posterior_sample,param,Q,verbose=FALSE){
   if(verbose) cat("Compute the coefficient function posterior sample. \n")
   # Initialize parameters
@@ -131,6 +132,7 @@ compute_beta_sample <- function(posterior_sample,param,Q,verbose=FALSE){
 #' @importFrom MASS bandwidth.nrd kde2d
 #' @export
 #' @examples
+#' ### To be redone
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
@@ -295,7 +297,7 @@ compute_beta_posterior_density <- function(beta_sample,param,verbose=FALSE){
 #'  res_support$estimate
 #'  ### Plot the result
 #'  grid <- res_bliss1$data$grids[[1]]
-#'  plot(grid,res_support$alpha_t,ylim=c(0,1),type="l",xlab="",ylab="")
+#'  plot(grid,res_support$alpha,ylim=c(0,1),type="l",xlab="",ylab="")
 #'  for(k in 1:nrow(res_support$estimate)){
 #'     segments(grid[res_support$estimate[k,1]],0.5,
 #'              grid[res_support$estimate[k,2]],0.5,lwd=2,col=2)
@@ -344,8 +346,8 @@ support_estimation <- function(beta_sample_q,gamma=0.5){
 #' intervals <- determine_intervals(res_bliss1$Bliss_estimate[[1]])
 #' plot(data1$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s")
 #' for(k in 1:nrow(intervals)){
-#'   segments(intervals[k,1],intervals[k,3],
-#'           intervals[k,2],intervals[k,3],col=2,lwd=2)
+#' segments(data1$grids[[1]][intervals[k,1]],intervals[k,3],
+#'            data1$grids[[1]][intervals[k,2]],intervals[k,3],col=2,lwd=4)
 #' }
 determine_intervals <- function(beta_fct){
   intervals <- data.frame()
@@ -461,8 +463,8 @@ compute_starting_point_sann <- function(beta_expe){
 #' grid <- seq(0,1,l=1e1)
 #' new_grid <- seq(0,1,l=1e2)
 #' fct <- 3*grid^2 + sin(grid*2*pi)
-#' plot(grid,fct,type="o")
-#' lines(new_grid,change_grid(fct,grid,new_grid),type="o",col="red")
+#' plot(grid,fct,type="o",lwd=2,cex=1.5)
+#' lines(new_grid,change_grid(fct,grid,new_grid),type="o",col="red",cex=0.8)
 change_grid <- function(fct,grid,new_grid){
   res <- rep(0,length(new_grid))
   for(i in 1:(length(grid)-1)){
@@ -488,7 +490,6 @@ change_grid <- function(fct,grid,new_grid){
 #' pdexp
 ################################# ----
 #' @description Probability function of a discretized Exponentiel distribution.
-#' Compute the probability function of the Exponential prior on l. #XXXXXXXX
 #' @return a numerical vector, which is the prability function on "l_values".
 #' @param a a positive value, the mean of the Exponential prior.
 #' @param l_values a numerical value, the discrete support of the parameter l.
@@ -496,6 +497,10 @@ change_grid <- function(fct,grid,new_grid){
 #' @export
 #' @examples
 #' pdexp(10,seq(0,1,1))
+#'
+#' x <- seq(0,10,le=1e3)
+#' plot(x,dexp(x,0.5),lty=2,type="l")
+#' lines(pdexp(0.5,1:10),type="p")
 pdexp <- function(a,l_values){
   step <- diff(l_values)[1] / 2
   probs <- pexp(l_values + step ,a) -
@@ -503,8 +508,6 @@ pdexp <- function(a,l_values){
 
   return(probs)
 }
-
-
 
 ################################# ----
 #' integrate_trapeze
@@ -516,6 +519,9 @@ pdexp <- function(a,l_values){
 #' @importFrom stats pgamma
 #' @export
 #' @examples
+#' x <- seq(0,1,le=1e2)
+#' integrate_trapeze(x,x^2)
+#'
 #' integrate_trapeze(data1$grids[[1]][1:25],data1$y)
 integrate_trapeze <- function(x,y){
   apply(as.matrix(y),2,function(vect)
