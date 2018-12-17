@@ -25,7 +25,7 @@ data(res_bliss1)
 intervals <- determine_intervals(res_bliss1$Bliss_estimate[[1]])
 plot(data1$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s")
 for(k in 1:nrow(intervals)){
-  segments(intervals[k,1],intervals[k,3],
-          intervals[k,2],intervals[k,3],col=2,lwd=2)
+   segments(data1$grids[[1]][intervals[k,1]],intervals[k,3],
+           data1$grids[[1]][intervals[k,2]],intervals[k,3],col=2,lwd=4)
 }
 }

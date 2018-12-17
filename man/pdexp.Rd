@@ -16,8 +16,11 @@ a numerical vector, which is the prability function on "l_values".
 }
 \description{
 Probability function of a discretized Exponentiel distribution.
-Compute the probability function of the Exponential prior on l. #XXXXXXXX
 }
 \examples{
 pdexp(10,seq(0,1,1))
+
+x <- seq(0,10,le=1e3)
+plot(x,dexp(x,0.5),lty=2,type="l")
+lines(pdexp(0.5,1:10),type="p")
 }

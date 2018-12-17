@@ -22,33 +22,31 @@
 #' data(param1)
 #' data(res_bliss1)
 #' param1$cols <- colorRampPalette(brewer.pal(9,"Reds"))(1e2)
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=3,lwd=2,type="s")
 #'
-#' \donttest{
 #' # ---- not run
 #' param1$cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=3,lwd=2,type="s")
 #'
 #' param1$cols <- rev(heat.colors(12))
 #' param1$col_scale <- "quantile"
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=3,lwd=2,type="s")
 #'
 #' param1$cols <- rev(terrain.colors(12))
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=2,lwd=2,type="s")
 #'
 #' param1$cols <- rev(topo.colors(12))
-#' image_Bliss(res_bliss1$beta_posterior_density[[1]],param1)
+#' image_Bliss(res_bliss1$beta_posterior_density,param1,q=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
 #' lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=2,lwd=2,type="s")
-#' }
 image_Bliss <- function(beta_posterior_density,param=list(),q=1){
   if(length(param) != 0){ # PMG 2018-11-13
     cols      <- param[["cols"]] #Ceci n'est pas une modification pmg 08-03-18
@@ -108,7 +106,7 @@ image_Bliss <- function(beta_posterior_density,param=list(),q=1){
 #' @param ... Arguments to be passed to methods, such as graphical parameters
 #'        (see \code{par}).
 #' @importFrom grDevices gray.colors
-#' @importFrom graphics abline segments
+#' @importFrom graphics abline segments axis image lines matplot plot text
 #' @export
 #' @examples
 #' \donttest{
@@ -188,15 +186,13 @@ lines_bliss <- function(x,y,connect=FALSE,...){
 #' @param cols a numerical vector of colours (optional).
 #' @export
 #' @examples
-#' \donttest{
-#' # Not run!!
 #' data(data1)
 #' data(param1)
-#' # res_bliss1 <- fit_Bliss(data=data1,param=param1,verbose=TRUE)
+#' # result of res_bliss1 <- fit_Bliss(data=data1,param=param1,verbose=TRUE)
 #' data(res_bliss1)
-#' interpretation_plot(res_bliss1$Bliss_estimate[[1]],data1)
-#' interpretation_plot(res_bliss1$Bliss_estimate[[1]],data1,centered=FALSE)
-#' }
+#' interpretation_plot(data=data1,Bliss_estimate=res_bliss1$Bliss_estimate,q=1)
+#' interpretation_plot(data=data1,Bliss_estimate=res_bliss1$Bliss_estimate,q=2)
+#' interpretation_plot(data=data1,Bliss_estimate=res_bliss1$Bliss_estimate,q=2,centered=TRUE)
 interpretation_plot <- function(data,Bliss_estimate,q=1,centered=FALSE,cols=NULL){
   # load some objects
   x <- data$x[[q]]
@@ -228,7 +224,7 @@ interpretation_plot <- function(data,Bliss_estimate,q=1,centered=FALSE,cols=NULL
   scaled_x <- scale(x,scale=F)
 
   # Compute intervals
-  intervals <- interval_detection(Bliss_estimate[[q]])
+  intervals <- determine_intervals(Bliss_estimate[[q]])
   intervals_nonnull <- intervals[intervals[,3] != 0,]
   intervals_null    <- intervals[intervals[,3] == 0,]
 
@@ -312,7 +308,7 @@ interpretation_plot <- function(data,Bliss_estimate,q=1,centered=FALSE,cols=NULL
 #' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 #' data(res_bliss1)
 #' # Compute the posterior density of the MCMC sample :
-#' res_poste <- dposterior(res_bliss1$posterior_sample,data1,Q=2)
+#' res_poste <- dposterior(res_bliss1$posterior_sample,data1)
 dposterior <- function(posterior_sample,data,theta=NULL){
  if(!is.null(theta)){
   if(is.null(dim(theta))){
@@ -362,6 +358,7 @@ dposterior <- function(posterior_sample,data,theta=NULL){
 #'         Smooth estimate and the chain autocorrelation for mu, sigma_qs and beta.
 #' @useDynLib bliss
 #' @importFrom Rcpp sourceCpp
+#' @importFrom stats cor
 #' @export
 #' @examples
 #' param_sim <- list(Q=1,
@@ -373,7 +370,7 @@ dposterior <- function(posterior_sample,data,theta=NULL){
 #' param <- list(iter=5e2,
 #'               K=c(3),
 #'               n_chains = 3)
-#' res_bliss <- fit_Bliss(data,param,verbose=T,compute_density=F,sann=F)
+#' res_bliss <- fit_Bliss(data,param,verbose=TRUE,compute_density=FALSE,sann=FALSE)
 #'
 #' param$grids <- data$grids
 #' chains_info1 <- compute_chains_info(res_bliss$chains[[1]],param)

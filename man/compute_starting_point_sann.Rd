@@ -19,6 +19,6 @@ a matrix with 3 columns : "m", "l" and "b". The two first
 Compute a starting point for the Simulated Annealing algorithm.
 }
 \examples{
-data(data1)
-data(param1)
+data(res_bliss1)
+mystart<-compute_starting_point_sann(apply(res_bliss1$beta_sample[[1]],2,mean))
 }

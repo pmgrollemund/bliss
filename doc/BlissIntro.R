@@ -18,12 +18,21 @@ knitr::opts_chunk$set(
   data <- sim(param) # Simulate the data
 
 ## ----eval=TRUE, include = TRUE-------------------------------------------
-  param <- list(                        # define the required values of the Bliss method.
+  param <- list(               # define the required values of the Bliss method.
+                Q=1,                    # the number of functional covariate
+                n=100,                  # n is the sample size and p is the
+                p=c(50),                # number of time observations of the curves
+                beta_types=c("smooth"), # define the shape of the "true" coefficient function
+                grids_lim=list(c(0,1)),
                 iter=1e3,               # The number of iteration of the main numerical algorithm of Bliss.
-                K=c(3))                 # The number of intervals of the beta
-
-  res_bliss<-fit_Bliss(data=data,param=param,verbose=T)
-
+                burnin=2e2,                 
+                K=c(3),                 # The number of intervals of the beta
+                grids=data$grids,       # The grid of the time observations 
+                prior_beta="Ridge_Zellner", 
+                phi_l=list("Gamma"))
+   
+  res_bliss<-fit_Bliss(data=data,param=param,verbose=TRUE)
+  
   # Structure of a Bliss object
   str(res_bliss)
 
@@ -50,23 +59,21 @@ knitr::opts_chunk$set(
 #    res_Bliss_mult <- fit_Bliss(data=data,param=param)
 
 ## ----eval=FALSE, include = TRUE,fig.height=5,fig.width=7-----------------
-#    # for(q in 1:Q){
-#    #   ylim <- range(c(res_Bliss_mult$posterior_density_estimate[[q]]$res.kde2d$y,
-#    #                   data$beta[[q]]))
-#    #   ylim <- ylim +  (ylim[2] - ylim[1])/20 * c(-1,1)
-#    #   param$ylim <- ylim
-#    #
-#    #   image_Bliss(res_Bliss_mult$posterior_density_estimate[[q]],param)
-#    #   # the Bliss estimate
-#    #   lines_step_function(res_Bliss_mult$param$grids2[[q]],
-#    #                       res_Bliss_mult$Bliss_estimate[[q]],lwd=2,bound=F)
-#    #   # the posterior expection of beta(t)
-#    #   lines_step_function(res_Bliss_mult$param$grids2[[q]],
-#    #                       res_Bliss_mult$res.Simulated_Annealing[[q]]$posterior_expe,
-#    #                       lty=2,bound=T)
-#    #   # plot the true coefficient function
-#    #   lines(data$grids[[q]],data$beta[[q]],col=3)
-#    # }
+#    for(q in 1:Q){
+#      ylim <- range(c(res_Bliss_mult$posterior_density_estimate[[q]]$res.kde2d$y,
+#                      data$beta[[q]]))
+#      ylim <- ylim +  (ylim[2] - ylim[1])/20 * c(-1,1)
+#      param$ylim <- ylim
+#  
+#      image_Bliss(res_bliss$beta_posterior_density,param,q=q)
+#      # the Bliss estimate
+#      lines(res_Bliss_mult$grids[[q]],res_Bliss_mult$Bliss_estimate[[q]],lwd=2,bound=F)
+#      # the posterior expection of beta(t)
+#      lines(res_Bliss_mult$grids[[q]],res_Bliss_mult$res.Simulated_Annealing[[q]]$posterior_expe,
+#                          lty=2,bound=T)
+#      # plot the true coefficient function
+#      lines(data$grids[[q]],data$beta[[q]],col=3)
+#    }
 
 ## ----session,echo=FALSE,message=FALSE, warning=FALSE---------------------
   sessionInfo()

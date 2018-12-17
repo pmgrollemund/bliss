@@ -18,5 +18,8 @@ a numerical value, the approximation.
 Trapezoidal rule to approximate an integral.
 }
 \examples{
+x <- seq(0,1,le=1e2)
+integrate_trapeze(x,x^2)
+
 integrate_trapeze(data1$grids[[1]][1:25],data1$y)
 }

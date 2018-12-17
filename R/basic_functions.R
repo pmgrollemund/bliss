@@ -132,37 +132,25 @@ compute_beta_sample <- function(posterior_sample,param,Q,verbose=FALSE){
 #' @importFrom MASS bandwidth.nrd kde2d
 #' @export
 #' @examples
-#' ### To be redone
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
-#' param1$grids<-data1$grids
 #' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 #' data(res_bliss1)
 #' q <- 1
-#' diff_grid <- diff(param1$grids[[q]])[1]
-#' param1$grids2[[q]] <- c(param1$grids[[q]]-diff_grid/2,
-#'                        tail(param1$grids[[q]],1)+diff_grid/2)
-#' param1$xlim[[q]] <- range(param1$grids2[[q]])
-#' param_density<-list(grid= param1$grids[[q]],
-#'                     iter= param1$iter,
-#'                     p   = param1[["p"]][q],
-#'                     n        = param1[["n"]],
-#'                     thin     = 10,
-#'                     burnin   = 2e2,
-#'                     lims_kde = param1$lims_kde[[q]],
-#'                     h1       = param1$h1,
-#'                     new_grid = param1[["new_grid"]],
-#'                     xlim = range(param1$grids[[q]]) + c(-diff_grid,diff_grid),
-#'                     lims_estimate=range(res_bliss1$Smooth_estimate[[1]]),
-#'                     verbose = FALSE
-#' )
-#' \donttest{
-#' density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample[[1]],param_density)
+#' param_beta_density <- list(grid= data1[["grids"]][[q]],
+#'                            iter= param1[["iter"]],
+#'                            p   = param1[["p"]][q],
+#'                            n        = length(data1[["y"]]),
+#'                            thin     = param1[["thin"]],
+#'                            burnin   = param1[["burnin"]],
+#'                            lims_kde = param1[["lims_kde"]][[q]],
+#'                            new_grid = param1[["new_grids"]][[q]],
+#'                            lims_estimate = range(res_bliss1$Smooth_estimate[[q]]))
+#' density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample[[q]],param_beta_density)
 #' image(density_estimate$grid_t,
 #'       density_estimate$grid_beta_t,
 #'       density_estimate$density,col=rev(heat.colors(100)))
-#' }
 compute_beta_posterior_density <- function(beta_sample,param,verbose=FALSE){
   if(verbose)
     cat("Compute an approximation of the posterior density of the coefficient function.\n")
@@ -293,18 +281,19 @@ compute_beta_posterior_density <- function(beta_sample,param,verbose=FALSE){
 #' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 #' data(res_bliss1)
 #' res_support <- support_estimation(res_bliss1$beta_sample[[1]])
-#'  ### The estimate
-#'  res_support$estimate
-#'  ### Plot the result
-#'  grid <- res_bliss1$data$grids[[1]]
-#'  plot(grid,res_support$alpha,ylim=c(0,1),type="l",xlab="",ylab="")
-#'  for(k in 1:nrow(res_support$estimate)){
+#'
+#' ### The estimate
+#' res_support$estimate
+#' ### Plot the result
+#' grid <- res_bliss1$data$grids[[1]]
+#' plot(grid,res_support$alpha,ylim=c(0,1),type="l",xlab="",ylab="")
+#' for(k in 1:nrow(res_support$estimate)){
 #'     segments(grid[res_support$estimate[k,1]],0.5,
 #'              grid[res_support$estimate[k,2]],0.5,lwd=2,col=2)
 #'     points(grid[res_support$estimate[k,1]],0.5,pch="|",lwd=2,col=2)
 #'     points(grid[res_support$estimate[k,2]],0.5,pch="|",lwd=2,col=2)
-#'  }
-#'  abline(h=0.5,col=2,lty=2)
+#' }
+#' abline(h=0.5,col=2,lty=2)
 support_estimation <- function(beta_sample_q,gamma=0.5){
   # alpha: posterior probabilities
   alpha <- apply(beta_sample_q,2, function(vec) sum(vec != 0)/length(vec))
@@ -346,7 +335,7 @@ support_estimation <- function(beta_sample_q,gamma=0.5){
 #' intervals <- determine_intervals(res_bliss1$Bliss_estimate[[1]])
 #' plot(data1$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s")
 #' for(k in 1:nrow(intervals)){
-#' segments(data1$grids[[1]][intervals[k,1]],intervals[k,3],
+#'    segments(data1$grids[[1]][intervals[k,1]],intervals[k,3],
 #'            data1$grids[[1]][intervals[k,2]],intervals[k,3],col=2,lwd=4)
 #' }
 determine_intervals <- function(beta_fct){
@@ -381,8 +370,8 @@ determine_intervals <- function(beta_fct){
 #' @importFrom stats qnorm sd
 #' @export
 #' @examples
-#' data(data1)
-#' data(param1)
+#' data(res_bliss1)
+#' mystart<-compute_starting_point_sann(apply(res_bliss1$beta_sample[[1]],2,mean))
 compute_starting_point_sann <- function(beta_expe){
   positive_vec <- unlist(sapply(beta_expe,function(value) if(value<0) 0  else value))
   negative_vec <- unlist(sapply(beta_expe,function(value) if(value>0) 0  else value))
