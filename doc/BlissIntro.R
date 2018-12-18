@@ -17,22 +17,16 @@ knitr::opts_chunk$set(
 
   data <- sim(param) # Simulate the data
 
-  save.image("./data/data2.rda")
-
 ## ----eval=TRUE, include = TRUE-------------------------------------------
   param <- list(               # define the required values of the Bliss method.
                 iter=1e3,               # The number of iteration of the main numerical algorithm of Bliss.
                 burnin=2e2,             # The number of burnin iteration for the Gibbs Sampler
                 K=c(3))                 # The number of intervals of the beta
 
-  save.image("./data/param2.rda")
-
   res_bliss<-fit_Bliss(data=data,param=param,verbose=TRUE)
 
   # Structure of a Bliss object
   str(res_bliss)
-
-  save.image("./data/res_bliss2.rda")
 
 ## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7------------------
   param$ylim <- range(range(res_bliss$beta_posterior_density[[1]]$grid_beta_t),
