@@ -9,16 +9,18 @@ bibentry(bibtype = "Article",
                    person(given = "P.",
                           family = "Pudlo")),
   journal      = "Bayesian Analysis",
-  year         = "2018",
-  volume       = "",
-  number       = "",
-  pages        = "",
-  doi          = "",
+  year         = "2019",
+  volume       = "14",
+  number       = "1",
+  pages        = "111-135",
+  doi          = "10.1214/18-BA1095",
+  howpublished = "https://projecteuclid.org/euclid.ba/1524103229",
 
   header       = "To cite bliss in publications use:",
   textVersion  =
-  paste("Grollemund P-M., Abraham C., Baragatti M., Pudlo P. (2018).",
+  paste("Grollemund P-M., Abraham C., Baragatti M., Pudlo P. (2019).",
         "Bayesian Functional Linear Regression with Sparse Step Functions.",
-        "Bayesian Analysis")
+        "Bayesian Anal.",
+        "14 (2019), no. 1, 111--135.",
+        "doi:10.1214/18-BA1095. https://projecteuclid.org/euclid.ba/1524103229")
 )
-

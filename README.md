@@ -30,7 +30,7 @@ help(package="bliss")
 
 As a lot of time and effort were spent in creating the **bliss** method, please cite it when using it for data analysis:
 
-Grollemund P-M., Abraham C., Baragatti M., Pudlo P. **Bayesian Analysis** (2018) Bayesian Functional Linear Regression with Sparse Step Functions.
+Grollemund, Paul-Marie; Abraham, Christophe; Baragatti, Meïli; Pudlo, Pierre. Bayesian Functional Linear Regression with Sparse Step Functions. Bayesian Anal. 14 (2019), no. 1, 111--135. doi:10.1214/18-BA1095. https://projecteuclid.org/euclid.ba/1524103229
 
 You should also cite the **bliss** package:
 
