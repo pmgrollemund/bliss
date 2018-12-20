@@ -46,7 +46,7 @@
 #' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 #' data(res_bliss1)
 #' beta_sample <- compute_beta_sample(posterior_sample=res_bliss1$posterior_sample,
-#'                                    param=param1,Q=2)
+#'                                    param=param1,Q=1)
 #' param_test<-list(grid=param1$grids[[1]],iter=1e3,K=2)
 #' test<-Bliss_Simulated_Annealing(beta_sample[[1]],
 #'                  res_bliss1$posterior_sample$param$normalization_values[[1]],
