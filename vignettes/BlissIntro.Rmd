@@ -108,7 +108,7 @@ To avoid execution lengths, this section is not executed. Please, give it a try.
 
 ## Simulate the dataset
 
-```{r ,eval=TRUE, include = TRUE}
+```{r ,eval=FALSE, include = TRUE}
    param <- list(Q=2,
                  n=300,
                  p=c(40,60),
@@ -119,7 +119,7 @@ To avoid execution lengths, this section is not executed. Please, give it a try.
 ```
 
 ## Apply the Bliss method
-```{r ,eval=TRUE, include = TRUE}
+```{r ,eval=FALSE, include = TRUE}
   param <- list(       # define the required values of the Bliss method.
      iter=1e3,         # The number of iteration of the main numerical algorithm of Bliss.
      burnin=2e2,       # The number of burnin iteration for the Gibbs Sampler
@@ -129,7 +129,7 @@ To avoid execution lengths, this section is not executed. Please, give it a try.
 ```
 
 ## Plot the result
-```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
+```{r ,eval=FALSE, include = TRUE,fig.height=5,fig.width=7}
    q <- 1
    param$ylim <- range(range(res_Bliss_mult$beta_posterior_density[[q]]$grid_beta_t),
                        c(-5,5))

@@ -45,54 +45,54 @@ knitr::opts_chunk$set(
   lines_bliss(res_bliss$data$grids[[1]],
              res_bliss$Smooth_estimate[[1]],lty=2)
 
-## ----eval=TRUE, include = TRUE-------------------------------------------
-   param <- list(Q=2,
-                 n=300,
-                 p=c(40,60),
-                 beta_shapes=c("simple","smooth"),
-                 grids_lim=list(c(0,1),c(0,2)))
+## ----eval=FALSE, include = TRUE------------------------------------------
+#     param <- list(Q=2,
+#                   n=300,
+#                   p=c(40,60),
+#                   beta_shapes=c("simple","smooth"),
+#                   grids_lim=list(c(0,1),c(0,2)))
+#  
+#    data <- sim(param)
 
-  data <- sim(param)
+## ----eval=FALSE, include = TRUE------------------------------------------
+#    param <- list(       # define the required values of the Bliss method.
+#       iter=1e3,         # The number of iteration of the main numerical algorithm of Bliss.
+#       burnin=2e2,       # The number of burnin iteration for the Gibbs Sampler
+#       K=c(3,3))         # The number of intervals of the beta
+#  
+#    res_Bliss_mult <- fit_Bliss(data=data,param=param)
 
-## ----eval=TRUE, include = TRUE-------------------------------------------
-  param <- list(       # define the required values of the Bliss method.
-     iter=1e3,         # The number of iteration of the main numerical algorithm of Bliss.
-     burnin=2e2,       # The number of burnin iteration for the Gibbs Sampler
-     K=c(3,3))         # The number of intervals of the beta
-
-  res_Bliss_mult <- fit_Bliss(data=data,param=param)
-
-## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7------------------
-   q <- 1
-   param$ylim <- range(range(res_Bliss_mult$beta_posterior_density[[q]]$grid_beta_t),
-                       c(-5,5))
-   param$cols <- rev(heat.colors(100))
-   image_Bliss(res_Bliss_mult$beta_posterior_density,param,q=q)
-   lines(res_Bliss_mult$data$grids[[q]],res_Bliss_mult$Bliss_estimate[[q]],type="s",lwd=2)
-   lines(res_Bliss_mult$data$grids[[q]],res_Bliss_mult$data$betas[[q]],col=2,lwd=2,type="s")
-
-  ylim <- range(range(res_Bliss_mult$Bliss_estimate[[q]]),
-                 range(res_Bliss_mult$Smooth_estimate[[q]]))
-   plot_bliss(res_Bliss_mult$data$grids[[q]],
-              res_Bliss_mult$Bliss_estimate[[q]],lwd=2,ylim=ylim)
-   lines(res_Bliss_mult$data$grids[[q]],
-         res_Bliss_mult$Smooth_estimate[[q]],lty=2)
-
-
-   q <- 2
-   param$ylim <- range(range(res_Bliss_mult$beta_posterior_density[[q]]$grid_beta_t),
-                       c(-5,5))
-   param$cols <- rev(heat.colors(100))
-   image_Bliss(res_Bliss_mult$beta_posterior_density,param,q=q)
-   lines(res_Bliss_mult$data$grids[[q]],res_Bliss_mult$Bliss_estimate[[q]],type="s",lwd=2)
-   lines(res_Bliss_mult$data$grids[[q]],res_Bliss_mult$data$betas[[q]],col=2,lwd=2,type="l")
-   
-   ylim <- range(range(res_Bliss_mult$Bliss_estimate[[q]]),
-                 range(res_Bliss_mult$Smooth_estimate[[q]]))
-   plot_bliss(res_Bliss_mult$data$grids[[q]],
-              res_Bliss_mult$Bliss_estimate[[q]],lwd=2,ylim=ylim)
-   lines(res_Bliss_mult$data$grids[[q]],
-         res_Bliss_mult$Smooth_estimate[[q]],lty=2)
+## ----eval=FALSE, include = TRUE,fig.height=5,fig.width=7-----------------
+#     q <- 1
+#     param$ylim <- range(range(res_Bliss_mult$beta_posterior_density[[q]]$grid_beta_t),
+#                         c(-5,5))
+#     param$cols <- rev(heat.colors(100))
+#     image_Bliss(res_Bliss_mult$beta_posterior_density,param,q=q)
+#     lines(res_Bliss_mult$data$grids[[q]],res_Bliss_mult$Bliss_estimate[[q]],type="s",lwd=2)
+#     lines(res_Bliss_mult$data$grids[[q]],res_Bliss_mult$data$betas[[q]],col=2,lwd=2,type="s")
+#  
+#    ylim <- range(range(res_Bliss_mult$Bliss_estimate[[q]]),
+#                   range(res_Bliss_mult$Smooth_estimate[[q]]))
+#     plot_bliss(res_Bliss_mult$data$grids[[q]],
+#                res_Bliss_mult$Bliss_estimate[[q]],lwd=2,ylim=ylim)
+#     lines(res_Bliss_mult$data$grids[[q]],
+#           res_Bliss_mult$Smooth_estimate[[q]],lty=2)
+#  
+#  
+#     q <- 2
+#     param$ylim <- range(range(res_Bliss_mult$beta_posterior_density[[q]]$grid_beta_t),
+#                         c(-5,5))
+#     param$cols <- rev(heat.colors(100))
+#     image_Bliss(res_Bliss_mult$beta_posterior_density,param,q=q)
+#     lines(res_Bliss_mult$data$grids[[q]],res_Bliss_mult$Bliss_estimate[[q]],type="s",lwd=2)
+#     lines(res_Bliss_mult$data$grids[[q]],res_Bliss_mult$data$betas[[q]],col=2,lwd=2,type="l")
+#  
+#     ylim <- range(range(res_Bliss_mult$Bliss_estimate[[q]]),
+#                   range(res_Bliss_mult$Smooth_estimate[[q]]))
+#     plot_bliss(res_Bliss_mult$data$grids[[q]],
+#                res_Bliss_mult$Bliss_estimate[[q]],lwd=2,ylim=ylim)
+#     lines(res_Bliss_mult$data$grids[[q]],
+#           res_Bliss_mult$Smooth_estimate[[q]],lty=2)
 
 ## ----session,echo=FALSE,message=FALSE, warning=FALSE---------------------
   sessionInfo()
