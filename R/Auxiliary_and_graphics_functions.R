@@ -191,8 +191,7 @@ lines_bliss <- function(x,y,connect=FALSE,...){
 #' # result of res_bliss1 <- fit_Bliss(data=data1,param=param1,verbose=TRUE)
 #' data(res_bliss1)
 #' interpretation_plot(data=data1,Bliss_estimate=res_bliss1$Bliss_estimate,q=1)
-#' interpretation_plot(data=data1,Bliss_estimate=res_bliss1$Bliss_estimate,q=2)
-#' interpretation_plot(data=data1,Bliss_estimate=res_bliss1$Bliss_estimate,q=2,centered=TRUE)
+#' interpretation_plot(data=data1,Bliss_estimate=res_bliss1$Bliss_estimate,q=1,centered=TRUE)
 interpretation_plot <- function(data,Bliss_estimate,q=1,centered=FALSE,cols=NULL){
   # load some objects
   x <- data$x[[q]]
