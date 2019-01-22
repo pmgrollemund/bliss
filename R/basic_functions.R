@@ -481,7 +481,7 @@ change_grid <- function(fct,grid,new_grid){
 #' pdexp
 ################################# ----
 #' @description Probability function of a discretized Exponentiel distribution.
-#' @return a numerical vector, which is the prability function on "l_values".
+#' @return a numerical vector, which is the prability function on \code{l_values}.
 #' @param a a positive value, the mean of the Exponential prior.
 #' @param l_values a numerical value, the discrete support of the parameter l.
 #' @importFrom stats pgamma

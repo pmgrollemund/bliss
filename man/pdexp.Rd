@@ -12,7 +12,7 @@ pdexp(a, l_values)
 \item{l_values}{a numerical value, the discrete support of the parameter l.}
 }
 \value{
-a numerical vector, which is the prability function on "l_values".
+a numerical vector, which is the prability function on \code{l_values}.
 }
 \description{
 Probability function of a discretized Exponentiel distribution.
