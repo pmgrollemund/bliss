@@ -360,6 +360,7 @@ dposterior <- function(posterior_sample,data,theta=NULL){
 #' @importFrom stats cor
 #' @export
 #' @examples
+#' \donttest{
 #' param_sim <- list(Q=1,
 #'                   n=100,
 #'                   p=c(50),
@@ -387,6 +388,7 @@ dposterior <- function(posterior_sample,data,theta=NULL){
 #'
 #' # Autocorrelation
 #' plot(chains_info1$autocorr_lag[,1],type="h")
+#' }
 compute_chains_info <- function(chain,param){
   # Trace
   trace <- chain$trace

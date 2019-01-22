@@ -18,6 +18,7 @@
 #' @param verbose write stuff if TRUE (optional).
 #' @export
 #' @examples
+#' \donttest{
 #' param_sim <- list(Q=1,n=100,p=c(50),grids_lim=list(c(0,1)))
 #' data      <- sim(param_sim,verbose=TRUE)
 #' iter = 1e2
@@ -25,6 +26,7 @@
 #'
 #' res_BIC <- BIC_model_choice(Ks,iter,data)
 #' plot(res_BIC,xlab="K",ylab="BIC")
+#' }
 BIC_model_choice <- function(Ks,iter,data,verbose=T){
   BIC <- rep(0,length(Ks))
   for(i in 1:length(Ks)){

@@ -28,6 +28,7 @@ Return a list containing the estimates of mu and sigma_sq, the
 Compute summaries of Gibbs Sampler chains.
 }
 \examples{
+\donttest{
 param_sim <- list(Q=1,
                   n=100,
                   p=c(50),
@@ -55,4 +56,5 @@ lines(data$grids[[1]],chains_info3$estimates$Smooth_estimate,col=3)
 
 # Autocorrelation
 plot(chains_info1$autocorr_lag[,1],type="h")
+}
 }
