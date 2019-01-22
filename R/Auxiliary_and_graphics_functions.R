@@ -353,8 +353,8 @@ dposterior <- function(posterior_sample,data,theta=NULL){
 #'       different basis functions to expand the coefficient function and the
 #'       functional covariates.}
 #' }
-#' @return Return a list containing the estimates of mu and sigma_sq, the
-#'         Smooth estimate and the chain autocorrelation for mu, sigma_qs and beta.
+#' @return Return a list containing the estimates of \code{mu} and \code{sigma_sq}, the
+#'         Smooth estimate and the chain autocorrelation for \code{mu}, \code{sigma_sq} and \code{beta}.
 #' @useDynLib bliss
 #' @importFrom Rcpp sourceCpp
 #' @importFrom stats cor

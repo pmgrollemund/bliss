@@ -21,8 +21,8 @@ compute_chains_info(chain, param)
 }}
 }
 \value{
-Return a list containing the estimates of mu and sigma_sq, the
-        Smooth estimate and the chain autocorrelation for mu, sigma_qs and beta.
+Return a list containing the estimates of \code{mu} and \code{sigma_sq}, the
+        Smooth estimate and the chain autocorrelation for \code{mu}, \code{sigma_sq} and \code{beta}.
 }
 \description{
 Compute summaries of Gibbs Sampler chains.
