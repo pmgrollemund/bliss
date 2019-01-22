@@ -10,7 +10,7 @@ Bliss_Gibbs_Sampler(data, param, verbose = FALSE)
 \item{data}{a list containing:
 \describe{
 \item{Q}{an integer, the number of functional covariates.}
-\item{y}{a numerical vector, the outcome values y_i.}
+\item{y}{a numerical vector, the outcome values \code{y_i}.}
 \item{x}{a list of matrices, the qth matrix contains the observations of the
       qth functional covariate at time points given by \code{grids}.}
 \item{grids}{a list of numerical vectors, the qth vector is the grid of
