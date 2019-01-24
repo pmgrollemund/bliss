@@ -13,7 +13,7 @@ __Package In progress...__
 To install the **bliss** package, the easiest is to install it directly from GitHub. Open an R session and run the following commands:
 
 ```R
-library(devtools) 
+library(remotes) 
 install_github("pmgrollemund/bliss", build_vignettes=TRUE)
 ```
 
