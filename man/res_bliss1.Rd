@@ -6,16 +6,37 @@
 \title{A result of the BliSS method}
 \format{a Bliss object (list)
 \describe{
-  \item{alpha}{a list}
-  \item{beta_posterior_density}{a list containing grid_t, grid_beta_t, density and new_beta_sample}
-  \item{beta_sample}{a list of beta sample}
-  \item{Bliss_estimate}{a list of bliss estimate}
-  \item{chains_info}{a list of information of computed chains}
-  \item{param}{a list of the parameters used in the method}
-  \item{data}{a list of the used data}
-  \item{posterior_sample}{a list posterior_sample}
-  \item{support_estimate}{a list support_estimate}
-  \item{trace_sann}{a list of trace_sann if simulated annealing algo was used}
+  \item{alpha}{a list of Q numerical vector. Each vector is the function
+       alpha(t) associated to a functional covariate. For each t, alpha(t)
+       is the posterior probabilities of the event "the support covers t".}
+  \item{beta_posterior_density}{a list of Q items. Each item contains a list
+       containing information to plot the posterior density of the
+       coefficient function with the \code{image} function.
+       \describe{
+       \item{\code{grid_t}}{a numerical vector: the x-axis.}
+       \item{\code{grid_beta_t}}{a numerical vector: the y-axis.}
+       \item{\code{density}}{a matrix: the z values.}
+       \item{\code{new_beta_sample}}{a matrix: beta sample used to compute
+             the posterior densities.}
+       }}
+  \item{beta_sample}{a list of Q matrices. The qth matrix is a posterior
+       sample of the qth functional covariates.}
+  \item{Bliss_estimate}{a list of numerical vectors corresponding to the
+       Bliss estimates of each functional covariates.}
+  \item{chains_info}{a list containing:
+  \describe{a list containing (for each chain): a mu estimate, a sigma_sq estimate,
+  the Smooth estimate of the coefficient function and the autocorrelation of the
+  Markov Chain.}}
+  \item{data}{see the description of the object \code{data1}.}
+  \item{posterior_sample}{a list containing (for each chain) the result of the
+  \code{Bliss_Gibbs_Sampler} function.
+  }
+  \item{Smooth_estimate}{a list containing the Smooth estimates of the
+  coefficient functions.}
+  \item{support_estimate}{a list containing the estimations of the support.}
+  \item{support_estimate_fct}{a list containing the estimation of the support.}
+  \item{trace_sann}{a list containing (for each chain) the trace of the
+  Simulated Annealing algorithm.}
 }}
 \usage{
 res_bliss1

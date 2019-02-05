@@ -6,11 +6,11 @@
 \title{a list of data}
 \format{a list of data
 \describe{
-  \item{Q}{the number of functional covariate}
+  \item{Q}{the number of functional covariates}
   \item{y}{y coordinate}
   \item{x}{x coordinate}
-  \item{betas}{}
-  \item{grids}{The grid of the time observations}
+  \item{betas}{the coefficient function used to generate the data}
+  \item{grids}{the grid of the observation times}
 }}
 \usage{
 data1

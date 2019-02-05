@@ -57,7 +57,7 @@ computed with a Simulated Annealing Algorithm. (optional)}
 \item{verbose}{write stuff if TRUE (optional).}
 }
 \value{
-return a list containing :
+return a list containing:
 \describe{
  \item{alpha}{a list of Q numerical vector. Each vector is the function
        alpha(t) associated to a functional covariate. For each t, alpha(t)
@@ -69,7 +69,7 @@ return a list containing :
        \item{\code{grid_t}}{a numerical vector: the x-axis.}
        \item{\code{grid_beta_t}}{a numerical vector: the y-axis.}
        \item{\code{density}}{a matrix: the z values.}
-       \item{\code{bew_beta_sample}}{a matrix: beta sample used to compute
+       \item{\code{new_beta_sample}}{a matrix: beta sample used to compute
              the posterior densities.}
        }}
  \item{beta_sample}{a list of Q matrices. The qth matrix is a posterior
@@ -78,7 +78,10 @@ return a list containing :
        Bliss estimates of each functional covariates.}
  \item{chains}{a list of \code{posterior_sample}. \code{chains} is \code{NULL} if
        \code{n_chains}=1.}
- \item{chains_info}{a list. XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
+ \item{chains_info}{a list containing:
+ \describe{a list for each chain providing: a mu estimate, a sigma_sq estimate,
+ the Smooth estimate of the coefficient function and the autocorrelation of the
+ Markov Chain.}}
  \item{data}{a list containing the data.}
  \item{posterior_sample}{a list of information about the posterior sample:
        the trace matrix of the Gibbs sampler, a list of Gibbs sampler parameters
