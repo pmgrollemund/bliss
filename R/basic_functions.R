@@ -513,7 +513,7 @@ pdexp <- function(a,l_values){
 #' x <- seq(0,1,le=1e2)
 #' integrate_trapeze(x,x^2)
 #'
-#' integrate_trapeze(data1$grids[[1]][1:25],data1$y)
+#' integrate_trapeze(data1$grids[[1]],t(data1$x[[1]]))
 integrate_trapeze <- function(x,y){
   apply(as.matrix(y),2,function(vect)
     sum(diff(x)*(vect[-1]+vect[-length(vect)]))/2)
