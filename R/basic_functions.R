@@ -134,6 +134,7 @@ compute_beta_sample <- function(posterior_sample,param,Q,verbose=FALSE){
 #' @importFrom MASS bandwidth.nrd kde2d
 #' @export
 #' @examples
+#' \donttest{
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
@@ -153,6 +154,7 @@ compute_beta_sample <- function(posterior_sample,param,Q,verbose=FALSE){
 #' image(density_estimate$grid_t,
 #'       density_estimate$grid_beta_t,
 #'       density_estimate$density,col=rev(heat.colors(100)))
+#' }
 compute_beta_posterior_density <- function(beta_sample,param,verbose=FALSE){
   if(verbose)
     cat("Compute an approximation of the posterior density of the coefficient function.\n")

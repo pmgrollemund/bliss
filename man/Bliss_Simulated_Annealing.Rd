@@ -53,6 +53,7 @@ a list containing:
 A Simulated Annealing algorithm to compute the Bliss estimate.
 }
 \examples{
+\donttest{
 data(data1)
 data(param1)
 param1$grids<-data1$grids
@@ -67,4 +68,5 @@ test<-Bliss_Simulated_Annealing(beta_sample[[1]],
 ylim <- range(range(test$Bliss_estimate),range(test$Smooth_estimate))
 plot(param_test$grid,test$Bliss_estimate,type="l",ylim=ylim)
 lines(param_test$grid,test$Smooth_estimate,lty=2)
+}
 }

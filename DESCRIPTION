@@ -1,14 +1,14 @@
 Package: bliss
-Title: Bayesian functional Linear regression with Sparse Step functions (BLiSS)
+Title: Bayesian Functional Linear Regression with Sparse Step Functions (BLiSS)
 Version: 1.0.0
 Authors@R: c(
-  person("Paul-Marie", "Grollemund", email = "paul-marie.grollemund@umontpellier.fr", role = c("aut", "cre")),
+  person("Paul-Marie", "Grollemund", email = "paul.marie.grollemund@gmail.com", role = c("aut", "cre")),
   person("Isabelle", "Sanchez", email = "isabelle.sanchez@inra.fr", role = c("ctr")),
-  person("Meïli", "Baragatti", email = "meili.baragatti@supagro.fr", role = c("ctr")))
+  person("Meili", "Baragatti", email = "meili.baragatti@supagro.fr", role = c("ctr")))
 Author: Paul-Marie Grollemund [aut, cre],
   Isabelle Sanchez [ctr]
-  Meïli Baragatti [ctr]
-Maintainer: Paul-Marie Grollemund <paul-marie.grollemund@umontpellier.fr>
+  Meili Baragatti [ctr]
+Maintainer: Paul-Marie Grollemund <paul.marie.grollemund@gmail.com>
 Description: A method for the Bayesian Functional Linear Regression model (scalar-on-function),
   including two estimators of the coefficient function and an estimator of its support.
   A representation of the posterior distribution is also available.
@@ -18,7 +18,7 @@ LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
 LazyData: TRUE
 Imports: Rcpp, RcppArmadillo, MASS, RColorBrewer, ggplot2, rockchalk
-Suggests: rmarkdown,
-    knitr
+Suggests: rmarkdown, knitr
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
+SystemRequirements: GNU make
