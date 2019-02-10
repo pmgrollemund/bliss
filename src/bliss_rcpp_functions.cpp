@@ -505,7 +505,7 @@ void update_lqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
     probs(i) = aux2(i) * exp( - aux(i) ) * phi_l_q(i);
   }
   // Simulate a lk
-  m_q(k) = sample_weight(probs) + 1 ;
+  l_q(k) = sample_weight(probs) + 1 ;
 }
 
 // update the parameter sigma_sq
@@ -583,7 +583,7 @@ void update_x_tilde (int Q, arma::vec & K, List & potential_intervals,
 List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
                               int iter, arma::vec & K, CharacterVector & basis,
                               double g, double lambda ,arma::mat & V_tilde,
-                              List & l_values, arma::vec & l_values_length,List & probs_l,
+                              arma::vec & l_values_length,List & probs_l,
                               bool progress, double tol) {
   if(progress) Rcpp::Rcout << "Gibbs Sampler: " <<  std::endl;
   if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;

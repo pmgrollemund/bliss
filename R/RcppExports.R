@@ -65,8 +65,8 @@ loss_cpp <- function(d, grid, posterior_expe) {
     .Call(`_bliss_loss_cpp`, d, grid, posterior_expe)
 }
 
-Bliss_Gibbs_Sampler_cpp <- function(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values, l_values_length, probs_l, progress, tol) {
-    .Call(`_bliss_Bliss_Gibbs_Sampler_cpp`, Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values, l_values_length, probs_l, progress, tol)
+Bliss_Gibbs_Sampler_cpp <- function(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol) {
+    .Call(`_bliss_Bliss_Gibbs_Sampler_cpp`, Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol)
 }
 
 Bliss_Simulated_Annealing_cpp <- function(iter, beta_sample, grid, burnin, Temp, k_max, p_l, dm, dl, p, basis, normalization_values, progress, starting_point) {

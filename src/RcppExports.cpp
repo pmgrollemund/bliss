@@ -252,8 +252,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Bliss_Gibbs_Sampler_cpp
-List Bliss_Gibbs_Sampler_cpp(int Q, arma::vec& y, List& x, List& grids, int iter, arma::vec& K, CharacterVector& basis, double g, double lambda, arma::mat& V_tilde, List& l_values, arma::vec& l_values_length, List& probs_l, bool progress, double tol);
-RcppExport SEXP _bliss_Bliss_Gibbs_Sampler_cpp(SEXP QSEXP, SEXP ySEXP, SEXP xSEXP, SEXP gridsSEXP, SEXP iterSEXP, SEXP KSEXP, SEXP basisSEXP, SEXP gSEXP, SEXP lambdaSEXP, SEXP V_tildeSEXP, SEXP l_valuesSEXP, SEXP l_values_lengthSEXP, SEXP probs_lSEXP, SEXP progressSEXP, SEXP tolSEXP) {
+List Bliss_Gibbs_Sampler_cpp(int Q, arma::vec& y, List& x, List& grids, int iter, arma::vec& K, CharacterVector& basis, double g, double lambda, arma::mat& V_tilde, arma::vec& l_values_length, List& probs_l, bool progress, double tol);
+RcppExport SEXP _bliss_Bliss_Gibbs_Sampler_cpp(SEXP QSEXP, SEXP ySEXP, SEXP xSEXP, SEXP gridsSEXP, SEXP iterSEXP, SEXP KSEXP, SEXP basisSEXP, SEXP gSEXP, SEXP lambdaSEXP, SEXP V_tildeSEXP, SEXP l_values_lengthSEXP, SEXP probs_lSEXP, SEXP progressSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -267,12 +267,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type g(gSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type V_tilde(V_tildeSEXP);
-    Rcpp::traits::input_parameter< List& >::type l_values(l_valuesSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type l_values_length(l_values_lengthSEXP);
     Rcpp::traits::input_parameter< List& >::type probs_l(probs_lSEXP);
     Rcpp::traits::input_parameter< bool >::type progress(progressSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(Bliss_Gibbs_Sampler_cpp(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values, l_values_length, probs_l, progress, tol));
+    rcpp_result_gen = Rcpp::wrap(Bliss_Gibbs_Sampler_cpp(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -336,7 +335,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bliss_update_lqk", (DL_FUNC) &_bliss_update_lqk, 18},
     {"_bliss_update_b_tilde", (DL_FUNC) &_bliss_update_b_tilde, 6},
     {"_bliss_loss_cpp", (DL_FUNC) &_bliss_loss_cpp, 3},
-    {"_bliss_Bliss_Gibbs_Sampler_cpp", (DL_FUNC) &_bliss_Bliss_Gibbs_Sampler_cpp, 15},
+    {"_bliss_Bliss_Gibbs_Sampler_cpp", (DL_FUNC) &_bliss_Bliss_Gibbs_Sampler_cpp, 14},
     {"_bliss_Bliss_Simulated_Annealing_cpp", (DL_FUNC) &_bliss_Bliss_Simulated_Annealing_cpp, 14},
     {"_bliss_dposterior_cpp", (DL_FUNC) &_bliss_dposterior_cpp, 8},
     {NULL, NULL, 0}

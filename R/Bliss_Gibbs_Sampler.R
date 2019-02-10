@@ -101,7 +101,7 @@ Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE){
   # Perfome the Gibbs Sampler and return the result.
   res <- Bliss_Gibbs_Sampler_cpp(Q,y,x,grids,
                                  iter,K,basis,
-                                 g,lambda,V_tilde, l_values,l_values_length,Probs_l,
+                                 g,lambda,V_tilde, l_values_length,Probs_l,
                                  verbose_cpp,tol=sqrt(.Machine$double.eps))
 
   trace_names <- NULL
