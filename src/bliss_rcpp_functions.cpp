@@ -24,15 +24,15 @@ using namespace arma;
 // [[Rcpp::export]]
 arma::mat ginv_cpp (arma::mat & x, double tol){
   int p;
-  mat u;
-  vec s;
-  mat v;
+  arma::mat u;
+  arma::vec s;
+  arma::mat v;
 
   svd(u,s,v,x);
   p = s.size();
 
   tol   = tol * s(0);
-  mat S = zeros<mat>(p,p);
+  arma::mat S = arma::zeros<arma::mat>(p,p);
 
   for( unsigned i=0 ; i<p; ++i){
     if( s(i) > tol ) S(i,i) = 1/s(i);
@@ -51,7 +51,7 @@ int sample_cpp (int n){
 
 // Vector sample in 0:n-1.
 arma::vec sample_cpp (int nbre, int n){
- vec res = zeros<vec>(nbre);
+  arma::vec res = arma::zeros<arma::vec>(nbre);
  for (unsigned i = 0 ; i < nbre ; ++i) {
   res(i) = sample_cpp(n);
  }
@@ -60,8 +60,8 @@ arma::vec sample_cpp (int nbre, int n){
 
 // Weighted sample in 0:n-1.
 int sample_weight (arma::vec proba){
-  if(sum(proba) == 0)   proba = ones<vec>(proba.n_rows) ;
-  vec proba_cum = cumsum(proba)/sum(proba) ;
+  if(sum(proba) == 0)   proba = ones<arma::vec>(proba.n_rows) ;
+  arma::vec proba_cum = cumsum(proba)/sum(proba) ;
 
   int ret = 0;
   double u = R::runif(0,1);
@@ -73,7 +73,7 @@ int sample_weight (arma::vec proba){
 
 // Vector weighted sample in 0:n-1.
 arma::vec sample_weight (int n, arma::vec proba){
- vec res = zeros<vec>(n);
+  arma::vec res = arma::zeros<arma::vec>(n);
  for (unsigned i = 0 ; i < n ; ++i) {
   res(i) = sample_weight(proba);
  }
@@ -95,7 +95,7 @@ arma::mat mat_drop_col_k(arma::mat matrix, int k){
 // Function seq
 arma::vec sequence(int a,int b,double by){
   int range = floor((b-a)/by + 1) ;
-  vec res = zeros<vec>(range);
+  arma::vec res = arma::zeros<arma::vec>(range);
   for(int i=0 ; i<range ; i++){
     res(i) = a + i*by;
   }
@@ -113,7 +113,7 @@ double cube_extract(NumericVector & cube, int x , int y, int z, arma::vec & dims
 // [[Rcpp::export]]
 arma::vec mvrnormArma(arma::vec mu, arma::mat VarCovar, double sigma_sq) {
   int ncols = VarCovar.n_cols;
-  vec y = randn<vec>(ncols);
+  arma::vec y = arma::randn<arma::vec>(ncols);
   VarCovar = chol(VarCovar); // xxxxxxxxxxxx
 
   return  mu + sqrt(sigma_sq) * trans(trans(y) * VarCovar);
@@ -122,14 +122,14 @@ arma::vec mvrnormArma(arma::vec mu, arma::mat VarCovar, double sigma_sq) {
 // Compute a trapezoidal approximation of area under curve.
 // [[Rcpp::export]]
 double integrate_trapeze_cpp (arma::vec & x, arma::vec & y){
- vec diff_x = vec_drop_k(x,0) - vec_drop_k(x,x.size()-1);
- vec cumu_y = vec_drop_k(y,0) + vec_drop_k(y,y.size()-1);
+  arma::vec diff_x = vec_drop_k(x,0) - vec_drop_k(x,x.size()-1);
+  arma::vec cumu_y = vec_drop_k(y,0) + vec_drop_k(y,y.size()-1);
   return sum( diff_x % cumu_y  )/2 ;
 }
 
 //  Compute the norm of a vector.
 double L2_norm(arma::vec & x,arma::vec & y){
-  vec tmp = zeros<vec>(x.size());
+  arma::vec tmp = arma::zeros<arma::vec>(x.size());
   for(int i=0 ; i<tmp.size() ; ++i){
     tmp(i) = pow( y(i),2 );
   }
@@ -143,8 +143,8 @@ double L2_norm(arma::vec & x,arma::vec & y){
 // [[Rcpp::export]]
 arma::vec uniform_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
-  vec res = zeros<vec>(p);
-  vec index = sequence(m-l,m+l,1);
+  arma::vec res = arma::zeros<arma::vec>(p);
+  arma::vec index = sequence(m-l,m+l,1);
   int tmp;
   for(int i=0 ; i<index.size() ; ++i){
     tmp = index(i);
@@ -161,7 +161,7 @@ arma::vec uniform_cpp (int m, int l, arma::vec & grid){
 // [[Rcpp::export]]
 arma::vec triangular_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
-  vec res = zeros<vec>(p);
+  arma::vec res = arma::zeros<arma::vec>(p);
   int tmp;
   double l_double = l;
   double tmp2;
@@ -185,7 +185,7 @@ arma::vec triangular_cpp (int m, int l, arma::vec & grid){
 // [[Rcpp::export]]
 arma::vec gaussian_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
-  vec res = zeros<vec>(p);
+  arma::vec res = arma::zeros<arma::vec>(p);
   int tmp;
   double l_double = l;
   double tmp2;
@@ -209,7 +209,7 @@ arma::vec gaussian_cpp (int m, int l, arma::vec & grid){
 // [[Rcpp::export]]
 arma::vec Epanechnikov_cpp (int m, int l, arma::vec & grid){
   int p = grid.size();
-  vec res = zeros<vec>(p);
+  arma::vec res = arma::zeros<arma::vec>(p);
   int tmp;
   double l_double = l;
   double tmp2;
@@ -234,7 +234,7 @@ arma::vec Epanechnikov_cpp (int m, int l, arma::vec & grid){
 arma::vec compute_beta_cpp (arma::vec & b, arma::vec & m, arma::vec & l,
                             arma::vec & grid, int p, int K, std::string basis,
                             arma::mat & normalization_values ){
-  vec res = zeros<vec>(p) ;
+  arma::vec res = arma::zeros<arma::vec>(p) ;
 
   if(basis == "Uniform"){
     for(int i=0 ; i<K ; ++i){
@@ -268,11 +268,11 @@ arma::vec compute_beta_cpp (arma::vec & b, arma::vec & m, arma::vec & l,
 arma::mat compute_beta_sample_cpp (arma::mat & posterior_sample,
                                    int K, arma::vec & grid, int p, std::string & basis,
                                    arma::mat & normalization_values){
- mat res = zeros<mat>(posterior_sample.n_rows,p) ;
- vec b   ;
- vec m   ;
- vec l   ;
- vec tmp ;
+  arma::mat res = zeros<mat>(posterior_sample.n_rows,p) ;
+  arma::vec b   ;
+  arma::vec m   ;
+  arma::vec l   ;
+  arma::vec tmp ;
 
  for(int i=0 ; i<res.n_rows ; ++i){
   tmp = trans(posterior_sample.row(i))     ;
@@ -289,19 +289,19 @@ arma::mat compute_beta_sample_cpp (arma::mat & posterior_sample,
 // [[Rcpp::export]]
 arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & p_l_vec,
                                     CharacterVector & basis_vec, int q){
-  mat x = as<mat>(x_list[q]);
-  vec grid = as<vec>(grids[q]);
+  arma::mat x = as<mat>(x_list[q]);
+  arma::vec grid = as<arma::vec>(grids[q]);
   int p_l = p_l_vec(q);
   std::string basis = as<std::string>(basis_vec(q));
 
   int n = x.n_rows ;
   int p = x.n_cols ;
-  vec tub;
+  arma::vec tub;
 
   arma::cube res(p,p_l,n+1);
-  vec tmp;
-  vec x_tmp;
-  vec tmp2;
+  arma::vec tmp;
+  arma::vec x_tmp;
+  arma::vec tmp2;
   if(basis == "Uniform"){
     for(int i=0 ; i<p ; ++i){
       for(int j=0 ; j<p_l ; ++j){
@@ -373,7 +373,7 @@ arma::cube potential_intervals_List(List & x_list, List & grids,arma::vec & p_l_
 // [[Rcpp::export]]
 arma::vec moving_average_cpp (arma::vec & v, int range){
   int n = v.size();
-  vec res = zeros<vec>(n) ;
+  arma::vec res = arma::zeros<arma::vec>(n) ;
   int b_inf;
   int b_sup;
 
@@ -394,13 +394,13 @@ arma::vec moving_average_cpp (arma::vec & v, int range){
 // (for Q functional covaribles)
 arma::mat compute_W_inv_List (int Q, arma::vec & K, double g, arma::mat & x_tilde,
                               int sum_K, arma::mat & lambda_id0){
- mat W_inv = zeros<mat>(sum_K+1,sum_K+1);
- mat lambda_id = lambda_id0 ;
+  arma::mat W_inv = arma::zeros<arma::mat>(sum_K+1,sum_K+1);
+  arma::mat lambda_id = lambda_id0 ;
 
- mat x_tilde_temp = mat_drop_col_k(x_tilde,0);
- mat u;
- vec s;
- mat v;
+  arma::mat x_tilde_temp = mat_drop_col_k(x_tilde,0);
+  arma::mat u;
+  arma::vec s;
+  arma::mat v;
  svd(u,s,v,x_tilde_temp);
 
  W_inv(0,0) = 1/lambda_id(0,0);
@@ -424,7 +424,7 @@ arma::mat compute_W_inv_List (int Q, arma::vec & K, double g, arma::mat & x_tild
 // [[Rcpp::export]]
 arma::vec potential_intervals_extract (NumericVector & potential_intervals, int mk ,
                                        int lk, arma::vec & dims) {
-  vec res = zeros<vec>(dims(2));
+  arma::vec res = arma::zeros<arma::vec>(dims(2));
   for (int i = 0; i < dims(2); i++) {
     res(i) = cube_extract(potential_intervals, mk - 1, lk - 1, i, dims);
   }
@@ -438,13 +438,13 @@ void update_mqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
                  NumericVector & potential_intervals_q, arma::vec & potential_intervals_dims_q,
                  arma::vec & m_possible_q, int p_q, int Q,
                  arma::vec K, double g, int sum_K, arma::mat & lambda_id0) {
-  vec aux = zeros<vec>(p_q);
-  vec aux2 = zeros<vec>(p_q);
-  mat W_inv_temp;
+  arma::vec aux = arma::zeros<arma::vec>(p_q);
+  arma::vec aux2 = arma::zeros<arma::vec>(p_q);
+  arma::mat W_inv_temp;
 
   // Compute the probabilities
-  vec probs = ones<vec>(p_q);
-  vec x_tilde_qki = zeros<vec>(potential_intervals_dims_q(2)) ;
+  arma::vec probs = arma::ones<arma::vec>(p_q);
+  arma::vec x_tilde_qki = arma::zeros<arma::vec>(potential_intervals_dims_q(2)) ;
   for(int  i=0 ; i<p_q ; ++i){
     x_tilde_qki = potential_intervals_extract(potential_intervals_q,m_possible_q(i),
                                         l_q(k),potential_intervals_dims_q);
@@ -476,13 +476,13 @@ void update_lqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
                  NumericVector & potential_intervals_q, arma::vec & potential_intervals_dims_q,
                  arma::vec & l_possible_q, arma::vec & phi_l_q, int l_values_length_q,
                  int Q, arma::vec K, double g, int sum_K, arma::mat & lambda_id0) {
-  vec aux = zeros<vec>(l_values_length_q);
-  vec aux2 = zeros<vec>(l_values_length_q);
-  mat W_inv_temp;
+  arma::vec aux = arma::zeros<arma::vec>(l_values_length_q);
+  arma::vec aux2 = arma::zeros<arma::vec>(l_values_length_q);
+  arma::mat W_inv_temp;
 
   // Compute the probabilities
-  vec probs = ones<vec>(l_values_length_q);
-  vec x_tilde_qki = zeros<vec>(potential_intervals_dims_q(2)) ;
+  arma::vec probs = arma::ones<arma::vec>(l_values_length_q);
+  arma::vec x_tilde_qki = arma::zeros<arma::vec>(potential_intervals_dims_q(2)) ;
   for(int  i=0 ; i<l_values_length_q ; ++i){
     x_tilde_qki = potential_intervals_extract(potential_intervals_q,m_q(k),
                                         l_possible_q(i),
@@ -511,7 +511,7 @@ void update_lqk (int count, int k, arma::vec & y, arma::vec & b_tilde, double si
 // update the parameter sigma_sq
 void update_sigma_sq (arma::vec & y, arma::vec & b_tilde, arma::mat & W_inv,
                       arma::mat & x_tilde, int n, int sum_K, double & sigma_sq) {
-  vec y_tmp     = y - x_tilde * b_tilde ;
+  arma::vec y_tmp= y - x_tilde * b_tilde ;
   double y_tmp2 = dot(y_tmp,y_tmp) ;
   double b_tilde_tmp = dot(b_tilde, W_inv * b_tilde) ;
 
@@ -526,7 +526,7 @@ void update_sigma_sq (arma::vec & y, arma::vec & b_tilde, arma::mat & W_inv,
 void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
                           arma::mat & Sigma_b_tilde_inv, double tol,
                           arma::vec & b_tilde) {
-  vec mu_b_tilde = trans(x_tilde) * y;
+  arma::vec mu_b_tilde = trans(x_tilde) * y;
   b_tilde = mvrnormArma( ginv_cpp(Sigma_b_tilde_inv,tol) * mu_b_tilde ,
                          ginv_cpp(Sigma_b_tilde_inv,tol), sigma_sq);
 }
@@ -534,7 +534,7 @@ void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
 // Compute the loss function for a proposal d
 // [[Rcpp::export]]
 double loss_cpp (arma::vec & d, arma::vec & grid, arma::vec & posterior_expe){
-  vec tmp  = d-posterior_expe ;
+  arma::vec tmp  = d-posterior_expe ;
 
   return pow(L2_norm(grid, tmp),2 );
 }
@@ -552,8 +552,8 @@ void update_x_tilde (int Q, arma::vec & K, List & potential_intervals,
   int count = 0;
   for( unsigned q=0 ; q<Q ; ++q){
     for(unsigned k=0 ; k<K(q) ; ++k) {
-      vec m_temp = m[q] ;
-      vec l_temp = l[q] ;
+      arma::vec m_temp = m[q] ;
+      arma::vec l_temp = l[q] ;
       NumericVector potential_intervals_temp = potential_intervals[q];
       vec potential_intervals_dims_temp = potential_intervals_dims[q];
 
@@ -591,7 +591,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   // Compute the value of n and the p's
   int n = as<mat>(x[0]).n_rows ;
 
-  vec p = zeros<vec>(Q)        ;
+  arma::vec p = arma::zeros<arma::vec>(Q)        ;
   for(int i=0 ; i<Q ; ++i){
     p(i) = as<mat>(x[i]).n_cols;
   }
@@ -607,7 +607,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     temp = temp.subcube(0,0,0,p(q)-1,l_values_length(q)-1,n-1);
     potential_intervals[q] = temp;
 
-    vec temp2 = zeros<vec>(3);
+    arma::vec temp2 = arma::zeros<arma::vec>(3);
     temp2(0) = p(q)    ;
     temp2(1) = l_values_length(q) ;
     temp2(2) = n    ;
@@ -616,7 +616,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
 
   // Compute the matrix of lambda for the Ridge penalty of the Rigde Zellner prior
   int sum_K = sum(K);
-  mat lambda_id0  = zeros<mat>(sum_K+1,sum_K+1) ;
+  arma::mat lambda_id0  = arma::zeros<arma::mat>(sum_K+1,sum_K+1) ;
   lambda_id0(0,0) = 100*var(y);                   // Weakly informative prior
   for( unsigned i=1 ; i<sum_K+1; ++i){
     lambda_id0(i,i) = lambda ;
@@ -626,17 +626,17 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   // Determine the start point
   if(progress) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
   double sigma_sq       ;
-  vec b_tilde           ;
-  mat Sigma_b_tilde_inv ;
-  mat W_inv             ;
+  arma::vec b_tilde           ;
+  arma::mat Sigma_b_tilde_inv ;
+  arma::mat W_inv             ;
 
   bool success = false ;
-  mat R                ;
-  mat test             ;
+  arma::mat R                ;
+  arma::mat test             ;
 
   List m(Q) ;
   List l(Q) ;
-  mat x_tilde = ones<mat>(n,sum_K+1) ;
+  arma::mat x_tilde = arma::ones<arma::mat>(n,sum_K+1) ;
 
   // Try to determine a starting point which not leads to a non-invertible
   // matrix problem
@@ -646,7 +646,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
 
     // Initialization of the middle and length of the intervals
     for( unsigned q=0 ; q<Q ; ++q){
-      vec probs_l_temp = probs_l[q];
+      arma::vec probs_l_temp = probs_l[q];
       m[q] = sample_cpp(K(q),p(q)) + 1 ;
       l[q] = sample_weight(K(q),probs_l_temp) + 1 ;
     }
@@ -655,10 +655,10 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     int count = 0;
     for( unsigned q=0 ; q<Q ; ++q){
       for(unsigned k=0 ; k<K(q) ; ++k) {
-        vec m_temp = m[q] ;
-        vec l_temp = l[q] ;
+        arma::vec m_temp = m[q] ;
+        arma::vec l_temp = l[q] ;
         NumericVector potential_intervals_temp = potential_intervals[q];
-        vec potential_intervals_dims_temp = potential_intervals_dims[q];
+        arma::vec potential_intervals_dims_temp = potential_intervals_dims[q];
         x_tilde.col(k+1+count) = potential_intervals_extract(potential_intervals_temp,
                     m_temp(k),l_temp(k),potential_intervals_dims_temp);
       }
@@ -682,8 +682,8 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   mat trace = zeros<mat>(iter+1,3*sum_K+2);
   int count = 0;
   for( unsigned q=0 ; q<Q ; ++q){
-    vec m_temp = m[q] ;
-    vec l_temp = l[q] ;
+    arma::vec m_temp = m[q] ;
+    arma::vec l_temp = l[q] ;
     trace.row(0).subvec( 3*count        , 3*count+  K(q)-1) =
       trans(b_tilde.subvec( 1+count , K(q)+count )) ;
     trace.row(0).subvec( 3*count+  K(q) , 3*count+2*K(q)-1)   = trans(m_temp) ;
@@ -718,12 +718,12 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     // count is used to browse some vec/mat when p(q) is not constant wrt q.
     for( unsigned q=0 ; q<Q ; ++q ){
       // Compute some quantities which do not vary with k
-      vec m_q = m[q];
-      vec l_q = l[q];
+      arma::vec m_q = m[q];
+      arma::vec l_q = l[q];
       int p_q = p(q);
       NumericVector potential_intervals_q = potential_intervals[q];
-      vec potential_intervals_dims_q      = potential_intervals_dims[q];
-      vec m_possible_q = sequence(1,p_q,1) ;
+      arma::vec potential_intervals_dims_q      = potential_intervals_dims[q];
+      arma::vec m_possible_q = sequence(1,p_q,1) ;
 
       for(int k=0 ; k<K(q) ; ++k){
         // update m_k
@@ -747,13 +747,13 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     // count is used to browse some vec/mat when p(q) is not constant wrt q.
     for( unsigned q=0 ; q<Q ; ++q ){
       // Compute some quantities which do not vary with k
-      vec m_q = m[q];
-      vec l_q = l[q];
+      arma::vec m_q = m[q];
+      arma::vec l_q = l[q];
       int l_values_length_q = l_values_length(q);
       NumericVector potential_intervals_q = potential_intervals[q];
-      vec potential_intervals_dims_q      = potential_intervals_dims[q];
-      vec l_possible_q = sequence(1,l_values_length_q,1) ;
-      vec probs_l_q         = probs_l[q];
+      arma::vec potential_intervals_dims_q      = potential_intervals_dims[q];
+      arma::vec l_possible_q = sequence(1,l_values_length_q,1) ;
+      arma::vec probs_l_q         = probs_l[q];
 
       for(int k=0 ; k<K(q) ; ++k){
         // update l_k
@@ -791,8 +791,8 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
       // update the matrix trace
       count = 0;
       for( unsigned q=0 ; q<Q ; ++q){
-        vec m_temp = m[q] ;
-        vec l_temp = l[q] ;
+        arma::vec m_temp = m[q] ;
+        arma::vec l_temp = l[q] ;
         trace.row(i).subvec( 3*count        , 3*count+  K(q)-1) =
           trans(b_tilde.subvec( 1+count , K(q)+count )) ;
         trace.row(i).subvec( 3*count+  K(q) , 3*count+2*K(q)-1) = trans(m_temp);
@@ -853,31 +853,31 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
   posterior_expe(i) = mean(beta_sample.col(i));
  }
 
- vec probs;
+ arma::vec probs;
  int k;
- vec m;
- vec l;
- vec b;
- vec d;
+ arma::vec m;
+ arma::vec l;
+ arma::vec b;
+ arma::vec d;
  double d_loss;
  int value_min;
  int value_max;
- vec difference;
- vec difference_l;
+ arma::vec difference;
+ arma::vec difference_l;
 
- vec d_tmp;
+ arma::vec d_tmp;
  double d_loss_tmp;
  double proba_acceptance;
  double u;
  int j;
  double Temperature;
- vec b_tmp;
- vec m_tmp;
- vec l_tmp;
+ arma::vec b_tmp;
+ arma::vec m_tmp;
+ arma::vec l_tmp;
  int k_tmp;
  int accepted;
- vec choice_prob_interval;
- vec choice_prob;
+ arma::vec choice_prob_interval;
+ arma::vec choice_prob;
  int choice;
  double mean_b;
  double var_b;
@@ -886,10 +886,10 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
  double new_b;
  unsigned smooth_param = 1;
  if(smooth_param == 0) smooth_param = 1;
- vec tmp_basis;
+ arma::vec tmp_basis;
 
  // Initialize the matrix trace
- mat trace = zeros<mat>(iter+1,3*k_max+4);
+ arma::mat trace = arma::zeros<arma::mat>(iter+1,3*k_max+4);
  Temp = pow(L2_norm(grid, posterior_expe),2 )*(floor(iter)/1000);
  difference = abs(posterior_expe);
  difference = moving_average_cpp(difference,smooth_param);
@@ -1115,16 +1115,16 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
                           List & potential_intervals_dims, arma::vec & p_l,
                           unsigned Q){
   int      sum_K = sum(K)       ;
-  mat      res = zeros<mat>(N,6);
+  arma::mat      res = zeros<mat>(N,6);
   unsigned n   = y.size()       ;
   double   RSS = 0              ;
 
-  vec    b_tilde = zeros<vec>(sum_K+1) ;
+  arma::vec    b_tilde = zeros<vec>(sum_K+1) ;
   double sigma_sq ;
-  vec    m = zeros<vec>(sum_K) ;
-  vec    l = zeros<vec>(sum_K) ;
-  vec    m_temp   ;
-  vec    l_temp   ;
+  arma::vec    m = zeros<vec>(sum_K) ;
+  arma::vec    l = zeros<vec>(sum_K) ;
+  arma::vec    m_temp   ;
+  arma::vec    l_temp   ;
 
   double posterior_d     ;
   double log_posterior_d ;
@@ -1136,11 +1136,11 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
   unsigned count         ;
   unsigned count2        ;
 
-  mat W_inv     ;
-  vec a_l = 5*K ; // fixed hyperparameter
+  arma::mat W_inv     ;
+  arma::vec a_l = 5*K ; // fixed hyperparameter
 
-  mat    x_tilde  = ones<mat>(n,sum_K+1) ;
-  mat lambda_id0  = zeros<mat>(sum_K+1,sum_K+1) ;
+  arma::mat    x_tilde  = arma::ones<arma::mat>(n,sum_K+1) ;
+  arma::mat lambda_id0  = arma::zeros<arma::mat>(sum_K+1,sum_K+1) ;
   lambda_id0(0,0) = 100*var(y); // Weakly information prior: should be the same that in the Bliss_Gibbs_Sampler_cpp function
   for( unsigned i=1 ; i<sum_K+1; ++i){
     lambda_id0(i,i) = lambda ;

@@ -39,6 +39,7 @@ The posterior densities correponds to approximations of the marginal
          computational time of the function \code{\link[=kde2d]{kde2d}}.
 }
 \examples{
+\donttest{
 library(RColorBrewer)
 data(data1)
 data(param1)
@@ -58,4 +59,5 @@ density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample[[q]],p
 image(density_estimate$grid_t,
       density_estimate$grid_beta_t,
       density_estimate$density,col=rev(heat.colors(100)))
+}
 }

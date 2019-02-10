@@ -40,6 +40,7 @@
 #' @importFrom stats median
 #' @export
 #' @examples
+#' \donttest{
 #' data(data1)
 #' data(param1)
 #' param1$grids<-data1$grids
@@ -54,6 +55,7 @@
 #' ylim <- range(range(test$Bliss_estimate),range(test$Smooth_estimate))
 #' plot(param_test$grid,test$Bliss_estimate,type="l",ylim=ylim)
 #' lines(param_test$grid,test$Smooth_estimate,lty=2)
+#' }
 Bliss_Simulated_Annealing <- function(beta_sample,normalization_values,param,verbose=FALSE){
   # load optional objects
   grid <- param[["grid"]]
