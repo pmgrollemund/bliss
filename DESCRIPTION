@@ -1,12 +1,12 @@
 Package: bliss
-Title: Bayesian Functional Linear Regression with Sparse Step Functions (BLiSS)
+Title: Bayesian Functional Linear Regression with Sparse Step Functions (bliss)
 Version: 1.0.0
 Authors@R: c(
   person("Paul-Marie", "Grollemund", email = "paul.marie.grollemund@gmail.com", role = c("aut", "cre")),
   person("Isabelle", "Sanchez", email = "isabelle.sanchez@inra.fr", role = c("ctr")),
   person("Meili", "Baragatti", email = "meili.baragatti@supagro.fr", role = c("ctr")))
 Author: Paul-Marie Grollemund [aut, cre],
-  Isabelle Sanchez [ctr]
+  Isabelle Sanchez [ctr],
   Meili Baragatti [ctr]
 Maintainer: Paul-Marie Grollemund <paul.marie.grollemund@gmail.com>
 Description: A method for the Bayesian Functional Linear Regression model (scalar-on-function),

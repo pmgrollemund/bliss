@@ -71,17 +71,17 @@ return a list containing:
        \item{\code{density}}{a matrix: the z values.}
        \item{\code{new_beta_sample}}{a matrix: beta sample used to compute
              the posterior densities.}
-       }}
+       }
+       }
  \item{beta_sample}{a list of Q matrices. The qth matrix is a posterior
        sample of the qth functional covariates.}
  \item{Bliss_estimate}{a list of numerical vectors corresponding to the
        Bliss estimates of each functional covariates.}
  \item{chains}{a list of \code{posterior_sample}. \code{chains} is \code{NULL} if
        \code{n_chains}=1.}
- \item{chains_info}{a list containing:
- \describe{a list for each chain providing: a mu estimate, a sigma_sq estimate,
+ \item{chains_info}{a list for each chain providing: a mu estimate, a sigma_sq estimate,
  the Smooth estimate of the coefficient function and the autocorrelation of the
- Markov Chain.}}
+ Markov Chain.}
  \item{data}{a list containing the data.}
  \item{posterior_sample}{a list of information about the posterior sample:
        the trace matrix of the Gibbs sampler, a list of Gibbs sampler parameters
