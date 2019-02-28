@@ -11,7 +11,7 @@ Author: Paul-Marie Grollemund [aut, cre],
 Maintainer: Paul-Marie Grollemund <paul.marie.grollemund@gmail.com>
 Description: A method for the Bayesian Functional Linear Regression model (scalar-on-function),
   including two estimators of the coefficient function and an estimator of its support.
-  A representation of the posterior distribution is also available.
+  A representation of the posterior distribution is also available. Grollemund et. al. (2019) <doi:10.1214/18-BA1095>.
 License: GPL-3
 Depends: R (>= 3.3.0)
 LinkingTo: Rcpp, RcppArmadillo
