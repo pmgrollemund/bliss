@@ -542,7 +542,8 @@ double loss_cpp (arma::vec & d, arma::vec & grid, arma::vec & posterior_expe){
 
 // Compute the decrease of the Temperature
 double cooling_cpp (int i, double Temp){
-  double res = Temp / log( ( i / 10)*10 + exp(1));
+  double tmp = 1.0;
+  double res = Temp / log( ( i / 10)*10 + exp(tmp));
   return res;
 }
 
