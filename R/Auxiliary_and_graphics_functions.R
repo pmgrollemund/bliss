@@ -409,12 +409,13 @@ compute_chains_info <- function(chain,param){
     indice     <- 1:(n_iter-l)
     indice_lag <- 1:(n_iter-l) + l
 
-    options(warn = -1)
+    # 07/07/2020 IS: replace warnings options (warn=-1) by suppressWarnings()
+    suppressWarnings(
     cor_beta <- max(apply(beta_sample[[1]],2,function(v) {
-      cor(v[indice],
-          v[indice_lag])
-    }),na.rm=T)
-    options(warn = 0)
+                  cor(v[indice],
+                  v[indice_lag])
+                  }),na.rm=T)
+    )
 
     autocorr_lag <- rbind(autocorr_lag,
                                 c(cor(trace[indice,'mu'],

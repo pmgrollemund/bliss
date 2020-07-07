@@ -181,11 +181,9 @@ choose_beta <- function(param){
 #' data$y
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(10)
 #' q=2
-#' par(mfrow=c(2,1))
 #' matplot(data$grids[[q]],t(data$x[[q]]),type="l",lty=1,col=cols)
 #' plot(data$grids[[q]],data$betas[[q]],type="l")
 #' abline(h=0,lty=2,col="gray")
-#' par(mfrow=c(1,1))
 sim <- function(param,verbose=FALSE){
   if(verbose) cat("Simulation of the data.\n")
   # load objects
