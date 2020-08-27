@@ -4,7 +4,8 @@
 \name{param1}
 \alias{param1}
 \title{A list of param for bliss model}
-\format{a list of param for bliss model
+\format{
+a list of param for bliss model
 \describe{
   \item{Q}{the number of functional covariates}
   \item{n}{the sample size}
@@ -13,7 +14,8 @@
   \item{grids_lim}{the range of the observation times}
   \item{grids}{the grids of the observation times}
   \item{K}{the number of intervals for the coefficient function}
-}}
+}
+}
 \usage{
 param1
 }

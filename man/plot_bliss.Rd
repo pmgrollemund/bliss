@@ -4,8 +4,7 @@
 \alias{plot_bliss}
 \title{plot_bliss}
 \usage{
-plot_bliss(x, y, connect = FALSE, xlab = "", ylab = "",
-  ylim = NULL, ...)
+plot_bliss(x, y, connect = FALSE, xlab = "", ylab = "", ylim = NULL, ...)
 }
 \arguments{
 \item{x}{the coordinates of points in the plot.}
