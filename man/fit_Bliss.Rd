@@ -4,7 +4,8 @@
 \alias{fit_Bliss}
 \title{fit_Bliss}
 \usage{
-fit_Bliss(data, param, compute_density = TRUE, sann = TRUE, verbose = FALSE)
+fit_Bliss(data, param, compute_density = TRUE, sann = TRUE,
+  verbose = FALSE)
 }
 \arguments{
 \item{data}{a list containing:

@@ -4,16 +4,14 @@
 \name{data1}
 \alias{data1}
 \title{a list of data}
-\format{
-a list of data
+\format{a list of data
 \describe{
   \item{Q}{the number of functional covariates}
   \item{y}{y coordinate}
   \item{x}{x coordinate}
   \item{betas}{the coefficient function used to generate the data}
   \item{grids}{the grid of the observation times}
-}
-}
+}}
 \usage{
 data1
 }

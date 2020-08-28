@@ -3,6 +3,7 @@
 \docType{package}
 \name{bliss}
 \alias{bliss}
+\alias{bliss-package}
 \title{bliss: Bayesian functional Linear regression with Sparse Step functions}
 \description{
 A method for the Bayesian Functional Linear Regression model (functions-on-scalar),

@@ -4,12 +4,8 @@
 \alias{Bliss_Simulated_Annealing}
 \title{Bliss_Simulated_Annealing}
 \usage{
-Bliss_Simulated_Annealing(
-  beta_sample,
-  normalization_values,
-  param,
-  verbose = FALSE
-)
+Bliss_Simulated_Annealing(beta_sample, normalization_values, param,
+  verbose = FALSE)
 }
 \arguments{
 \item{beta_sample}{a matrix. Each row is a coefficient function computed from the

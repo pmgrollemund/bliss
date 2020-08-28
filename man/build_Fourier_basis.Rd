@@ -25,5 +25,5 @@ Define a Fourier basis to simulate functional covariate observations.
 See the \code{\link[=sim_x]{sim_x}} function.
 }
 \examples{
-# See the function \code{sim_x}.
+# See the function \\code{sim_x}.
 }

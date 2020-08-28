@@ -4,7 +4,8 @@
 \alias{interpretation_plot}
 \title{interpretation_plot}
 \usage{
-interpretation_plot(data, Bliss_estimate, q = 1, centered = FALSE, cols = NULL)
+interpretation_plot(data, Bliss_estimate, q = 1, centered = FALSE,
+  cols = NULL)
 }
 \arguments{
 \item{data}{a list containing:

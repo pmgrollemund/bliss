@@ -73,7 +73,7 @@
       <h1>Introduction to BLiSS method</h1>
                         <h4 class="author">Paul-Marie Grollemund</h4>
             
-            <h4 class="date">2020-08-27</h4>
+            <h4 class="date">2020-08-28</h4>
       
       
       <div class="hidden name"><code>BlissIntro.Rmd</code></div>
@@ -163,42 +163,42 @@
 <a class="sourceLine" id="cb3-31" data-line-number="31">  <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/str">str</a></span>(res_bliss)</a>
 <a class="sourceLine" id="cb3-32" data-line-number="32"><span class="co">#&gt; List of 12</span></a>
 <a class="sourceLine" id="cb3-33" data-line-number="33"><span class="co">#&gt;  $ alpha                 :List of 1</span></a>
-<a class="sourceLine" id="cb3-34" data-line-number="34"><span class="co">#&gt;   ..$ : num [1:50] 0.142 0.176 0.251 0.417 0.705 ...</span></a>
+<a class="sourceLine" id="cb3-34" data-line-number="34"><span class="co">#&gt;   ..$ : num [1:50] 0.03 0.046 0.14 0.383 0.715 ...</span></a>
 <a class="sourceLine" id="cb3-35" data-line-number="35"><span class="co">#&gt;  $ beta_posterior_density:List of 1</span></a>
 <a class="sourceLine" id="cb3-36" data-line-number="36"><span class="co">#&gt;   ..$ :List of 4</span></a>
 <a class="sourceLine" id="cb3-37" data-line-number="37"><span class="co">#&gt;   .. ..$ grid_t         : num [1:512] 0 0.00196 0.00391 0.00587 0.00783 ...</span></a>
-<a class="sourceLine" id="cb3-38" data-line-number="38"><span class="co">#&gt;   .. ..$ grid_beta_t    : num [1:512] -3.38 -3.37 -3.35 -3.34 -3.33 ...</span></a>
-<a class="sourceLine" id="cb3-39" data-line-number="39"><span class="co">#&gt;   .. ..$ density        : num [1:512, 1:512] 2.76e-18 4.21e-18 6.42e-18 9.75e-18 1.48e-17 ...</span></a>
+<a class="sourceLine" id="cb3-38" data-line-number="38"><span class="co">#&gt;   .. ..$ grid_beta_t    : num [1:512] -2.91 -2.89 -2.87 -2.85 -2.83 ...</span></a>
+<a class="sourceLine" id="cb3-39" data-line-number="39"><span class="co">#&gt;   .. ..$ density        : num [1:512, 1:512] 4.43e-17 4.54e-17 4.66e-17 4.76e-17 4.86e-17 ...</span></a>
 <a class="sourceLine" id="cb3-40" data-line-number="40"><span class="co">#&gt;   .. ..$ new_beta_sample: num [1:800, 1:50] 0 0 0 0 0 0 0 0 0 0 ...</span></a>
 <a class="sourceLine" id="cb3-41" data-line-number="41"><span class="co">#&gt;  $ beta_sample           :List of 1</span></a>
-<a class="sourceLine" id="cb3-42" data-line-number="42"><span class="co">#&gt;   ..$ : num [1:1001, 1:50] -1.58 0 0 0 0 ...</span></a>
+<a class="sourceLine" id="cb3-42" data-line-number="42"><span class="co">#&gt;   ..$ : num [1:1001, 1:50] 0 0 0 0 0 ...</span></a>
 <a class="sourceLine" id="cb3-43" data-line-number="43"><span class="co">#&gt;  $ Bliss_estimate        :List of 1</span></a>
-<a class="sourceLine" id="cb3-44" data-line-number="44"><span class="co">#&gt;   ..$ : num [1:50, 1] 0 0 0 0 2.51 ...</span></a>
+<a class="sourceLine" id="cb3-44" data-line-number="44"><span class="co">#&gt;   ..$ : num [1:50, 1] 0 0 0 0 0 ...</span></a>
 <a class="sourceLine" id="cb3-45" data-line-number="45"><span class="co">#&gt;  $ chains                : NULL</span></a>
 <a class="sourceLine" id="cb3-46" data-line-number="46"><span class="co">#&gt;  $ chains_info           :List of 1</span></a>
 <a class="sourceLine" id="cb3-47" data-line-number="47"><span class="co">#&gt;   ..$ :List of 2</span></a>
 <a class="sourceLine" id="cb3-48" data-line-number="48"><span class="co">#&gt;   .. ..$ estimates   :List of 3</span></a>
-<a class="sourceLine" id="cb3-49" data-line-number="49"><span class="co">#&gt;   .. .. ..$ mu_hat         : num 1.05</span></a>
-<a class="sourceLine" id="cb3-50" data-line-number="50"><span class="co">#&gt;   .. .. ..$ sigma_sq_hat   : num 0.483</span></a>
-<a class="sourceLine" id="cb3-51" data-line-number="51"><span class="co">#&gt;   .. .. ..$ Smooth_estimate: num [1:50] 0.358 0.449 0.661 1.142 2.018 ...</span></a>
-<a class="sourceLine" id="cb3-52" data-line-number="52"><span class="co">#&gt;   .. ..$ autocorr_lag: num [1:50, 1:3] -0.0523 0.1839 0.0451 -0.0605 0.0238 ...</span></a>
+<a class="sourceLine" id="cb3-49" data-line-number="49"><span class="co">#&gt;   .. .. ..$ mu_hat         : num 0.974</span></a>
+<a class="sourceLine" id="cb3-50" data-line-number="50"><span class="co">#&gt;   .. .. ..$ sigma_sq_hat   : num 0.362</span></a>
+<a class="sourceLine" id="cb3-51" data-line-number="51"><span class="co">#&gt;   .. .. ..$ Smooth_estimate: num [1:50] 0.0663 0.1076 0.3773 1.1636 2.3866 ...</span></a>
+<a class="sourceLine" id="cb3-52" data-line-number="52"><span class="co">#&gt;   .. ..$ autocorr_lag: num [1:50, 1:3] -0.645 0.1134 -0.0437 0.0945 0.0605 ...</span></a>
 <a class="sourceLine" id="cb3-53" data-line-number="53"><span class="co">#&gt;   .. .. ..- attr(*, "dimnames")=List of 2</span></a>
 <a class="sourceLine" id="cb3-54" data-line-number="54"><span class="co">#&gt;   .. .. .. ..$ : NULL</span></a>
 <a class="sourceLine" id="cb3-55" data-line-number="55"><span class="co">#&gt;   .. .. .. ..$ : chr [1:3] "mu" "sigma_sq" "beta"</span></a>
 <a class="sourceLine" id="cb3-56" data-line-number="56"><span class="co">#&gt;  $ data                  :List of 6</span></a>
 <a class="sourceLine" id="cb3-57" data-line-number="57"><span class="co">#&gt;   ..$ Q     : num 1</span></a>
-<a class="sourceLine" id="cb3-58" data-line-number="58"><span class="co">#&gt;   ..$ y     : num [1:100] 1.533 0.8 1.584 2.689 0.728 ...</span></a>
+<a class="sourceLine" id="cb3-58" data-line-number="58"><span class="co">#&gt;   ..$ y     : num [1:100] 2.104 0.886 0.49 0.757 0.369 ...</span></a>
 <a class="sourceLine" id="cb3-59" data-line-number="59"><span class="co">#&gt;   ..$ x     :List of 1</span></a>
-<a class="sourceLine" id="cb3-60" data-line-number="60"><span class="co">#&gt;   .. ..$ : num [1:100, 1:50] 0.238 -0.361 1.255 0.408 1.049 ...</span></a>
-<a class="sourceLine" id="cb3-61" data-line-number="61"><span class="co">#&gt;   .. .. ..- attr(*, "scaled:center")= num [1:50] 0.871 0.799 0.73 0.667 0.608 ...</span></a>
+<a class="sourceLine" id="cb3-60" data-line-number="60"><span class="co">#&gt;   .. ..$ : num [1:100, 1:50] 1.6845 -1.0309 0.2719 -1.2932 -0.0951 ...</span></a>
+<a class="sourceLine" id="cb3-61" data-line-number="61"><span class="co">#&gt;   .. .. ..- attr(*, "scaled:center")= num [1:50] 0.9 0.841 0.793 0.75 0.718 ...</span></a>
 <a class="sourceLine" id="cb3-62" data-line-number="62"><span class="co">#&gt;   ..$ betas :List of 1</span></a>
 <a class="sourceLine" id="cb3-63" data-line-number="63"><span class="co">#&gt;   .. ..$ : num [1:50] 0 0 0 0 3 3 3 3 3 3 ...</span></a>
 <a class="sourceLine" id="cb3-64" data-line-number="64"><span class="co">#&gt;   ..$ grids :List of 1</span></a>
 <a class="sourceLine" id="cb3-65" data-line-number="65"><span class="co">#&gt;   .. ..$ : num [1:50] 0 0.0204 0.0408 0.0612 0.0816 ...</span></a>
 <a class="sourceLine" id="cb3-66" data-line-number="66"><span class="co">#&gt;   ..$ x_save:List of 1</span></a>
-<a class="sourceLine" id="cb3-67" data-line-number="67"><span class="co">#&gt;   .. ..$ : num [1:100, 1:50] 1.11 0.51 2.13 1.28 1.92 ...</span></a>
+<a class="sourceLine" id="cb3-67" data-line-number="67"><span class="co">#&gt;   .. ..$ : num [1:100, 1:50] 2.585 -0.131 1.172 -0.393 0.805 ...</span></a>
 <a class="sourceLine" id="cb3-68" data-line-number="68"><span class="co">#&gt;  $ posterior_sample      :List of 3</span></a>
-<a class="sourceLine" id="cb3-69" data-line-number="69"><span class="co">#&gt;   ..$ trace            : num [1:1001, 1:11] -0.273 0.92 -0.442 -0.807 -0.982 ...</span></a>
+<a class="sourceLine" id="cb3-69" data-line-number="69"><span class="co">#&gt;   ..$ trace            : num [1:1001, 1:11] 0.324 -1.09 0.493 -0.637 -0.116 ...</span></a>
 <a class="sourceLine" id="cb3-70" data-line-number="70"><span class="co">#&gt;   .. ..- attr(*, "dimnames")=List of 2</span></a>
 <a class="sourceLine" id="cb3-71" data-line-number="71"><span class="co">#&gt;   .. .. ..$ : NULL</span></a>
 <a class="sourceLine" id="cb3-72" data-line-number="72"><span class="co">#&gt;   .. .. ..$ : chr [1:11] "b_1" "b_2" "b_3" "m_1" ...</span></a>
@@ -208,28 +208,28 @@
 <a class="sourceLine" id="cb3-76" data-line-number="76"><span class="co">#&gt;   .. ..$ K                   : num [1, 1] 3</span></a>
 <a class="sourceLine" id="cb3-77" data-line-number="77"><span class="co">#&gt;   .. ..$ l_values_length     : num [1, 1] 49</span></a>
 <a class="sourceLine" id="cb3-78" data-line-number="78"><span class="co">#&gt;   .. ..$ potential_intervals :List of 1</span></a>
-<a class="sourceLine" id="cb3-79" data-line-number="79"><span class="co">#&gt;   .. .. ..$ : num [1:50, 1:49, 1:100] 0.237 0.219 0.201 0.199 0.21 ...</span></a>
+<a class="sourceLine" id="cb3-79" data-line-number="79"><span class="co">#&gt;   .. .. ..$ : num [1:50, 1:49, 1:100] 2.14 2.26 2.38 2.48 2.5 ...</span></a>
 <a class="sourceLine" id="cb3-80" data-line-number="80"><span class="co">#&gt;   .. ..$ grids               :List of 1</span></a>
 <a class="sourceLine" id="cb3-81" data-line-number="81"><span class="co">#&gt;   .. .. ..$ : num [1:50] 0 0.0204 0.0408 0.0612 0.0816 ...</span></a>
 <a class="sourceLine" id="cb3-82" data-line-number="82"><span class="co">#&gt;   .. ..$ normalization_values:List of 1</span></a>
-<a class="sourceLine" id="cb3-83" data-line-number="83"><span class="co">#&gt;   .. .. ..$ : num [1:50, 1:49] 0.152 0.196 0.213 0.21 0.211 ...</span></a>
-<a class="sourceLine" id="cb3-84" data-line-number="84"><span class="co">#&gt;   ..$ posterior_density: num [1:1001, 1:6] 0.00 1.10e-137 2.22e-79 8.91e-29 1.33e-03 ...</span></a>
+<a class="sourceLine" id="cb3-83" data-line-number="83"><span class="co">#&gt;   .. .. ..$ : num [1:50, 1:49] 0.149 0.203 0.232 0.261 0.278 ...</span></a>
+<a class="sourceLine" id="cb3-84" data-line-number="84"><span class="co">#&gt;   ..$ posterior_density: num [1:1001, 1:6] 0.00 3.47e-122 2.65e-62 1.20e-06 4.06e-04 ...</span></a>
 <a class="sourceLine" id="cb3-85" data-line-number="85"><span class="co">#&gt;   .. ..- attr(*, "dimnames")=List of 2</span></a>
 <a class="sourceLine" id="cb3-86" data-line-number="86"><span class="co">#&gt;   .. .. ..$ : NULL</span></a>
 <a class="sourceLine" id="cb3-87" data-line-number="87"><span class="co">#&gt;   .. .. ..$ : chr [1:6] "posterior density" "log posterior density" "likelihood" "log likelihood" ...</span></a>
 <a class="sourceLine" id="cb3-88" data-line-number="88"><span class="co">#&gt;  $ Smooth_estimate       :List of 1</span></a>
-<a class="sourceLine" id="cb3-89" data-line-number="89"><span class="co">#&gt;   ..$ : num [1:50, 1] 0.358 0.449 0.661 1.142 2.018 ...</span></a>
+<a class="sourceLine" id="cb3-89" data-line-number="89"><span class="co">#&gt;   ..$ : num [1:50, 1] 0.0663 0.1076 0.3773 1.1636 2.3866 ...</span></a>
 <a class="sourceLine" id="cb3-90" data-line-number="90"><span class="co">#&gt;  $ support_estimate      :List of 1</span></a>
-<a class="sourceLine" id="cb3-91" data-line-number="91"><span class="co">#&gt;   ..$ :'data.frame': 2 obs. of  2 variables:</span></a>
-<a class="sourceLine" id="cb3-92" data-line-number="92"><span class="co">#&gt;   .. ..$ begin: num [1:2] 5 37</span></a>
-<a class="sourceLine" id="cb3-93" data-line-number="93"><span class="co">#&gt;   .. ..$ end  : num [1:2] 32 50</span></a>
+<a class="sourceLine" id="cb3-91" data-line-number="91"><span class="co">#&gt;   ..$ :'data.frame': 3 obs. of  2 variables:</span></a>
+<a class="sourceLine" id="cb3-92" data-line-number="92"><span class="co">#&gt;   .. ..$ begin: num [1:3] 5 26 37</span></a>
+<a class="sourceLine" id="cb3-93" data-line-number="93"><span class="co">#&gt;   .. ..$ end  : num [1:3] 13 29 50</span></a>
 <a class="sourceLine" id="cb3-94" data-line-number="94"><span class="co">#&gt;  $ support_estimate_fct  :List of 1</span></a>
 <a class="sourceLine" id="cb3-95" data-line-number="95"><span class="co">#&gt;   ..$ : num [1:50] 0 0 0 0 1 1 1 1 1 1 ...</span></a>
 <a class="sourceLine" id="cb3-96" data-line-number="96"><span class="co">#&gt;  $ trace_sann            :List of 1</span></a>
-<a class="sourceLine" id="cb3-97" data-line-number="97"><span class="co">#&gt;   ..$ : num [1:50001, 1:16] 0.451 0.451 0.195 0.195 0.125 ...</span></a>
+<a class="sourceLine" id="cb3-97" data-line-number="97"><span class="co">#&gt;   ..$ : num [1:50001, 1:13] 0.574 0.574 0.574 0.353 0.353 ...</span></a>
 <a class="sourceLine" id="cb3-98" data-line-number="98"><span class="co">#&gt;   .. ..- attr(*, "dimnames")=List of 2</span></a>
 <a class="sourceLine" id="cb3-99" data-line-number="99"><span class="co">#&gt;   .. .. ..$ : NULL</span></a>
-<a class="sourceLine" id="cb3-100" data-line-number="100"><span class="co">#&gt;   .. .. ..$ : chr [1:16] "b_1" "b_2" "b_3" "b_4" ...</span></a>
+<a class="sourceLine" id="cb3-100" data-line-number="100"><span class="co">#&gt;   .. .. ..$ : chr [1:13] "b_1" "b_2" "b_3" "m_1" ...</span></a>
 <a class="sourceLine" id="cb3-101" data-line-number="101"><span class="co">#&gt;  - attr(*, "class")= chr "bliss"</span></a></code></pre></div>
 </div>
 <div id="plot-the-result" class="section level2">
