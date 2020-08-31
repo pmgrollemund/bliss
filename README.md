@@ -6,7 +6,7 @@ A method for the Bayesian Functional Linear Regression model (functions-on-scala
 including two estimators of the coefficient function and an estimator of its support.
 A representation of the posterior distribution is also available.
 
-__Package In progress...__
+https://pmgrollemund.github.io/bliss/
 
 # Installation
 
