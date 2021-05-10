@@ -38,6 +38,7 @@ To obtain data, several characteristics must be specified to simulate the data, 
 
 
 ```{r ,eval=TRUE,include = TRUE}
+  set.seed(1)
   param <- list(                        # define the "param" to simulate data
                 Q=1,                    # the number of functional covariate
                 n=100,                  # n is the sample size and p is the

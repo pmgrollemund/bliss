@@ -1,13 +1,14 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----echo=TRUE,message=FALSE, warning=FALSE------------------------------
+## ----echo=TRUE,message=FALSE, warning=FALSE-----------------------------------
   library(bliss)
 
-## ----eval=TRUE,include = TRUE--------------------------------------------
+## ----eval=TRUE,include = TRUE-------------------------------------------------
+  set.seed(1)
   param <- list(                        # define the "param" to simulate data
                 Q=1,                    # the number of functional covariate
                 n=100,                  # n is the sample size and p is the
@@ -17,7 +18,7 @@ knitr::opts_chunk$set(
 
   data <- sim(param) # Simulate the data
 
-## ----eval=TRUE, include = TRUE-------------------------------------------
+## ----eval=TRUE, include = TRUE------------------------------------------------
   param <- list(            # define the required values of the Bliss method.
                 iter=1e3,   # The number of iteration of the main numerical algorithm of Bliss.
                 burnin=2e2, # The number of burnin iteration for the Gibbs Sampler
@@ -29,7 +30,7 @@ knitr::opts_chunk$set(
   # Structure of a Bliss object
   str(res_bliss)
 
-## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7------------------
+## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7-----------------------
   param$ylim <- range(range(res_bliss$beta_posterior_density[[1]]$grid_beta_t),
                       c(-5,5))
   param$cols <- rev(heat.colors(100))
@@ -37,7 +38,7 @@ knitr::opts_chunk$set(
   lines(res_bliss$data$grids[[1]],res_bliss$Bliss_estimate[[1]],type="s",lwd=2)
   lines(res_bliss$data$grids[[1]],res_bliss$data$betas[[1]],col=2,lwd=2,type="s")
 
-## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7------------------
+## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7-----------------------
   ylim <- range(range(res_bliss$Bliss_estimate[[1]]),
                 range(res_bliss$Smooth_estimate[[1]]))
   plot_bliss(res_bliss$data$grids[[1]],
@@ -45,7 +46,7 @@ knitr::opts_chunk$set(
   lines_bliss(res_bliss$data$grids[[1]],
              res_bliss$Smooth_estimate[[1]],lty=2)
 
-## ----eval=FALSE, include = TRUE------------------------------------------
+## ----eval=FALSE, include = TRUE-----------------------------------------------
 #     param <- list(Q=2,
 #                   n=300,
 #                   p=c(40,60),
@@ -54,7 +55,7 @@ knitr::opts_chunk$set(
 #  
 #    data <- sim(param)
 
-## ----eval=FALSE, include = TRUE------------------------------------------
+## ----eval=FALSE, include = TRUE-----------------------------------------------
 #    param <- list(       # define the required values of the Bliss method.
 #       iter=1e3,         # The number of iteration of the main numerical algorithm of Bliss.
 #       burnin=2e2,       # The number of burnin iteration for the Gibbs Sampler
@@ -62,7 +63,7 @@ knitr::opts_chunk$set(
 #  
 #    res_Bliss_mult <- fit_Bliss(data=data,param=param)
 
-## ----eval=FALSE, include = TRUE,fig.height=5,fig.width=7-----------------
+## ----eval=FALSE, include = TRUE,fig.height=5,fig.width=7----------------------
 #     q <- 1
 #     param$ylim <- range(range(res_Bliss_mult$beta_posterior_density[[q]]$grid_beta_t),
 #                         c(-5,5))
@@ -94,6 +95,6 @@ knitr::opts_chunk$set(
 #     lines(res_Bliss_mult$data$grids[[q]],
 #           res_Bliss_mult$Smooth_estimate[[q]],lty=2)
 
-## ----session,echo=FALSE,message=FALSE, warning=FALSE---------------------
+## ----session,echo=FALSE,message=FALSE, warning=FALSE--------------------------
   sessionInfo()
 
