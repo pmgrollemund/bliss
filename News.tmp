@@ -1,0 +1,3 @@
+bliss  1.0.3
+Fix comparison problem between "unsigned" and "int" in Rcpp script
+Fix problem with progress displaying in "fit_Bliss"
