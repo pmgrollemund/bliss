@@ -709,126 +709,129 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   // The Gibbs loop
   if(progress) Rcpp::Rcout << "\t Start the Gibbs Sampler." <<  std::endl;
   for(int i=1  ; i < iter+1 ; ++i ) {
-    if( i % (iter / 10)  == 0)
+    if( i % (iter / 10)  == 0){
       if(progress) Rcpp::Rcout << "\t " << i / (iter / 100) << "%" << std::endl;
+    }
 
-      // update sigma_sq
-      update_sigma_sq(y,b_tilde,W_inv,x_tilde,n,sum_K,sigma_sq) ;
+    // update sigma_sq
+    update_sigma_sq(y,b_tilde,W_inv,x_tilde,n,sum_K,sigma_sq) ;
 
-      // update m
-      count = 0 ;
-      // count is used to browse some vec/mat when p(q) is not constant wrt q.
-      for( int q=0 ; q<Q ; ++q ){
-        // Compute some quantities which do not vary with k
-        arma::vec m_q = m[q];
-        arma::vec l_q = l[q];
-        int p_q = p(q);
-        NumericVector potential_intervals_q = potential_intervals[q];
-        arma::vec potential_intervals_dims_q      = potential_intervals_dims[q];
-        arma::vec m_possible_q = sequence(1,p_q,1) ;
+    // update m
+    count = 0 ;
+    // count is used to browse some vec/mat when p(q) is not constant wrt q.
+    for( int q=0 ; q<Q ; ++q ){
+      // Compute some quantities which do not vary with k
+      arma::vec m_q = m[q];
+      arma::vec l_q = l[q];
+      int p_q = p(q);
+      NumericVector potential_intervals_q = potential_intervals[q];
+      arma::vec potential_intervals_dims_q      = potential_intervals_dims[q];
+      arma::vec m_possible_q = sequence(1,p_q,1) ;
 
-        for(int k=0 ; k<K(q) ; ++k){
-          // update m_k
-          update_mqk(count,k,y,b_tilde,sigma_sq,m_q,l_q,x_tilde,
-                     potential_intervals_q,potential_intervals_dims_q,m_possible_q,p_q,Q,K,g,
-                     sum_K,lambda_id0);
-
-          // update the value "x_tilde"
-          update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
-                         x_tilde);
-        }
-
-        // Update the m_q value
-        m[q] = m_q;
-        // Update count
-        count = count + K(q);
-      }
-
-      // update l
-      count = 0 ;
-      // count is used to browse some vec/mat when p(q) is not constant wrt q.
-      for( int q=0 ; q<Q ; ++q ){
-        // Compute some quantities which do not vary with k
-        arma::vec m_q = m[q];
-        arma::vec l_q = l[q];
-        int l_values_length_q = l_values_length(q);
-        NumericVector potential_intervals_q = potential_intervals[q];
-        arma::vec potential_intervals_dims_q      = potential_intervals_dims[q];
-        arma::vec l_possible_q = sequence(1,l_values_length_q,1) ;
-        arma::vec probs_l_q         = probs_l[q];
-
-        for(int k=0 ; k<K(q) ; ++k){
-          // update l_k
-          update_lqk(count,k,y,b_tilde,sigma_sq,m_q,l_q,x_tilde,
-                     potential_intervals_q,potential_intervals_dims_q,l_possible_q,probs_l_q,
-                     l_values_length_q, Q,K,g,sum_K,lambda_id0);
-
-          // update the value "x_tilde"
-          update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
-                         x_tilde);
-        }
-
-        // Update the m_q value
-        l[q] = l_q;
-        // Update count
-        count = count + K(q);
-      }
-
-      // update the value "W_inv" (only after the updating of the m's and l's)
-      W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
-
-      // update the matrix Sigma_b_tilde (only after the updating of
-      // the m's and l's)
-      Sigma_b_tilde_inv = W_inv + trans(x_tilde) * x_tilde   ;
-      test                 = ginv_cpp(Sigma_b_tilde_inv,tol) ;
-      success              = accu(abs(test)) != 0               ;
-
-      // Try to determine an update which not leads to a non-invertible
-      // matrix problem. If there is a problem, go back to the beginning of the
-      // updating process.
-      if(success){
-        // update the b_tilde
-        update_b_tilde(y,sigma_sq,x_tilde,Sigma_b_tilde_inv,tol,b_tilde) ;
-
-        // update the matrix trace
-        count = 0;
-        for( int q=0 ; q<Q ; ++q){
-          arma::vec m_temp = m[q] ;
-          arma::vec l_temp = l[q] ;
-          trace.row(i).subvec( 3*count        , 3*count+  K(q)-1) =
-            trans(b_tilde.subvec( 1+count , K(q)+count )) ;
-          trace.row(i).subvec( 3*count+  K(q) , 3*count+2*K(q)-1) = trans(m_temp);
-          trace.row(i).subvec( 3*count+2*K(q) , 3*count+3*K(q)-1) = trans(l_temp);
-
-          trace(i,3*sum_K  ) = b_tilde(0) ;
-          trace(i,3*sum_K+1) = sigma_sq      ;
-          count = count + K(q) ;
-        }
-      }else{ //... go back to the beginning of the updating process.
-        i     = i - 1 ;
-        count = 0;
-        for( int q=0 ; q<Q ; ++q){
-          b_tilde.subvec( 1+count , K(q)+count ) =
-            trans(trace.row(i).subvec( 3*count , 3*count+  K(q)-1))  ;
-          m[q] = trans(trace.row(i).subvec( 3*count+  K(q) , 3*count+2*K(q)-1)) ;
-          l[q] = trans(trace.row(i).subvec( 3*count+2*K(q) , 3*count+3*K(q)-1)) ;
-
-          b_tilde(0) = trace(i,3*sum_K  ) ;
-          sigma_sq      = trace(i,3*sum_K+1) ;
-          count = count + K(q) ;
-        }
+      for(int k=0 ; k<K(q) ; ++k){
+        // update m_k
+        update_mqk(count,k,y,b_tilde,sigma_sq,m_q,l_q,x_tilde,
+                   potential_intervals_q,potential_intervals_dims_q,m_possible_q,p_q,Q,K,g,
+                   sum_K,lambda_id0);
 
         // update the value "x_tilde"
         update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
                        x_tilde);
-
-        // update the value "W_inv"
-        W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
       }
+
+      // Update the m_q value
+      m[q] = m_q;
+      // Update count
+      count = count + K(q);
+    }
+
+    // update l
+    count = 0 ;
+    // count is used to browse some vec/mat when p(q) is not constant wrt q.
+    for( int q=0 ; q<Q ; ++q ){
+      // Compute some quantities which do not vary with k
+      arma::vec m_q = m[q];
+      arma::vec l_q = l[q];
+      int l_values_length_q = l_values_length(q);
+      NumericVector potential_intervals_q = potential_intervals[q];
+      arma::vec potential_intervals_dims_q      = potential_intervals_dims[q];
+      arma::vec l_possible_q = sequence(1,l_values_length_q,1) ;
+      arma::vec probs_l_q         = probs_l[q];
+
+      for(int k=0 ; k<K(q) ; ++k){
+        // update l_k
+        update_lqk(count,k,y,b_tilde,sigma_sq,m_q,l_q,x_tilde,
+                   potential_intervals_q,potential_intervals_dims_q,l_possible_q,probs_l_q,
+                   l_values_length_q, Q,K,g,sum_K,lambda_id0);
+
+        // update the value "x_tilde"
+        update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
+                       x_tilde);
+      }
+
+      // Update the m_q value
+      l[q] = l_q;
+      // Update count
+      count = count + K(q);
+    }
+
+    // update the value "W_inv" (only after the updating of the m's and l's)
+    W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
+
+    // update the matrix Sigma_b_tilde (only after the updating of
+    // the m's and l's)
+    Sigma_b_tilde_inv = W_inv + trans(x_tilde) * x_tilde   ;
+    test                 = ginv_cpp(Sigma_b_tilde_inv,tol) ;
+    success              = accu(abs(test)) != 0               ;
+
+    // Try to determine an update which not leads to a non-invertible
+    // matrix problem. If there is a problem, go back to the beginning of the
+    // updating process.
+    if(success){
+      // update the b_tilde
+      update_b_tilde(y,sigma_sq,x_tilde,Sigma_b_tilde_inv,tol,b_tilde) ;
+
+      // update the matrix trace
+      count = 0;
+      for( int q=0 ; q<Q ; ++q){
+        arma::vec m_temp = m[q] ;
+        arma::vec l_temp = l[q] ;
+        trace.row(i).subvec( 3*count        , 3*count+  K(q)-1) =
+          trans(b_tilde.subvec( 1+count , K(q)+count )) ;
+        trace.row(i).subvec( 3*count+  K(q) , 3*count+2*K(q)-1) = trans(m_temp);
+        trace.row(i).subvec( 3*count+2*K(q) , 3*count+3*K(q)-1) = trans(l_temp);
+
+        trace(i,3*sum_K  ) = b_tilde(0) ;
+        trace(i,3*sum_K+1) = sigma_sq      ;
+        count = count + K(q) ;
+      }
+    }else{ //... go back to the beginning of the updating process.
+      i     = i - 1 ;
+      count = 0;
+      for( int q=0 ; q<Q ; ++q){
+        b_tilde.subvec( 1+count , K(q)+count ) =
+          trans(trace.row(i).subvec( 3*count , 3*count+  K(q)-1))  ;
+        m[q] = trans(trace.row(i).subvec( 3*count+  K(q) , 3*count+2*K(q)-1)) ;
+        l[q] = trans(trace.row(i).subvec( 3*count+2*K(q) , 3*count+3*K(q)-1)) ;
+
+        b_tilde(0) = trace(i,3*sum_K  ) ;
+        sigma_sq      = trace(i,3*sum_K+1) ;
+        count = count + K(q) ;
+      }
+
+      // update the value "x_tilde"
+      update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
+                     x_tilde);
+
+      // update the value "W_inv"
+      W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
+    }
   }
 
   // return the trace and the parameters
-  if(progress) Rcpp::Rcout << "\t Return the result." <<  std::endl;
+  if(progress){
+    Rcpp::Rcout << "\t Return the result." <<  std::endl;
+  }
   return  List::create(_["trace"]=trace,
                        _["param"]=List::create(_["phi_l"]=probs_l,
                                           _["K"]=K,
@@ -846,9 +849,13 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
                                     int p_l, int dm, int dl, int p,
                                     std::string basis, arma::mat & normalization_values,
                                     bool progress, arma::mat & starting_point){
-  if(progress) Rcpp::Rcout << "Simulated Annealing:" <<  std::endl;
+  if(progress){
+    Rcpp::Rcout << "Simulated Annealing:" <<  std::endl;
+  }
   // Initialization
-  if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;
+  if(progress){
+    Rcpp::Rcout << "\t Initialization." <<  std::endl;
+  }
   // int N = beta_sample.n_rows;
   vec posterior_expe = zeros<vec>(p);
   for(int i=0 ; i<p ; ++i){
@@ -887,7 +894,9 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
   int new_l;
   double new_b;
   unsigned smooth_param = 1;
-  if(smooth_param == 0) smooth_param = 1;
+  if(smooth_param == 0){
+    smooth_param = 1;
+  }
   arma::vec tmp_basis;
 
   // Initialize the matrix trace
@@ -921,12 +930,16 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
   trace(0,3*k_max+3) = d_loss ;
 
   // Start the loop
-  if(progress) Rcpp::Rcout << "\t Start the loop." <<  std::endl;
+  if(progress){
+    Rcpp::Rcout << "\t Start the loop." <<  std::endl;
+  }
   for(int i=0 ; i<iter ; ++i){
     Temperature = cooling_cpp(i,Temp);
     // Progress
     if( (i+1) % (iter / 10)  == 0){
-      if(progress) Rcpp::Rcout << "\t " << (i+1) / (iter / 100) << "%" << std::endl;
+      if(progress){
+        Rcpp::Rcout << "\t " << (i+1) / (iter / 100) << "%" << std::endl;
+      }
     }
     // Initialize the proposal
     b_tmp     = b ;
@@ -938,8 +951,12 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
 
     // Choose a move
     choice_prob = ones<vec>(5);
-    if(k == k_max) choice_prob(3) = choice_prob(3) -1;
-    if(k == 1    ) choice_prob(4) = choice_prob(4) -1;
+    if(k == k_max){
+      choice_prob(3) = choice_prob(3) -1;
+    }
+    if(k == 1    ){
+      choice_prob(4) = choice_prob(4) -1;
+    }
 
     choice = sample_weight( choice_prob ) + 1;
     // change a b_j
@@ -950,8 +967,12 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
       // Simulate a new b_j
       value_min = m(j)-l(j) -1;
       value_max = m(j)+l(j) -1;
-      if(value_min < 0   ) value_min = 0   ;
-      if(value_max > p-1 ) value_max = p-1 ;
+      if(value_min < 0   ){
+        value_min = 0   ;
+      }
+      if(value_max > p-1 ){
+        value_max = p-1 ;
+      }
 
       // Compute the difference ...
       difference = (posterior_expe - d);
@@ -989,8 +1010,12 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
       // Simulate a new b_j
       value_min = m(j)-l(j) -1;
       value_max = m(j)+l(j) -1;
-      if(value_min < 0   ) value_min = 0   ;
-      if(value_max > p-1 ) value_max = p-1 ;
+      if(value_min < 0   ){
+        value_min = 0   ;
+      }
+      if(value_max > p-1 ){
+        value_max = p-1 ;
+      }
 
       tmp_basis  = uniform_cpp(m(j),l(j),grid);
       b_tmp(j) = mean(difference.subvec( value_min , value_max)*
@@ -1004,8 +1029,12 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
       // Simulate a new l_j
       value_max = l(j) + dl ;
       value_min = l(j) - dl ;
-      if(value_max > p_l) value_max = p_l ;
-      if(value_min < 1) value_min = 1 ;
+      if(value_max > p_l){
+        value_max = p_l ;
+      }
+      if(value_min < 1){
+        value_min = 1 ;
+      }
 
       probs = ones<vec>( value_max - value_min + 1 ) ;
       l_tmp(j)  = sample_weight( probs ) + value_min ;
