@@ -4,7 +4,8 @@
 \name{res_bliss1}
 \alias{res_bliss1}
 \title{A result of the BliSS method}
-\format{a Bliss object (list)
+\format{
+a Bliss object (list)
 \describe{
   \item{alpha}{a list of Q numerical vector. Each vector is the function
        alpha(t) associated to a functional covariate. For each t, alpha(t)
@@ -35,7 +36,8 @@
   \item{support_estimate_fct}{a list containing the estimation of the support.}
   \item{trace_sann}{a list containing (for each chain) the trace of the
   Simulated Annealing algorithm.}
-}}
+}
+}
 \usage{
 res_bliss1
 }

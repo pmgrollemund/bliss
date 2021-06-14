@@ -312,8 +312,10 @@ support_estimation <- function(beta_sample_q,gamma=0.5){
 
   # Support estimate (vectorial version)
   estimate_fct <- rep(0,ncol(beta_sample_q))
-  for(i in 1:nrow(estimate)){
-    estimate_fct[estimate$begin[i]:estimate$end[i]] <- 1
+  if(nrow(estimate) > 0){
+    for(i in 1:nrow(estimate)){
+      estimate_fct[estimate$begin[i]:estimate$end[i]] <- 1
+    }
   }
 
   return(list(alpha        = alpha,

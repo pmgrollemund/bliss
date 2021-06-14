@@ -23,18 +23,31 @@ knitr::opts_chunk$set(
   library(bliss)
 ```
 
-This vignette describes step by step how to use the BLiSS method, by:
+This vignette describes step by step how to use the BLiSS method. 
+Below, you can find the following implemented features:
 
-* simulate data to illustrate the BLiSS model
-* obtain a sample of the *a posteriori* distribution with a sampler of Gibbs
-* plot the *a posteriori* distribution of the coefficient function and that of its support
-* calculate the different Bayesian estimators and plot the results in a graph
+* Simulate data to test the BLiSS model
+* Obtain a sample of the posterior distribution with a Gibbs Sampler
+* Plot the posterior distribution of the coefficient function and the posterior
+distribution of the support
+* Compute the different Bayesian estimators 
 
-# One single functional covariate
+# One single functional covariate case
 
-## Simulation of the data set
+## Simulate a data set
 
-To obtain data, several characteristics must be specified to simulate the data, such as n (number of observations), p (number of measurement moments) curves $x_{i}(.)$), beta$\_$types (the shape of the coefficient function), and b$\_$inf and b$\_$sup (to define the domain of curves $x_{i}(.)$). Based on these parameters, we can use the *sim* function in the following code to simulate $x_{i}(.)$ curves, and real values $y_{i}$, from the functional linear regression model.
+In order to simulate a proper dataset for Bliss application, some characteristics 
+must be specified: 
+
+* $n$ (the number of observations), 
+* $p$ (number of instant of measure), 
+* beta$\_$types (the shape of the coefficient function), and 
+* grids$\_$lim, a 2-vector (to define the domain of curves $x_{i}(.)$). 
+
+Based on these parameters, data can be simulated 
+(curves $x_{i}(.)$ and real values $y_{i}$)
+from the functional linear regression model by using the *sim* function, 
+as suggested in the following chunck.
 
 
 ```{r ,eval=TRUE,include = TRUE}
@@ -51,21 +64,30 @@ To obtain data, several characteristics must be specified to simulate the data, 
 
 ## Apply the Bliss method
 
-To obtain an *a posteriori* sample, we use the Gibbs algorithm. We use the main function *fit$\_$Bliss* which calls sub-functions that allow us
+The *fit$\_$Bliss* function provides the following outputs:
 
-* to sample the *a posteriori* distribution, 
-* then to calculate the *a posteriori* distribution of the coefficient function, 
-* to execute an optimization algorithm to calculate a constant estimate by pieces, 
-* to calculate an estimation of the support and to calculate the density of the sample a posteriori (useful to calculate the BIC criterion). 
+* a posterior sample of the Bliss model, 
+* an approximation of the posterior distribution of the coefficient function, 
+* a piecewise constant estimate (stepfunction) of the coefficient function, 
+which is computed thanks to an optimization algorithm,
+* an estimation of the support, which shoulb be useful if your purpose is to 
+detect periods for which the functional coviarate has an (linear) impact on the
+dependent scalar variable,
+* the posterior densities of the posterior sample, which should be used to 
+compute model choice criterion.
 
-This main function requires a **param** list containing
+An important required argument of the previous function is **param**, 
+which is a list containing: 
 
-* **iter**, the number of iterations of the Gibbs algorithm, 
-* **burnin** heating time, 
-* **K**, hyperparameter K of the Bliss model,
-* **grids**, the moments of measurement of the curves $x_{i}(.)$, 
-* **prior$\_$beta**, an argument specifying the distribution a priori of $\beta$ **Ridge$\_$Zellner** is only considered in this vignette
-* and **phi$\_$l**, an argument specifying the *a priori* distribution of (only the **Gamma** option is considered in this vignette).
+* **iter**, the number of iterations for the Gibbs algorithm, 
+* **burnin** the number of iteration to drop at the beginning of the Gibbs Sampler, 
+* **K**, hyperparameter $K$ of the Bliss model,
+* **grids**, the grid of instant for which the curves $x_{i}(.)$ are measured, 
+* **prior$\_$beta**, an argument specifying a prior distribution of the slope coefficient $\beta$,
+(only the **Ridge$\_$Zellner** case is considered in this vignette),
+* and **phi$\_\ell$**, an argument specifying a prior distribution for $\ell$ 
+the half-width of the intervals 
+(only the **Gamma`** case is considered in this vignette),
 
 ```{r ,eval=TRUE, include = TRUE}
   param <- list(            # define the required values of the Bliss method.

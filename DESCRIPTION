@@ -18,7 +18,7 @@ Depends: R (>= 3.3.0)
 LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
 LazyData: TRUE
-Imports: Rcpp, MASS, rockchalk
+Imports: Rcpp, RcppArmadillo, MASS, rockchalk
 Suggests: rmarkdown, knitr, RColorBrewer
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 VignetteBuilder: knitr

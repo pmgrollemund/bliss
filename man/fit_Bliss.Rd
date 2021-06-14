@@ -4,8 +4,14 @@
 \alias{fit_Bliss}
 \title{fit_Bliss}
 \usage{
-fit_Bliss(data, param, compute_density = TRUE, sann = TRUE,
-  verbose = FALSE)
+fit_Bliss(
+  data,
+  param,
+  compute_density = TRUE,
+  sann = TRUE,
+  support_estimate = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{data}{a list containing:
@@ -53,6 +59,9 @@ of the coefficient function is computed. (optional)}
 
 \item{sann}{a logical value. If TRUE, the Bliss estimate is
 computed with a Simulated Annealing Algorithm. (optional)}
+
+\item{support_estimate}{a logical value. If TRUE, the estimate of the
+coefficient function support is computed. (optional)}
 
 \item{verbose}{write stuff if TRUE (optional).}
 }

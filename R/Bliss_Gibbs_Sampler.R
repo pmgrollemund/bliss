@@ -98,6 +98,29 @@ Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE){
   }else{
     verbose_cpp <- FALSE
   }
+
+  # Determine if there are columns for which there is no variation
+  pb_count <- 0
+  for(q in 1:length(x)){
+    index <- which(apply(x[[q]],2, function(v) length(unique(v)) == 1))
+    if(length(index) > 0){
+      pb_count <- pb_count + 1
+      if(q == 1) number_exposant <- "st"
+      if(q == 2) number_exposant <- "nd"
+      if(q >  3) number_exposant <- "th"
+      if(verbose) cat(paste("\tFor the ",q,number_exposant," functional covariate, ",
+                      "all the individus have the same values for the columns:\n\t  ",
+                      paste(index,collapse = " "),".\n\tThis would",
+                      " eventually leads to non-invertible partial design ",
+                      "matrixes.\n",sep=""))
+    }
+  }
+  if(pb_count > 0){
+    stop(paste("Please provide design columns with non-unique values.",
+    "You could jitter the columns with unique values, or remove them."))
+  }
+  rm(pb_count)
+
   # Perfome the Gibbs Sampler and return the result.
   res <- Bliss_Gibbs_Sampler_cpp(Q,y,x,grids,
                                  iter,K,basis,

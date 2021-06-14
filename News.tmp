@@ -1,3 +1,8 @@
 bliss  1.0.3
 Fix comparison problem between "unsigned" and "int" in Rcpp script
 Fix problem with progress displaying in "fit_Bliss"
+Fix bugs from GitHub installation
+Fix potential bug with support_estimate function
+Add an argument to choose if the support estimate should be computed or not
+Watch if the design matrixes contain constant columns
+Add messages indicate potential numerical problems
