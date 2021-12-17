@@ -27,6 +27,8 @@ Bliss_Gibbs_Sampler(data, param, verbose = FALSE)
       "epanechnikov", "gauss" and "triangular" which correspond to
       different basis functions to expand the coefficient function and the
       functional covariates}
+\item{phi_l}{a numerical (optional). An hyperparameters related to the exponential prior
+on the length of the intervals. Lower values promotes wider intervals.}
 }}
 
 \item{verbose}{write stuff if TRUE (optional).}

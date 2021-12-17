@@ -27,6 +27,8 @@
 #'       "epanechnikov", "gauss" and "triangular" which correspond to
 #'       different basis functions to expand the coefficient function and the
 #'       functional covariates}
+#' \item{phi_l}{a numerical (optional). An hyperparameters related to the exponential prior
+#' on the length of the intervals. Lower values promotes wider intervals.}
 #' }
 #' @param verbose write stuff if TRUE (optional).
 #' @importFrom stats var
@@ -56,6 +58,7 @@ Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE){
   iter  <- param[["iter"]]
   K     <- param[["K"]]
   p     <- param[["p"]]
+  phi_l <- param[["phi_l"]]
 
   # Initialize the required unspecified objects
   if(is.null(K)) stop("Please specify a value for the vector K.")
@@ -70,6 +73,9 @@ Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE){
     for (q in 1:Q){
       basis[q] <- "Uniform"
     }
+  }
+  if(is.null(phi_l)){
+    phi_l <- 5
   }
   if(!is.null(basis)){
     for (q in 1:Q){
@@ -90,7 +96,8 @@ Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE){
   # Determine the prior distribution of l
   Probs_l <- l_values
   for(q in 1:Q){
-    Probs_l[[q]] <- pdexp( 5*K[q] , l_values[[q]] )
+    # Probs_l[[q]] <- pdexp( 5*K[q] , l_values[[q]] )
+    Probs_l[[q]] <- pdexp( phi_l*K[q] , l_values[[q]] )
   }
 
   if(verbose){

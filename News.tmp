@@ -8,3 +8,4 @@ Watch if the design matrixes contain constant columns
 Add messages indicate potential numerical problems
 Add RcppArmardillo as an "Imports" in the DESCRIPTION document (which was strangely missing)
 Update introduction vignette
+Allow the possibility to tune 'phi_l', the hyperparameters of the exponential prior on the length of the intervals
