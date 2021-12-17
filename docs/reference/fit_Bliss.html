@@ -73,7 +73,7 @@ Linear Regression model (with Q functional covariates)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bliss</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
       </span>
     </div>
 
@@ -99,6 +99,9 @@ Linear Regression model (with Q functional covariates)." />
       <a href="../articles/BlissIntro.html">Introduction to BLiSS method</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -126,8 +129,14 @@ Linear Regression model (with Q functional covariates)." />
 Linear Regression model (with Q functional covariates).</p>
     </div>
 
-    <pre class="usage"><span class='fu'>fit_Bliss</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>param</span>, compute_density <span class='op'>=</span> <span class='cn'>TRUE</span>, sann <span class='op'>=</span> <span class='cn'>TRUE</span>,
-  verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>fit_Bliss</span><span class='op'>(</span>
+  <span class='va'>data</span>,
+  <span class='va'>param</span>,
+  compute_density <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  sann <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  support_estimate <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  verbose <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -185,6 +194,11 @@ of the coefficient function is computed. (optional)</p></td>
       <th>sann</th>
       <td><p>a logical value. If TRUE, the Bliss estimate is
 computed with a Simulated Annealing Algorithm. (optional)</p></td>
+    </tr>
+    <tr>
+      <th>support_estimate</th>
+      <td><p>a logical value. If TRUE, the estimate of the
+coefficient function support is computed. (optional)</p></td>
     </tr>
     <tr>
       <th>verbose</th>

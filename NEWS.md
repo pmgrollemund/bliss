@@ -8,6 +8,5 @@
 * Add an argument to choose if the support estimate should be computed or not
 * Watch if the design matrixes contain constant columns
 * Add messages indicating potential numerical problems
-* Add RcppArmardillo as an `Imports` in the DESCRIPTION document (which was strangely missing)
 * Update introduction vignette
 * Allow the possibility to tune *phi_l*, the hyperparameters of the exponential prior on the length of the intervals

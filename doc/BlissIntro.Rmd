@@ -23,18 +23,31 @@ knitr::opts_chunk$set(
   library(bliss)
 ```
 
-This vignette describes step by step how to use the BLiSS method, by:
+This vignette describes step by step how to use the BLiSS method. 
+Below, you can find the following implemented features:
 
-* simulate data to illustrate the BLiSS model
-* obtain a sample of the *a posteriori* distribution with a sampler of Gibbs
-* plot the *a posteriori* distribution of the coefficient function and that of its support
-* calculate the different Bayesian estimators and plot the results in a graph
+* Simulate data to test the BLiSS model
+* Obtain a sample of the posterior distribution with a Gibbs Sampler
+* Plot the posterior distribution of the coefficient function and the posterior
+distribution of the support
+* Compute the different Bayesian estimators 
 
-# One single functional covariate
+# One single functional covariate case
 
-## Simulation of the data set
+## Simulate a data set
 
-To obtain data, several characteristics must be specified to simulate the data, such as n (number of observations), p (number of measurement moments) curves $x_{i}(.)$), beta$\_$types (the shape of the coefficient function), and b$\_$inf and b$\_$sup (to define the domain of curves $x_{i}(.)$). Based on these parameters, we can use the *sim* function in the following code to simulate $x_{i}(.)$ curves, and real values $y_{i}$, from the functional linear regression model.
+In order to simulate a proper dataset for Bliss application, some characteristics 
+must be specified: 
+
+* $n$ (the number of observations), 
+* $p$ (number of instant of measure), 
+* beta$\_$types (the shape of the coefficient function), and 
+* grids$\_$lim, a 2-vector (to define the domain of curves $x_{i}(.)$). 
+
+Based on these parameters, data can be simulated 
+(curves $x_{i}(.)$ and real values $y_{i}$)
+from the functional linear regression model by using the *sim* function, 
+as suggested in the following chunck.
 
 
 ```{r ,eval=TRUE,include = TRUE}
@@ -49,24 +62,36 @@ To obtain data, several characteristics must be specified to simulate the data, 
   data <- sim(param) # Simulate the data
 ```
 
-## Apply the Bliss method
+## How to apply the Bliss method
 
-To obtain an *a posteriori* sample, we use the Gibbs algorithm. We use the main function *fit$\_$Bliss* which calls sub-functions that allow us
+In order to apply the Bliss method, the main function to use is *fit$\_$Bliss*.
+This function provides the following outputs:
 
-* to sample the *a posteriori* distribution, 
-* then to calculate the *a posteriori* distribution of the coefficient function, 
-* to execute an optimization algorithm to calculate a constant estimate by pieces, 
-* to calculate an estimation of the support and to calculate the density of the sample a posteriori (useful to calculate the BIC criterion). 
+* a posterior sample of the Bliss model, 
+* an approximation of the posterior distribution of the coefficient function, 
+* a piecewise constant estimate (stepfunction) of the coefficient function, 
+which is computed thanks to an optimization algorithm,
+* an estimation of the support, which shoulb be useful if your purpose is to 
+detect periods for which the functional coviarate has an (linear) impact on the
+dependent scalar variable,
+* the posterior densities of the posterior sample, which should be used to 
+compute model choice criterion.
 
-This main function requires a **param** list containing
+An important required argument of the previous function is **param**, 
+which is a list containing: 
 
-* **iter**, the number of iterations of the Gibbs algorithm, 
-* **burnin** heating time, 
-* **K**, hyperparameter K of the Bliss model,
-* **grids**, the moments of measurement of the curves $x_{i}(.)$, 
-* **prior$\_$beta**, an argument specifying the distribution a priori of $\beta$ **Ridge$\_$Zellner** is only considered in this vignette
-* and **phi$\_$l**, an argument specifying the *a priori* distribution of (only the **Gamma** option is considered in this vignette).
+* **iter**, the number of iterations for the Gibbs algorithm, 
+* **burnin** the number of iteration to drop at the beginning of the Gibbs Sampler, 
+* **K**, hyperparameter $K$ of the Bliss model,
+* **grids**, the grid of instant for which the curves $x_{i}(.)$ are measured, 
+* **prior$\_$beta**, an argument specifying a prior distribution of the slope coefficient $\beta$,
+(only the **Ridge$\_$Zellner** case is considered in this vignette),
+* and **phi$\_$l**, an argument specifying a prior distribution for $\ell$ 
+the half-width of the intervals 
+(only the **Gamma`** case is considered in this vignette),
 
+Find below, an example of use of this function and a sketch of the structure 
+of the returned object.
 ```{r ,eval=TRUE, include = TRUE}
   param <- list(            # define the required values of the Bliss method.
                 iter=1e3,   # The number of iteration of the main numerical algorithm of Bliss.
@@ -80,34 +105,125 @@ This main function requires a **param** list containing
   str(res_bliss)
 ```
 
-## Plot the result
+## Graphical results
 
-We give here the code to obtain representations of the *a posteriori* distribution. First, we give the code to obtain a posteriori probabilities $\alpha(t|D)$, relative to the support. Then, the *image$\_$Bliss* function is used to represent the subsequent distribution of the coefficient function.
+This section presents how to obtain main graphical results (posterior quantities)
+derived from the Bliss method.
+
+### Coefficient function 
+
+Considering Functional Linear Regression model (FLR), and the specific 
+*scalar-on-function* case, the major model parameter to infer is the coefficient 
+function $\beta(.)$. 
+The following chunck shows how to plot the posterior distribution of the 
+coefficient function:
+```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
+  param$ylim <- range(range(res_bliss$beta_posterior_density[[1]]$grid_beta_t),
+                      c(-5,5))
+  param$cols <- rev(heat.colors(100))
+  image_Bliss(res_bliss$beta_posterior_density,param,q=1)
+```
+
+Additionnaly to this plot, one could usually want to display a point estimate 
+of the coefficient function (which is a function). 
+By using the following code, you can access to:
+* **Bliss estimate**, a piecewise constant version of the coefficient function, and
+* **the smooth estimate**, the standard bayesian estimate of the coefficient 
+function (standard means that it minimizes the posterior $L^2$-loss).
 
 ```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
   param$ylim <- range(range(res_bliss$beta_posterior_density[[1]]$grid_beta_t),
                       c(-5,5))
   param$cols <- rev(heat.colors(100))
   image_Bliss(res_bliss$beta_posterior_density,param,q=1)
-  lines(res_bliss$data$grids[[1]],res_bliss$Bliss_estimate[[1]],type="s",lwd=2)
-  lines(res_bliss$data$grids[[1]],res_bliss$data$betas[[1]],col=2,lwd=2,type="s")
+  
+  # Bliss estimate
+  lines(res_bliss$data$grids[[1]],res_bliss$Bliss_estimate[[1]],type="s",lwd=2) 
+  
+  # Smooth estimate
+  lines(res_bliss$data$grids[[1]],res_bliss$Smooth_estimate[[1]],lty=2)
+  
+  # True coefficient function
+  lines(res_bliss$data$grids[[1]],res_bliss$data$betas[[1]],col="purple",lwd=2,type="s")
 ```
 
+The solid black line is Bliss estimate, the dashed black line is the smooth estimate
+and the solid purple line is the true coefficien function.
+
+Below, the function `lines_bliss` is used to plot the step function without the
+vertical lines, linking differents steps.
 
 ```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
-  ylim <- range(range(res_bliss$Bliss_estimate[[1]]),
-                range(res_bliss$Smooth_estimate[[1]]))
-  plot_bliss(res_bliss$data$grids[[1]],
-             res_bliss$Bliss_estimate[[1]],lwd=2)
-  lines_bliss(res_bliss$data$grids[[1]],
-             res_bliss$Smooth_estimate[[1]],lty=2)
+  param$ylim <- range(range(res_bliss$beta_posterior_density[[1]]$grid_beta_t),
+                      c(-5,5))
+  param$cols <- rev(heat.colors(100))
+  image_Bliss(res_bliss$beta_posterior_density,param,q=1)
+  
+  # Bliss estimate
+  lines_bliss(res_bliss$data$grids[[1]],res_bliss$Bliss_estimate[[1]],lwd=3) 
+  
+  # Smooth estimate
+  lines(res_bliss$data$grids[[1]],res_bliss$Smooth_estimate[[1]],lty=2)
+  
+  # True coefficient function
+  lines_bliss(res_bliss$data$grids[[1]],res_bliss$data$betas[[1]],col="purple",lwd=3)
 ```
 
-# Several functional covariates
+### Support of coefficient function 
 
-To avoid execution lengths, this section is not executed. Please, give it a try.
+According to the scientific problematic, one could aim to infer the coefficient 
+function, but it is possible to alternatively focus only on the support of the
+coefficient function. 
+In this case, the sign and the magniture of the coefficient function 
+could be considered as nuisance parameters.
+Therefore, the Bliss method provides a specific estimation procedure for 
+the support of the coefficient function (which relies on the posterior distribution
+of the coefficient function).
+It consists in deriving the posterior probabilities $\alpha(t|D)$, for each
+$t$ in the domain $\mathcal T$ of the functional data, which correspond to the 
+probabilities (conditionnaly to the observed data) that the support of the 
+coefficient function covers the time $t$.
 
-## Simulate the dataset
+To plot the posterior probabilities, you have to use the following code : 
+```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
+  plot(res_bliss$alpha[[1]],type="o",xlab="time",ylab="posterior probabilities")
+```
+
+From these posterior probabilities, the support estimate is derived by 
+thresholding the probabilities. 
+Without prior information guiding the estimation procedure, the default threshold 
+is 0.5.
+The estimate support is then defined as the collection of time $t$ for which 
+the posterior probability $\alpha(t|D) > 0.5$. 
+```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
+  plot(res_bliss$alpha[[1]],type="o",xlab="time",ylab="posterior probabilities")
+  abline(h=0.5,col=2,lty=2)
+  
+  for(i in 1:nrow(res_bliss$support_estimate[[1]])){
+  segments(res_bliss$support_estimate[[1]]$begin[i],0.05,
+           res_bliss$support_estimate[[1]]$end[i],0.05,col="red"
+           )
+  points(res_bliss$support_estimate[[1]]$begin[i],0.05,col="red",pch="|",lwd=2)
+  points(res_bliss$support_estimate[[1]]$end[i],0.05,col="red",pch="|",lwd=2)
+  }
+```
+
+A resume of the support estimate is provided with: 
+```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
+res_bliss$support_estimate[[1]]
+```
+
+# Multiple functional covariates
+
+To avoid unnecesseray computational time, this section is not executed. 
+You could figure out that the functions, objects and procedures are mostly similar 
+to the previous one (single functional covariate case).
+The main differences are that: 
+
+* number of function covariates have to be specified in the `param` object, and
+* posterior quantities are available in elements of output lists. 
+
+## Simulate a data set
 
 ```{r ,eval=FALSE, include = TRUE}
    param <- list(Q=2,
@@ -119,7 +235,7 @@ To avoid execution lengths, this section is not executed. Please, give it a try.
   data <- sim(param)
 ```
 
-## Apply the Bliss method
+## How to apply the Bliss method
 ```{r ,eval=FALSE, include = TRUE}
   param <- list(       # define the required values of the Bliss method.
      iter=1e3,         # The number of iteration of the main numerical algorithm of Bliss.
@@ -129,7 +245,7 @@ To avoid execution lengths, this section is not executed. Please, give it a try.
   res_Bliss_mult <- fit_Bliss(data=data,param=param)
 ```
 
-## Plot the result
+## Graphical results
 ```{r ,eval=FALSE, include = TRUE,fig.height=5,fig.width=7}
    q <- 1
    param$ylim <- range(range(res_Bliss_mult$beta_posterior_density[[q]]$grid_beta_t),

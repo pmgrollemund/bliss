@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>change_grid — change_grid • bliss</title>
+<title>Changelog • bliss</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,7 @@
 
 
 
-<meta property="og:title" content="change_grid — change_grid" />
-<meta property="og:description" content="Compute a function (evaluated on a grid) on a given (finer) grid." />
+<meta property="og:title" content="Changelog" />
 
 
 
@@ -59,7 +58,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-topic">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -118,51 +117,36 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>change_grid</h1>
-    
-    <div class="hidden name"><code>change_grid.Rd</code></div>
+      <h1 data-toc-skip>Changelog <small></small></h1>
+      
     </div>
 
-    <div class="ref-description">
-    <p>Compute a function (evaluated on a grid) on a given (finer) grid.</p>
-    </div>
-
-    <pre class="usage"><span class='fu'>change_grid</span><span class='op'>(</span><span class='va'>fct</span>, <span class='va'>grid</span>, <span class='va'>new_grid</span><span class='op'>)</span></pre>
-
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>fct</th>
-      <td><p>a numerical vector, the function to evaluate on the new grid.</p></td>
-    </tr>
-    <tr>
-      <th>grid</th>
-      <td><p>a numerical vector, the initial grid.</p></td>
-    </tr>
-    <tr>
-      <th>new_grid</th>
-      <td><p>a numerical vector, the new grid.</p></td>
-    </tr>
-    </table>
-
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>a numerical vector, the approximation of the function on the new grid.</p>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>grid</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>1</span>,l<span class='op'>=</span><span class='fl'>1e1</span><span class='op'>)</span>
-<span class='va'>new_grid</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>1</span>,l<span class='op'>=</span><span class='fl'>1e2</span><span class='op'>)</span>
-<span class='va'>fct</span> <span class='op'>&lt;-</span> <span class='fl'>3</span><span class='op'>*</span><span class='va'>grid</span><span class='op'>^</span><span class='fl'>2</span> <span class='op'>+</span> <span class='fu'><a href='https://rdrr.io/r/base/Trig.html'>sin</a></span><span class='op'>(</span><span class='va'>grid</span><span class='op'>*</span><span class='fl'>2</span><span class='op'>*</span><span class='va'>pi</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>grid</span>,<span class='va'>fct</span>,type<span class='op'>=</span><span class='st'>"o"</span>,lwd<span class='op'>=</span><span class='fl'>2</span>,cex<span class='op'>=</span><span class='fl'>1.5</span><span class='op'>)</span>
-</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/lines.html'>lines</a></span><span class='op'>(</span><span class='va'>new_grid</span>,<span class='fu'>change_grid</span><span class='op'>(</span><span class='va'>fct</span>,<span class='va'>grid</span>,<span class='va'>new_grid</span><span class='op'>)</span>,type<span class='op'>=</span><span class='st'>"o"</span>,col<span class='op'>=</span><span class='st'>"red"</span>,cex<span class='op'>=</span><span class='fl'>0.8</span><span class='op'>)</span>
-</div><div class='img'><img src='change_grid-1.png' alt='' width='700' height='433' /></div></pre>
+    <div id="bliss-103" class="section level1">
+<h1 class="page-header" data-toc-text="1.0.3">
+<a href="#bliss-103" class="anchor"></a>bliss 1.0.3<small> Unreleased </small>
+</h1>
+<ul>
+<li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
+<li>Fix comparison problem between <em>unsigned</em> and <em>int</em> in Rcpp script</li>
+<li>Fix problem with progress displaying in <code><a href="../reference/fit_Bliss.html">fit_Bliss()</a></code>
+</li>
+<li>Fix bugs from GitHub installation</li>
+<li>Fix potential bug with <code>support_estimate()</code> function</li>
+<li>Add an argument to choose if the support estimate should be computed or not</li>
+<li>Watch if the design matrixes contain constant columns</li>
+<li>Add messages indicating potential numerical problems</li>
+<li>Update introduction vignette</li>
+<li>Allow the possibility to tune <em>phi_l</em>, the hyperparameters of the exponential prior on the length of the intervals</li>
+</ul>
+</div>
   </div>
+
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
+
 </div>
 
 

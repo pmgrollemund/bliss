@@ -35,16 +35,54 @@ knitr::opts_chunk$set(
                       c(-5,5))
   param$cols <- rev(heat.colors(100))
   image_Bliss(res_bliss$beta_posterior_density,param,q=1)
-  lines(res_bliss$data$grids[[1]],res_bliss$Bliss_estimate[[1]],type="s",lwd=2)
-  lines(res_bliss$data$grids[[1]],res_bliss$data$betas[[1]],col=2,lwd=2,type="s")
 
 ## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7-----------------------
-  ylim <- range(range(res_bliss$Bliss_estimate[[1]]),
-                range(res_bliss$Smooth_estimate[[1]]))
-  plot_bliss(res_bliss$data$grids[[1]],
-             res_bliss$Bliss_estimate[[1]],lwd=2)
-  lines_bliss(res_bliss$data$grids[[1]],
-             res_bliss$Smooth_estimate[[1]],lty=2)
+  param$ylim <- range(range(res_bliss$beta_posterior_density[[1]]$grid_beta_t),
+                      c(-5,5))
+  param$cols <- rev(heat.colors(100))
+  image_Bliss(res_bliss$beta_posterior_density,param,q=1)
+  
+  # Bliss estimate
+  lines(res_bliss$data$grids[[1]],res_bliss$Bliss_estimate[[1]],type="s",lwd=2) 
+  
+  # Smooth estimate
+  lines(res_bliss$data$grids[[1]],res_bliss$Smooth_estimate[[1]],lty=2)
+  
+  # True coefficient function
+  lines(res_bliss$data$grids[[1]],res_bliss$data$betas[[1]],col="purple",lwd=2,type="s")
+
+## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7-----------------------
+  param$ylim <- range(range(res_bliss$beta_posterior_density[[1]]$grid_beta_t),
+                      c(-5,5))
+  param$cols <- rev(heat.colors(100))
+  image_Bliss(res_bliss$beta_posterior_density,param,q=1)
+  
+  # Bliss estimate
+  lines_bliss(res_bliss$data$grids[[1]],res_bliss$Bliss_estimate[[1]],lwd=3) 
+  
+  # Smooth estimate
+  lines(res_bliss$data$grids[[1]],res_bliss$Smooth_estimate[[1]],lty=2)
+  
+  # True coefficient function
+  lines_bliss(res_bliss$data$grids[[1]],res_bliss$data$betas[[1]],col="purple",lwd=3)
+
+## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7-----------------------
+  plot(res_bliss$alpha[[1]],type="o",xlab="time",ylab="posterior probabilities")
+
+## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7-----------------------
+  plot(res_bliss$alpha[[1]],type="o",xlab="time",ylab="posterior probabilities")
+  abline(h=0.5,col=2,lty=2)
+  
+  for(i in 1:nrow(res_bliss$support_estimate[[1]])){
+  segments(res_bliss$support_estimate[[1]]$begin[i],0.05,
+           res_bliss$support_estimate[[1]]$end[i],0.05,col="red"
+           )
+  points(res_bliss$support_estimate[[1]]$begin[i],0.05,col="red",pch="|",lwd=2)
+  points(res_bliss$support_estimate[[1]]$end[i],0.05,col="red",pch="|",lwd=2)
+  }
+
+## ----eval=TRUE, include = TRUE,fig.height=5,fig.width=7-----------------------
+res_bliss$support_estimate[[1]]
 
 ## ----eval=FALSE, include = TRUE-----------------------------------------------
 #     param <- list(Q=2,
