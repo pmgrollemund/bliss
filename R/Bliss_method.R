@@ -121,6 +121,7 @@ fit_Bliss <- function(data,param,compute_density=TRUE,sann=TRUE,
                                 K     = param[["K"]],
                                 basis = param[["basis"]],
                                 p     = param[["p"]],
+                                phi_l = param[["phi_l"]],
                                 grids = data[["grids"]])
     chains[[j]] <- Bliss_Gibbs_Sampler(data,param_Gibbs_Sampler,verbose)
 
