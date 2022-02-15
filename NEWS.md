@@ -1,3 +1,7 @@
+# bliss 1.0.4
+
+* Use `mvrnorm()` from MASS instead of deprecated rockchalk package
+
 # bliss 1.0.3
 
 * Added a `NEWS.md` file to track changes to the package.

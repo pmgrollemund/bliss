@@ -289,7 +289,7 @@ sim <- function(param,verbose=FALSE){
 #'  \item{ksi}{a numerical value (optional) related to the observations correlation.}
 #'  \item{x_shape}{a character vector (optional), the shape of the observations. }
 #' }
-#' @importFrom rockchalk mvrnorm
+#' @importFrom MASS mvrnorm
 #' @importFrom stats pexp runif
 #' @export
 #' @examples
@@ -357,8 +357,8 @@ sim_x <- function(param){
                                          dim  = dim,
                                          per  = 1.5*(max(grid)-min(grid)))
     # Choose the coefficients
-    a_n <- rockchalk::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
-    b_n <- rockchalk::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
+    a_n <- MASS::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
+    b_n <- MASS::mvrnorm(n,(dim:1)/dim, diag((dim:1)/(50*dim)))
 
     # Compute the functions x_i(t)
     x <- a_n %*% Fourier_basis[1:dim,] + b_n %*% Fourier_basis[(dim+1):(2*dim),]
@@ -417,7 +417,7 @@ sim_x <- function(param){
     Sigma   <- corr_matrix(diagVar,ksi^2)
     x       <- matrix(0,n,p)
     for(i in 1:n){
-      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
+      x[i,] <- MASS::mvrnorm(1,mu,Sigma)
     }
   }
   if(shape == "mvgauss_different_scale"){
@@ -426,7 +426,7 @@ sim_x <- function(param){
     Sigma   <- corr_matrix(diagVar,ksi^2)
     x       <- matrix(0,n,p)
     for(i in 1:n){
-      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
+      x[i,] <- MASS::mvrnorm(1,mu,Sigma)
     }
   }
   if(shape == "mvgauss_different_scale2"){
@@ -435,7 +435,7 @@ sim_x <- function(param){
     Sigma   <- corr_matrix(diagVar,ksi^2)
     x       <- matrix(0,n,p)
     for(i in 1:n){
-      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
+      x[i,] <- MASS::mvrnorm(1,mu,Sigma)
     }
   }
   if(shape == "mvgauss_different_scale3"){
@@ -444,7 +444,7 @@ sim_x <- function(param){
     Sigma   <- corr_matrix(diagVar,ksi^2)
     x       <- matrix(0,n,p)
     for(i in 1:n){
-      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
+      x[i,] <- MASS::mvrnorm(1,mu,Sigma)
     }
   }
   if(shape == "mvgauss_different_scale4"){
@@ -453,7 +453,7 @@ sim_x <- function(param){
     Sigma   <- corr_matrix(diagVar,ksi^2)
     x       <- matrix(0,n,p)
     for(i in 1:n){
-      x[i,] <- rockchalk::mvrnorm(1,mu,Sigma)
+      x[i,] <- MASS::mvrnorm(1,mu,Sigma)
     }
 
   }
