@@ -1,7 +1,7 @@
-pandoc: 2.10.1
-pkgdown: 1.6.1
+pandoc: 2.14.0.3
+pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   BlissIntro: BlissIntro.html
-last_built: 2021-12-17T13:16Z
+last_built: 2022-02-15T10:41Z
 

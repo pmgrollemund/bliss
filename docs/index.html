@@ -22,6 +22,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -34,18 +36,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">bliss</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
@@ -67,7 +63,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/pmgrollemund/bliss/">
+  <a href="https://github.com/pmgrollemund/bliss/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -85,37 +81,37 @@
       </header><div class="row">
   <div class="contents col-md-9">
 
-<div id="bliss" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#bliss" class="anchor"></a>BLiSS</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="bliss">BLiSS<a class="anchor" aria-label="anchor" href="#bliss"></a>
+</h1></div>
 <p>Bayesian functional Linear regression with Sparse Step functions (BLiSS)</p>
 <p>A method for the Bayesian Functional Linear Regression model (functions-on-scalar), including two estimators of the coefficient function and an estimator of its support. A representation of the posterior distribution is also available.</p>
-<p><a href="https://pmgrollemund.github.io/bliss/" class="uri">https://pmgrollemund.github.io/bliss/</a></p>
+<p><a href="https://pmgrollemund.github.io/bliss/" class="external-link uri">https://pmgrollemund.github.io/bliss/</a></p>
 </div>
-<div id="installation" class="section level1">
-<h1 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h1>
+<div class="section level1">
+<h1 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h1>
 <p>To install the <strong>bliss</strong> package, the easiest is to install it directly from GitHub. Open an R session and run the following commands:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org">remotes</a></span><span class="op">)</span> 
-<span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span><span class="op">(</span><span class="st">"pmgrollemund/bliss"</span>, build_vignettes<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span> 
+<span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"pmgrollemund/bliss"</span>, build_vignettes<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="usage" class="section level1">
-<h1 class="hasAnchor">
-<a href="#usage" class="anchor"></a>Usage</h1>
+<div class="section level1">
+<h1 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h1>
 <p>Once the package is installed on your computer, it can be loaded into a R session:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">bliss</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/help.html">help</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"bliss"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pmgrollemund/bliss" class="external-link">bliss</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/help.html" class="external-link">help</a></span><span class="op">(</span>package<span class="op">=</span><span class="st">"bliss"</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="citation" class="section level1">
-<h1 class="hasAnchor">
-<a href="#citation" class="anchor"></a>Citation</h1>
+<div class="section level1">
+<h1 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h1>
 <p>As a lot of time and effort were spent in creating the <strong>bliss</strong> method, please cite it when using it for data analysis:</p>
-<p>Grollemund, Paul-Marie; Abraham, Christophe; Baragatti, Meïli; Pudlo, Pierre. Bayesian Functional Linear Regression with Sparse Step Functions. Bayesian Anal. 14 (2019), no. 1, 111–135. <a href="doi:10.1214/18-BA1095" class="uri">doi:10.1214/18-BA1095</a>. <a href="https://projecteuclid.org/euclid.ba/1524103229" class="uri">https://projecteuclid.org/euclid.ba/1524103229</a></p>
+<p>Grollemund, Paul-Marie; Abraham, Christophe; Baragatti, Meïli; Pudlo, Pierre. Bayesian Functional Linear Regression with Sparse Step Functions. Bayesian Anal. 14 (2019), no. 1, 111–135. <a href="doi:10.1214/18-BA1095" class="uri">doi:10.1214/18-BA1095</a>. <a href="https://projecteuclid.org/euclid.ba/1524103229" class="external-link uri">https://projecteuclid.org/euclid.ba/1524103229</a></p>
 <p>You should also cite the <strong>bliss</strong> package:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/citation.html">citation</a></span><span class="op">(</span><span class="st">"bliss"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"bliss"</span><span class="op">)</span></code></pre></div>
 <p>See also citation() for citing R itself.</p>
 </div>
 
@@ -123,46 +119,51 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=bliss">https://​cloud.r-project.org/​package=bliss</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/pmgrollemund/bliss/">https://​github.com/​pmgrollemund/​bliss/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/pmgrollemund/bliss/issues">https://​github.com/​pmgrollemund/​bliss/​issues</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=bliss" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/pmgrollemund/bliss/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/pmgrollemund/bliss/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></li>
+<li><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a></li>
 </ul>
 </div>
+
+
 <div class="citation">
-<h2>Citation</h2>
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html">Citing bliss</a></li>
+<li><a href="authors.html#citation">Citing bliss</a></li>
 </ul>
 </div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Paul-Marie Grollemund <br><small class="roles"> Author, maintainer </small>  </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
+
+
 
   </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Paul-Marie Grollemund.</p>
+  <p></p>
+<p>Developed by Paul-Marie Grollemund.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -170,6 +171,8 @@
 
   
 
+
+  
 
   </body>
 </html>

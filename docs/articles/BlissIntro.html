@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bliss</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -64,7 +60,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/pmgrollemund/bliss/">
+  <a href="https://github.com/pmgrollemund/bliss/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -79,23 +75,23 @@
 
       
 
-      </header><script src="BlissIntro_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to BLiSS method</h1>
-                        <h4 class="author">Paul-Marie Grollemund</h4>
+                        <h4 data-toc-skip class="author">Paul-Marie Grollemund</h4>
             
-            <h4 class="date">2021-12-17</h4>
+            <h4 data-toc-skip class="date">2022-02-15</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/pmgrollemund/bliss/blob/master/vignettes/BlissIntro.Rmd"><code>vignettes/BlissIntro.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pmgrollemund/bliss/blob/HEAD/vignettes/BlissIntro.Rmd" class="external-link"><code>vignettes/BlissIntro.Rmd</code></a></small>
       <div class="hidden name"><code>BlissIntro.Rmd</code></div>
 
     </div>
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit">
-  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">bliss</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R">  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pmgrollemund/bliss" class="external-link">bliss</a></span><span class="op">)</span></code></pre></div>
 <p>This vignette describes step by step how to use the BLiSS method. Below, you can find the following implemented features:</p>
 <ul>
 <li>Simulate data to test the BLiSS model</li>
@@ -103,12 +99,12 @@
 <li>Plot the posterior distribution of the coefficient function and the posterior distribution of the support</li>
 <li>Compute the different Bayesian estimators</li>
 </ul>
-<div id="one-single-functional-covariate-case" class="section level1">
-<h1 class="hasAnchor">
-<a href="#one-single-functional-covariate-case" class="anchor"></a>One single functional covariate case</h1>
-<div id="simulate-a-data-set" class="section level2">
-<h2 class="hasAnchor">
-<a href="#simulate-a-data-set" class="anchor"></a>Simulate a data set</h2>
+<div class="section level2">
+<h2 id="one-single-functional-covariate-case">One single functional covariate case<a class="anchor" aria-label="anchor" href="#one-single-functional-covariate-case"></a>
+</h2>
+<div class="section level3">
+<h3 id="simulate-a-data-set">Simulate a data set<a class="anchor" aria-label="anchor" href="#simulate-a-data-set"></a>
+</h3>
 <p>In order to simulate a proper dataset for Bliss application, some characteristics must be specified:</p>
 <ul>
 <li>
@@ -119,20 +115,20 @@
 <li>grids<span class="math inline">\(\_\)</span>lim, a 2-vector (to define the domain of curves <span class="math inline">\(x_{i}(.)\)</span>).</li>
 </ul>
 <p>Based on these parameters, data can be simulated (curves <span class="math inline">\(x_{i}(.)\)</span> and real values <span class="math inline">\(y_{i}\)</span>) from the functional linear regression model by using the <em>sim</em> function, as suggested in the following chunck.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-  <span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-  <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>                        <span class="co"># define the "param" to simulate data</span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R">  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
+  <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>                        <span class="co"># define the "param" to simulate data</span>
                 Q<span class="op">=</span><span class="fl">1</span>,                    <span class="co"># the number of functional covariate</span>
                 n<span class="op">=</span><span class="fl">100</span>,                  <span class="co"># n is the sample size and p is the</span>
-                p<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>,                <span class="co"># number of time observations of the curves</span>
-                beta_types<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"smooth"</span><span class="op">)</span>, <span class="co"># define the shape of the "true" coefficient function</span>
-                grids_lim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co"># Give the beginning and the end of the observation's domain of the functions.</span>
+                p<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>,                <span class="co"># number of time observations of the curves</span>
+                beta_types<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"smooth"</span><span class="op">)</span>, <span class="co"># define the shape of the "true" coefficient function</span>
+                grids_lim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co"># Give the beginning and the end of the observation's domain of the functions.</span>
 
-  <span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span><span class="va">param</span><span class="op">)</span> <span class="co"># Simulate the data</span></pre></div>
+  <span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span><span class="va">param</span><span class="op">)</span> <span class="co"># Simulate the data</span></code></pre></div>
 </div>
-<div id="how-to-apply-the-bliss-method" class="section level2">
-<h2 class="hasAnchor">
-<a href="#how-to-apply-the-bliss-method" class="anchor"></a>How to apply the Bliss method</h2>
+<div class="section level3">
+<h3 id="how-to-apply-the-bliss-method">How to apply the Bliss method<a class="anchor" aria-label="anchor" href="#how-to-apply-the-bliss-method"></a>
+</h3>
 <p>In order to apply the Bliss method, the main function to use is <em>fit<span class="math inline">\(\_\)</span>Bliss</em>. This function provides the following outputs:</p>
 <ul>
 <li>a posterior sample of the Bliss model,</li>
@@ -156,11 +152,11 @@
 <li>and <strong>phi<span class="math inline">\(\_\)</span>l</strong>, an argument specifying a prior distribution for <span class="math inline">\(\ell\)</span> the half-width of the intervals (only the <strong>Gamma`</strong> case is considered in this vignette),</li>
 </ul>
 <p>Find below, an example of use of this function and a sketch of the structure of the returned object.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-  <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>            <span class="co"># define the required values of the Bliss method.</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R">  <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>            <span class="co"># define the required values of the Bliss method.</span>
                 iter<span class="op">=</span><span class="fl">1e3</span>,   <span class="co"># The number of iteration of the main numerical algorithm of Bliss.</span>
                 burnin<span class="op">=</span><span class="fl">2e2</span>, <span class="co"># The number of burnin iteration for the Gibbs Sampler</span>
-                K<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span>     <span class="co"># The number of intervals of the beta</span>
+                K<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span>     <span class="co"># The number of intervals of the beta</span>
 
    
   <span class="va">res_bliss</span><span class="op">&lt;-</span><span class="fu"><a href="../reference/fit_Bliss.html">fit_Bliss</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">data</span>,param<span class="op">=</span><span class="va">param</span>,verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
@@ -187,7 +183,7 @@
 <span class="co">#&gt; Compute the (log) densities of the posterior sample.</span>
   
   <span class="co"># Structure of a Bliss object</span>
-  <span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">)</span>
 <span class="co">#&gt; List of 12</span>
 <span class="co">#&gt;  $ alpha                 :List of 1</span>
 <span class="co">#&gt;   ..$ : num [1:50] 0.0929 0.1019 0.1389 0.2507 0.5564 ...</span>
@@ -257,191 +253,186 @@
 <span class="co">#&gt;   .. ..- attr(*, "dimnames")=List of 2</span>
 <span class="co">#&gt;   .. .. ..$ : NULL</span>
 <span class="co">#&gt;   .. .. ..$ : chr [1:16] "b_1" "b_2" "b_3" "b_4" ...</span>
-<span class="co">#&gt;  - attr(*, "class")= chr "bliss"</span></pre></div>
+<span class="co">#&gt;  - attr(*, "class")= chr "bliss"</span></code></pre></div>
 </div>
-<div id="graphical-results" class="section level2">
-<h2 class="hasAnchor">
-<a href="#graphical-results" class="anchor"></a>Graphical results</h2>
+<div class="section level3">
+<h3 id="graphical-results">Graphical results<a class="anchor" aria-label="anchor" href="#graphical-results"></a>
+</h3>
 <p>This section presents how to obtain main graphical results (posterior quantities) derived from the Bliss method.</p>
-<div id="coefficient-function" class="section level3">
-<h3 class="hasAnchor">
-<a href="#coefficient-function" class="anchor"></a>Coefficient function</h3>
+<div class="section level4">
+<h4 id="coefficient-function">Coefficient function<a class="anchor" aria-label="anchor" href="#coefficient-function"></a>
+</h4>
 <p>Considering Functional Linear Regression model (FLR), and the specific <em>scalar-on-function</em> case, the major model parameter to infer is the coefficient function <span class="math inline">\(\beta(.)\)</span>. The following chunck shows how to plot the posterior distribution of the coefficient function:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-  <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
-                      <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
-  <span class="fu"><a href="../reference/image_Bliss.html">image_Bliss</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span>,<span class="va">param</span>,q<span class="op">=</span><span class="fl">1</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R">  <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
+                      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu"><a href="../reference/image_Bliss.html">image_Bliss</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span>,<span class="va">param</span>,q<span class="op">=</span><span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="BlissIntro_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
 <p>Additionnaly to this plot, one could usually want to display a point estimate of the coefficient function (which is a function). By using the following code, you can access to: * <strong>Bliss estimate</strong>, a piecewise constant version of the coefficient function, and * <strong>the smooth estimate</strong>, the standard bayesian estimate of the coefficient function (standard means that it minimizes the posterior <span class="math inline">\(L^2\)</span>-loss).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-  <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
-                      <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R">  <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
+                      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
   <span class="fu"><a href="../reference/image_Bliss.html">image_Bliss</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span>,<span class="va">param</span>,q<span class="op">=</span><span class="fl">1</span><span class="op">)</span>
   
   <span class="co"># Bliss estimate</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"s"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span> 
+  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"s"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span> 
   
   <span class="co"># Smooth estimate</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
   
   <span class="co"># True coefficient function</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">betas</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="st">"purple"</span>,lwd<span class="op">=</span><span class="fl">2</span>,type<span class="op">=</span><span class="st">"s"</span><span class="op">)</span></pre></div>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">betas</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="st">"purple"</span>,lwd<span class="op">=</span><span class="fl">2</span>,type<span class="op">=</span><span class="st">"s"</span><span class="op">)</span></code></pre></div>
 <p><img src="BlissIntro_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
 <p>The solid black line is Bliss estimate, the dashed black line is the smooth estimate and the solid purple line is the true coefficien function.</p>
 <p>Below, the function <code>lines_bliss</code> is used to plot the step function without the vertical lines, linking differents steps.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit">
-  <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
-                      <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R">  <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
+                      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
   <span class="fu"><a href="../reference/image_Bliss.html">image_Bliss</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">beta_posterior_density</span>,<span class="va">param</span>,q<span class="op">=</span><span class="fl">1</span><span class="op">)</span>
   
   <span class="co"># Bliss estimate</span>
   <span class="fu"><a href="../reference/lines_bliss.html">lines_bliss</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,lwd<span class="op">=</span><span class="fl">3</span><span class="op">)</span> 
   
   <span class="co"># Smooth estimate</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
   
   <span class="co"># True coefficient function</span>
-  <span class="fu"><a href="../reference/lines_bliss.html">lines_bliss</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">betas</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="st">"purple"</span>,lwd<span class="op">=</span><span class="fl">3</span><span class="op">)</span></pre></div>
+  <span class="fu"><a href="../reference/lines_bliss.html">lines_bliss</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_bliss</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">betas</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="st">"purple"</span>,lwd<span class="op">=</span><span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="BlissIntro_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
 </div>
-<div id="support-of-coefficient-function" class="section level3">
-<h3 class="hasAnchor">
-<a href="#support-of-coefficient-function" class="anchor"></a>Support of coefficient function</h3>
+<div class="section level4">
+<h4 id="support-of-coefficient-function">Support of coefficient function<a class="anchor" aria-label="anchor" href="#support-of-coefficient-function"></a>
+</h4>
 <p>According to the scientific problematic, one could aim to infer the coefficient function, but it is possible to alternatively focus only on the support of the coefficient function. In this case, the sign and the magniture of the coefficient function could be considered as nuisance parameters. Therefore, the Bliss method provides a specific estimation procedure for the support of the coefficient function (which relies on the posterior distribution of the coefficient function). It consists in deriving the posterior probabilities <span class="math inline">\(\alpha(t|D)\)</span>, for each <span class="math inline">\(t\)</span> in the domain <span class="math inline">\(\mathcal T\)</span> of the functional data, which correspond to the probabilities (conditionnaly to the observed data) that the support of the coefficient function covers the time <span class="math inline">\(t\)</span>.</p>
 <p>To plot the posterior probabilities, you have to use the following code :</p>
-<div class="sourceCode" id="cb7"><pre class="downlit">
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">alpha</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"o"</span>,xlab<span class="op">=</span><span class="st">"time"</span>,ylab<span class="op">=</span><span class="st">"posterior probabilities"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R">  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">alpha</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"o"</span>,xlab<span class="op">=</span><span class="st">"time"</span>,ylab<span class="op">=</span><span class="st">"posterior probabilities"</span><span class="op">)</span></code></pre></div>
 <p><img src="BlissIntro_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
 <p>From these posterior probabilities, the support estimate is derived by thresholding the probabilities. Without prior information guiding the estimation procedure, the default threshold is 0.5. The estimate support is then defined as the collection of time <span class="math inline">\(t\)</span> for which the posterior probability <span class="math inline">\(\alpha(t|D) &gt; 0.5\)</span>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit">
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">alpha</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"o"</span>,xlab<span class="op">=</span><span class="st">"time"</span>,ylab<span class="op">=</span><span class="st">"posterior probabilities"</span><span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html">abline</a></span><span class="op">(</span>h<span class="op">=</span><span class="fl">0.5</span>,col<span class="op">=</span><span class="fl">2</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R">  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">alpha</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"o"</span>,xlab<span class="op">=</span><span class="st">"time"</span>,ylab<span class="op">=</span><span class="st">"posterior probabilities"</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h<span class="op">=</span><span class="fl">0.5</span>,col<span class="op">=</span><span class="fl">2</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
   
-  <span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/segments.html">segments</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">begin</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,<span class="fl">0.05</span>,
+  <span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/segments.html" class="external-link">segments</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">begin</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,<span class="fl">0.05</span>,
            <span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">end</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,<span class="fl">0.05</span>,col<span class="op">=</span><span class="st">"red"</span>
            <span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">begin</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,<span class="fl">0.05</span>,col<span class="op">=</span><span class="st">"red"</span>,pch<span class="op">=</span><span class="st">"|"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">end</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,<span class="fl">0.05</span>,col<span class="op">=</span><span class="st">"red"</span>,pch<span class="op">=</span><span class="st">"|"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
-  <span class="op">}</span></pre></div>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">begin</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,<span class="fl">0.05</span>,col<span class="op">=</span><span class="st">"red"</span>,pch<span class="op">=</span><span class="st">"|"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">end</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,<span class="fl">0.05</span>,col<span class="op">=</span><span class="st">"red"</span>,pch<span class="op">=</span><span class="st">"|"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
+  <span class="op">}</span></code></pre></div>
 <p><img src="BlissIntro_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
 <p>A resume of the support estimate is provided with:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit">
-<span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">res_bliss</span><span class="op">$</span><span class="va">support_estimate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="co">#&gt;   begin end</span>
 <span class="co">#&gt; 2     5  31</span>
-<span class="co">#&gt; 4    38  50</span></pre></div>
+<span class="co">#&gt; 4    38  50</span></code></pre></div>
 </div>
 </div>
 </div>
-<div id="multiple-functional-covariates" class="section level1">
-<h1 class="hasAnchor">
-<a href="#multiple-functional-covariates" class="anchor"></a>Multiple functional covariates</h1>
+<div class="section level2">
+<h2 id="multiple-functional-covariates">Multiple functional covariates<a class="anchor" aria-label="anchor" href="#multiple-functional-covariates"></a>
+</h2>
 <p>To avoid unnecesseray computational time, this section is not executed. You could figure out that the functions, objects and procedures are mostly similar to the previous one (single functional covariate case). The main differences are that:</p>
 <ul>
 <li>number of function covariates have to be specified in the <code>param</code> object, and</li>
 <li>posterior quantities are available in elements of output lists.</li>
 </ul>
-<div id="simulate-a-data-set-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#simulate-a-data-set-1" class="anchor"></a>Simulate a data set</h2>
-<div class="sourceCode" id="cb10"><pre class="downlit">
-   <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Q<span class="op">=</span><span class="fl">2</span>,
+<div class="section level3">
+<h3 id="simulate-a-data-set-1">Simulate a data set<a class="anchor" aria-label="anchor" href="#simulate-a-data-set-1"></a>
+</h3>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R">   <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Q<span class="op">=</span><span class="fl">2</span>,
                  n<span class="op">=</span><span class="fl">300</span>,
-                 p<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">40</span>,<span class="fl">60</span><span class="op">)</span>,
-                 beta_shapes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"simple"</span>,<span class="st">"smooth"</span><span class="op">)</span>,
-                 grids_lim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+                 p<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>,<span class="fl">60</span><span class="op">)</span>,
+                 beta_shapes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simple"</span>,<span class="st">"smooth"</span><span class="op">)</span>,
+                 grids_lim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 
-  <span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span><span class="va">param</span><span class="op">)</span></pre></div>
+  <span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span><span class="va">param</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="how-to-apply-the-bliss-method-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#how-to-apply-the-bliss-method-1" class="anchor"></a>How to apply the Bliss method</h2>
-<div class="sourceCode" id="cb11"><pre class="downlit">
-  <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>       <span class="co"># define the required values of the Bliss method.</span>
+<div class="section level3">
+<h3 id="how-to-apply-the-bliss-method-1">How to apply the Bliss method<a class="anchor" aria-label="anchor" href="#how-to-apply-the-bliss-method-1"></a>
+</h3>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R">  <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>       <span class="co"># define the required values of the Bliss method.</span>
      iter<span class="op">=</span><span class="fl">1e3</span>,         <span class="co"># The number of iteration of the main numerical algorithm of Bliss.</span>
      burnin<span class="op">=</span><span class="fl">2e2</span>,       <span class="co"># The number of burnin iteration for the Gibbs Sampler</span>
-     K<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>         <span class="co"># The number of intervals of the beta</span>
+     K<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>         <span class="co"># The number of intervals of the beta</span>
 
-  <span class="va">res_Bliss_mult</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_Bliss.html">fit_Bliss</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">data</span>,param<span class="op">=</span><span class="va">param</span><span class="op">)</span></pre></div>
+  <span class="va">res_Bliss_mult</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_Bliss.html">fit_Bliss</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">data</span>,param<span class="op">=</span><span class="va">param</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="graphical-results-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#graphical-results-1" class="anchor"></a>Graphical results</h2>
-<div class="sourceCode" id="cb12"><pre class="downlit">
-   <span class="va">q</span> <span class="op">&lt;-</span> <span class="fl">1</span>
-   <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
-                       <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
-   <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
+<div class="section level3">
+<h3 id="graphical-results-1">Graphical results<a class="anchor" aria-label="anchor" href="#graphical-results-1"></a>
+</h3>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R">   <span class="va">q</span> <span class="op">&lt;-</span> <span class="fl">1</span>
+   <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
+                       <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
+   <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
    <span class="fu"><a href="../reference/image_Bliss.html">image_Bliss</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">beta_posterior_density</span>,<span class="va">param</span>,q<span class="op">=</span><span class="va">q</span><span class="op">)</span>
-   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"s"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
-   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">betas</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="fl">2</span>,lwd<span class="op">=</span><span class="fl">2</span>,type<span class="op">=</span><span class="st">"s"</span><span class="op">)</span>
+   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"s"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
+   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">betas</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="fl">2</span>,lwd<span class="op">=</span><span class="fl">2</span>,type<span class="op">=</span><span class="st">"s"</span><span class="op">)</span>
 
-  <span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
-                 <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+                 <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
    <span class="fu"><a href="../reference/plot_bliss.html">plot_bliss</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,
               <span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,lwd<span class="op">=</span><span class="fl">2</span>,ylim<span class="op">=</span><span class="va">ylim</span><span class="op">)</span>
-   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,
+   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,
          <span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
 
 
    <span class="va">q</span> <span class="op">&lt;-</span> <span class="fl">2</span>
-   <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
-                       <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
-   <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
+   <span class="va">param</span><span class="op">$</span><span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">beta_posterior_density</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">grid_beta_t</span><span class="op">)</span>,
+                       <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span>
+   <span class="va">param</span><span class="op">$</span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span>
    <span class="fu"><a href="../reference/image_Bliss.html">image_Bliss</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">beta_posterior_density</span>,<span class="va">param</span>,q<span class="op">=</span><span class="va">q</span><span class="op">)</span>
-   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"s"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
-   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">betas</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="fl">2</span>,lwd<span class="op">=</span><span class="fl">2</span>,type<span class="op">=</span><span class="st">"l"</span><span class="op">)</span>
+   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,type<span class="op">=</span><span class="st">"s"</span>,lwd<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
+   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,<span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">betas</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="fl">2</span>,lwd<span class="op">=</span><span class="fl">2</span>,type<span class="op">=</span><span class="st">"l"</span><span class="op">)</span>
    
-   <span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
-                 <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
+   <span class="va">ylim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,
+                 <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
    <span class="fu"><a href="../reference/plot_bliss.html">plot_bliss</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,
               <span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Bliss_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,lwd<span class="op">=</span><span class="fl">2</span>,ylim<span class="op">=</span><span class="va">ylim</span><span class="op">)</span>
-   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,
-         <span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span></pre></div>
+   <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">grids</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,
+         <span class="va">res_Bliss_mult</span><span class="op">$</span><span class="va">Smooth_estimate</span><span class="op">[[</span><span class="va">q</span><span class="op">]</span><span class="op">]</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
-<div id="session-informations" class="section level1">
-<h1 class="hasAnchor">
-<a href="#session-informations" class="anchor"></a>Session informations</h1>
-<pre><code>#&gt; R version 4.0.3 (2020-10-10)
-#&gt; Platform: x86_64-w64-mingw32/x64 (64-bit)
-#&gt; Running under: Windows 10 x64 (build 19042)
-#&gt; 
-#&gt; Matrix products: default
-#&gt; 
-#&gt; locale:
-#&gt; [1] LC_COLLATE=French_France.1252  LC_CTYPE=French_France.1252   
-#&gt; [3] LC_MONETARY=French_France.1252 LC_NUMERIC=C                  
-#&gt; [5] LC_TIME=French_France.1252    
-#&gt; 
-#&gt; attached base packages:
-#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
-#&gt; 
-#&gt; other attached packages:
-#&gt; [1] bliss_1.0.3
-#&gt; 
-#&gt; loaded via a namespace (and not attached):
-#&gt;  [1] zip_2.1.1                Rcpp_1.0.7               nloptr_1.2.2.2          
-#&gt;  [4] bslib_0.2.4              compiler_4.0.3           jquerylib_0.1.3         
-#&gt;  [7] plyr_1.8.6               tools_4.0.3              boot_1.3-25             
-#&gt; [10] digest_0.6.27            lme4_1.1-23              statmod_1.4.34          
-#&gt; [13] nlme_3.1-149             jsonlite_1.7.2           evaluate_0.14           
-#&gt; [16] memoise_1.1.0            lattice_0.20-41          rlang_0.4.10            
-#&gt; [19] Matrix_1.2-18            openxlsx_4.2.2           rstudioapi_0.13         
-#&gt; [22] rockchalk_1.8.144        yaml_2.2.1               pkgdown_1.6.1           
-#&gt; [25] xfun_0.25                RcppArmadillo_0.10.1.2.0 stringr_1.4.0           
-#&gt; [28] knitr_1.30               desc_1.2.0               fs_1.5.0                
-#&gt; [31] sass_0.3.0               systemfonts_0.3.2        rprojroot_2.0.2         
-#&gt; [34] grid_4.0.3               R6_2.5.0                 foreign_0.8-80          
-#&gt; [37] rmarkdown_2.10           minqa_1.2.4              carData_3.0-4           
-#&gt; [40] magrittr_2.0.1           htmltools_0.5.1.1        MASS_7.3-53             
-#&gt; [43] kutils_1.70              splines_4.0.3            assertthat_0.2.1        
-#&gt; [46] xtable_1.8-4             ragg_0.3.1               stringi_1.5.3           
-#&gt; [49] crayon_1.3.4</code></pre>
+<div class="section level2">
+<h2 id="session-informations">Session informations<a class="anchor" aria-label="anchor" href="#session-informations"></a>
+</h2>
+<pre><code><span class="co">#&gt; R version 4.1.2 (2021-11-01)</span>
+<span class="co">#&gt; Platform: x86_64-w64-mingw32/x64 (64-bit)</span>
+<span class="co">#&gt; Running under: Windows 10 x64 (build 19042)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Matrix products: default</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; locale:</span>
+<span class="co">#&gt; [1] LC_COLLATE=French_France.1252  LC_CTYPE=French_France.1252   </span>
+<span class="co">#&gt; [3] LC_MONETARY=French_France.1252 LC_NUMERIC=C                  </span>
+<span class="co">#&gt; [5] LC_TIME=French_France.1252    </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; attached base packages:</span>
+<span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; other attached packages:</span>
+<span class="co">#&gt; [1] bliss_1.0.4</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; loaded via a namespace (and not attached):</span>
+<span class="co">#&gt;  [1] Rcpp_1.0.7               knitr_1.37               magrittr_2.0.1          </span>
+<span class="co">#&gt;  [4] MASS_7.3-54              R6_2.5.1                 RcppArmadillo_0.10.7.5.0</span>
+<span class="co">#&gt;  [7] ragg_1.2.1               rlang_0.4.12             fastmap_1.1.0           </span>
+<span class="co">#&gt; [10] highr_0.9                stringr_1.4.0            tools_4.1.2             </span>
+<span class="co">#&gt; [13] xfun_0.29                jquerylib_0.1.4          htmltools_0.5.2         </span>
+<span class="co">#&gt; [16] systemfonts_1.0.4        yaml_2.2.1               digest_0.6.29           </span>
+<span class="co">#&gt; [19] rprojroot_2.0.2          pkgdown_2.0.2            crayon_1.4.2            </span>
+<span class="co">#&gt; [22] textshaping_0.3.6        purrr_0.3.4              sass_0.4.0              </span>
+<span class="co">#&gt; [25] fs_1.5.2                 memoise_2.0.1            cachem_1.0.6            </span>
+<span class="co">#&gt; [28] evaluate_0.14            rmarkdown_2.11           stringi_1.7.6           </span>
+<span class="co">#&gt; [31] compiler_4.1.2           bslib_0.3.1              desc_1.4.0              </span>
+<span class="co">#&gt; [34] jsonlite_1.7.2</span></code></pre>
 </div>
   </div>
 
@@ -456,11 +447,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Paul-Marie Grollemund.</p>
+  <p></p>
+<p>Developed by Paul-Marie Grollemund.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -468,6 +461,8 @@
 
   
 
+
+  
 
   </body>
 </html>
