@@ -1,4 +1,4 @@
-# BLiSS
+# bliss <img src='man/figures/logo.png' align="right" height="139" />
 
 Bayesian functional Linear regression with Sparse Step functions (BLiSS)
 
