@@ -1,3 +1,7 @@
+# bliss 1.0.5
+
+* change @docType keyword to _PACKAGE_ in bliss.R
+
 # bliss 1.0.4
 
 * Use `mvrnorm()` from MASS instead of deprecated rockchalk package
