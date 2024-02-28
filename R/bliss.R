@@ -4,10 +4,10 @@
 #' including two estimators of the coefficient function and an estimator of its support.
 #' A representation of the posterior distribution is also available.
 #'
-#' @docType package
 #' @name bliss
 #' @import Rcpp RcppArmadillo
 #' @importFrom Rcpp evalCpp cppFunction Rcpp.plugin.maker
 #' @useDynLib bliss, .registration = TRUE
 # @exportPattern "^[[:alpha:]]+"
+"_PACKAGE"
 NULL
