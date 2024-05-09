@@ -4,7 +4,7 @@
 \alias{compute_beta_posterior_density}
 \title{compute_beta_posterior_density}
 \usage{
-compute_beta_posterior_density(beta_sample, param, verbose = FALSE)
+compute_beta_posterior_density(beta_sample, param)
 }
 \arguments{
 \item{beta_sample}{a matrix. Each row is a coefficient function computed from the
@@ -22,8 +22,6 @@ posterior sample.}
       different grid.}
 \item{thin}{an integer (optional) to thin the posterior sample.}
 }}
-
-\item{verbose}{write stuff if TRUE (optional).}
 }
 \value{
 An approximation of the posterior density on a two-dimensional grid
@@ -43,21 +41,11 @@ The posterior densities correponds to approximations of the marginal
 library(RColorBrewer)
 data(data1)
 data(param1)
-# result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 data(res_bliss1)
-q <- 1
-param_beta_density <- list(grid= data1[["grids"]][[q]],
-                           iter= param1[["iter"]],
-                           p   = param1[["p"]][q],
-                           n        = length(data1[["y"]]),
-                           thin     = param1[["thin"]],
-                           burnin   = param1[["burnin"]],
-                           lims_kde = param1[["lims_kde"]][[q]],
-                           new_grid = param1[["new_grids"]][[q]],
-                           lims_estimate = range(res_bliss1$Smooth_estimate[[q]]))
-density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample[[q]],param_beta_density)
-image(density_estimate$grid_t,
-      density_estimate$grid_beta_t,
-      density_estimate$density,col=rev(heat.colors(100)))
+param1$grids <- data1$grids
+param1$p <- sapply(data1$grids,length)
+param1$Q <- length(data1$x)
+
+density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample,param1)
 }
 }

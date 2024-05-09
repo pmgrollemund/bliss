@@ -9,7 +9,6 @@ Bliss_Gibbs_Sampler(data, param, verbose = FALSE)
 \arguments{
 \item{data}{a list containing:
 \describe{
-\item{Q}{an integer, the number of functional covariates.}
 \item{y}{a numerical vector, the outcome values \code{y_i}.}
 \item{x}{a list of matrices, the qth matrix contains the observations of the
       qth functional covariate at time points given by \code{grids}.}
@@ -19,16 +18,19 @@ Bliss_Gibbs_Sampler(data, param, verbose = FALSE)
 
 \item{param}{a list containing:
 \describe{
+\item{Q}{an integer, the number of functional covariates.}
 \item{iter}{an integer, the number of iterations of the Gibbs sampler algorithm.}
 \item{K}{a vector of integers, corresponding to the numbers of intervals for
       each covariate.}
 \item{p}{an integer, the number of time points.}
-\item{basis}{a character vector (optional). The possible values are "uniform" (default),
+\item{basis}{a character (optional). The possible values are "uniform" (default),
       "epanechnikov", "gauss" and "triangular" which correspond to
       different basis functions to expand the coefficient function and the
       functional covariates}
 \item{phi_l}{a numerical (optional). An hyperparameters related to the exponential prior
 on the length of the intervals. Lower values promotes wider intervals.}
+\item{verbose_cpp}{a boolean value (optional). Write stuff from the Rcpp scripts
+      if TRUE.}
 }}
 
 \item{verbose}{write stuff if TRUE (optional).}
@@ -37,7 +39,7 @@ on the length of the intervals. Lower values promotes wider intervals.}
 a list containing :
 \describe{
  \item{trace}{a matrix, the trace of the Gibbs Sampler.}
- \item{param}{a list containing parameters used to run the function. }
+ \item{param}{a list containing parameters used to run the function.}
 }
 }
 \description{
@@ -46,14 +48,7 @@ A Gibbs Sampler algorithm to sample the posterior distribution of
 }
 \examples{
 \donttest{
-# May take a while
-param_sim <- list(Q=1,n=25,p=50,grids_lim=list(c(0,1)),iter=1e4,K=2)
-data_sim <- sim(param_sim,verbose=FALSE)
-res_Bliss_Gibbs_Sampler <- Bliss_Gibbs_Sampler(data_sim,param_sim)
-theta_1 <- res_Bliss_Gibbs_Sampler$trace[1,]
-theta_1
-# Resultat for few iterations
-param_sim <- list(Q=1,n=25,p=50,grids_lim=list(c(0,1)),iter=5e2,K=2)
+param_sim <- list(Q=1,n=25,p=50,grids_lim=list(c(0,1)),iter=2e2,K=2)
 data_sim <- sim(param_sim,verbose=FALSE)
 res_Bliss_Gibbs_Sampler <- Bliss_Gibbs_Sampler(data_sim,param_sim)
 theta_1 <- res_Bliss_Gibbs_Sampler$trace[1,]

@@ -4,55 +4,26 @@
 \alias{image_Bliss}
 \title{image_Bliss}
 \usage{
-image_Bliss(beta_posterior_density, param = list(), q = 1)
+image_Bliss(beta_posterior_density, param = list(), q = 1, to_print = TRUE)
 }
 \arguments{
 \item{beta_posterior_density}{a list. The result of the function
 \code{compute_beta_posterior_density}.}
 
-\item{param}{a list containing: (optional)
-\describe{
-\item{cols}{a vector of colors for the function image.}
-\item{main}{an overall title for the plot.}
-\item{xlab}{a title for the x axis.}
-\item{ylab}{a title for the y axis.}
-\item{ylim}{a numeric vectors of length 2, giving the y coordinate range.}
-}}
+\item{param}{an optional  list containing arguments: col_low, col_mid, col_high,
+ylim, xlab, ylab, title.}
 
 \item{q}{an integer (optional), the index of the functional covariate to plot.}
+
+\item{to_print}{display the plot if TRUE.}
 }
 \description{
 Plot an approximation of the posterior density.
 }
 \examples{
-library(RColorBrewer)
 data(data1)
 data(param1)
 data(res_bliss1)
-param1$cols <- colorRampPalette(brewer.pal(9,"Reds"))(1e2)
-image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
-lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
-lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=3,lwd=2,type="s")
 
-# ---- not run
-param1$cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
 image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
-lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
-lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=3,lwd=2,type="s")
-
-param1$cols <- rev(heat.colors(12))
-param1$col_scale <- "quantile"
-image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
-lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
-lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=3,lwd=2,type="s")
-
-param1$cols <- rev(terrain.colors(12))
-image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
-lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
-lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=2,lwd=2,type="s")
-
-param1$cols <- rev(topo.colors(12))
-image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
-lines(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],type="s",lwd=2)
-lines(res_bliss1$data$grids[[1]],res_bliss1$data$betas[[1]],col=2,lwd=2,type="s")
 }

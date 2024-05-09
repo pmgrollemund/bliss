@@ -54,14 +54,16 @@
 #' beta_function <- choose_beta(param)
 #' plot(param$grid,beta_function,type="l")
 choose_beta <- function(param){
-  # load objects
+  ###### Initialisation - Load objects
   p    <- param[["p"]]
   grid <- param[["grid"]]
   shape <- param[["shape"]]
 
+  ###### Initialisation - Define objects
   # Compute a grid on (0,1).
   grid_01 <- (grid - min(grid))/ (max(grid) - min(grid))
-  # Choose a function beta
+
+  ###### Choose a function beta
   if(shape == "smooth"){
     beta <- 5*exp(-((grid_01-0.25)*20)^2) +
       2*exp(-((grid_01-0.75)*20)^2) -
@@ -128,7 +130,7 @@ choose_beta <- function(param){
       3 * sigmoid_sharp(grid_01,min(grid_01) + 0.6 * shift,v=100,asym=1)
   }
 
-  # Return the chosen function
+  ###### Return the chosen function
   return(beta)
 }
 
@@ -152,6 +154,8 @@ choose_beta <- function(param){
 #' \describe{
 #'  \item{beta_shapes}{a character vector. The qth item indicates the shape of
 #'        the coefficient function associated to the qth functional covariate.}
+#'  \item{beta_functions}{a list containing numerical vectors to define the beta
+#'        functions}
 #'  \item{n}{an integer, the sample size.}
 #'  \item{p}{a vector of integers, the qth component is the number of
 #'        times for the qth covariate.}
@@ -186,12 +190,13 @@ choose_beta <- function(param){
 #' abline(h=0,lty=2,col="gray")
 sim <- function(param,verbose=FALSE){
   if(verbose) cat("Simulation of the data.\n")
-  # load objects
+
+  ###### Initialisation - Load objects
   Q <- param[['Q']]
   n <- param[['n']]
   p <- param[['p']]
 
-  # load optional objects
+  ###### Initialisation - Load optional objects
   grids_lim <- param[['grids_lim']]
   mu     <- param[['mu']]
   r      <- param[['r']]
@@ -201,8 +206,9 @@ sim <- function(param,verbose=FALSE){
   x_shapes    <- param[['x_shapes']]
   autocorr_spread <- param[['autocorr_spread']]
   autocorr_diag   <- param[['autocorr_diag']]
+  beta_functions   <- param[['beta_functions']]
 
-  # Initialize the required unspecified objects
+  ###### Initialisation - Define objects
   if(is.null(grids_lim)){
     grids_lim <- list()
     for(q in 1:Q) grids_lim[[q]] <- c(0,1)
@@ -212,8 +218,10 @@ sim <- function(param,verbose=FALSE){
   if(is.null(link)) link <- function(expectation) expectation
   if(is.null(x_shapes))    x_shapes    <- rep(NULL,Q)
   if(is.null(beta_shapes)) beta_shapes <- rep("simple",Q)
+  if(is.null(beta_functions)){
+    beta_functions <- list() ; length(beta_functions) <- Q
+  }
 
-  # Derive some objects
   if(is.null(grids)) {
     grids  <- list()
     for (q in 1:Q) grids[[q]] <- seq(grids_lim[[q]][1],grids_lim[[q]][2],length=p[q])
@@ -225,7 +233,7 @@ sim <- function(param,verbose=FALSE){
     if(check == FALSE) stop("The length of each grid (parameter grids) should correspond to the number of observation times (parameter p).")
   }
 
-  # Simulate the functional covariate observed on the grids.
+  ###### Simulate the functional covariate observed on the grids.
   if(verbose) cat("\t Simulate functional covariate observations.\n")
   x <- list()
   for (q in 1:Q){
@@ -235,16 +243,20 @@ sim <- function(param,verbose=FALSE){
     x[[q]] <- sim_x(param_sim_x)
   }
 
-  # Choose a coefficient function beta
+  ###### Choose a coefficient function beta
   if(verbose) cat("\t Choose a coefficient function.\n")
   betas <- list()
   for (q in 1:Q){
     param_choose_beta <- list(p=p[q],grid=grids[[q]],shape=beta_shapes[q])
-    betas[[q]] <- choose_beta(param_choose_beta)
+    if(is.null(beta_functions[[q]])){
+      betas[[q]] <- choose_beta(param_choose_beta)
+    }else{
+      betas[[q]] <- beta_functions[[q]]
+    }
   }
 
+  ###### Compute the expectation of the outcome
   if(verbose) cat("\t Compute the outcome values.\n")
-  # Compute the expectation of the outcome
   y_expe <- rep(mu,n)
   for(i in 1:n){
     for(q in 1:Q){
@@ -253,19 +265,19 @@ sim <- function(param,verbose=FALSE){
     }
   }
 
-  # Compute the error
+  ###### Compute the error
   err <- rnorm(n,0,1)
   err <- sd(y_expe) * err / (sd(err) * sqrt(r))
 
-  # Compute the outcome values
+  ###### Compute the outcome values
   y <- link(y_expe) + err
 
-  # Return the data.
-  return(list(Q     = Q,
-              y     = y,
+  ###### Return the data
+  res <- list(y     = y,
               x     = x,
               betas = betas,
-              grids = grids))
+              grids = grids)
+  return(res)
 }
 
 ################################# ----
@@ -294,63 +306,34 @@ sim <- function(param,verbose=FALSE){
 #' @export
 #' @examples
 #' library(RColorBrewer)
-#' ### Fourier
-#' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_shape="Fourier")
-#' x <- sim_x(param)
-#' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
-#' matplot(param$grid,t(x),type="l",lty=1,col=cols)
-#' ### Fourier2
-#' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="Fourier2")
-#' x <- sim_x(param)
-#' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
-#' matplot(param$grid,t(x),type="l",lty=1,col=cols)
-#' ### random_walk
-#' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="random_walk")
-#' x <- sim_x(param)
-#' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
-#' matplot(param$grid,t(x),type="l",lty=1,col=cols)
-#' ### random_sharp
-#' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="random_sharp")
-#' x <- sim_x(param)
-#' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
-#' matplot(param$grid,t(x),type="l",lty=1,col=cols)
 #' ### uniform
 #' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="uniform")
 #' x <- sim_x(param)
 #' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
 #' matplot(param$grid,t(x),type="l",lty=1,col=cols)
-#' ### gaussian
-#' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="gaussian")
-#' x <- sim_x(param)
-#' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
-#' matplot(param$grid,t(x),type="l",lty=1,col=cols)
-#' ### mvgauss
-#' param <- list(n=15,p=100,grid=seq(0,1,length=100),x_type="mvgauss")
-#' x <- sim_x(param)
-#' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(15)
-#' matplot(param$grid,t(x),type="l",lty=1,col=cols)
 sim_x <- function(param){
-  # load objects
+
+  ###### Initialisation - Load objects
   n <- param$n
   p <- param$p
   grid <- param$grid
 
-  # load optional objects
+  ###### Initialisation - Load optional objects
   shape    <- param$shape
   dim     <- param$dim
   ksi     <- param$ksi
   diagVar <- param$diagVar
 
-  # Initialize the necessary unspecified objects
+  ###### Initialisation - Load the necessary unspecified objects
   if(is.null(shape))   shape   <- "mvgauss"
   if(is.null(dim))     dim     <- 4
   if(is.null(ksi))     ksi     <- 1
   if(is.null(diagVar)) diagVar <- abs(rnorm(p,1,1/10))
 
-  # Deduce objects
+  ###### Initialisation - Define objects
   by <- diff(grid)[1]
 
-  # Simulate the functions x_i(t)
+  ###### Simulate the functions x_i(t)
   if(shape == "Fourier"){
     # Set a Fourier basis
     Fourier_basis <- build_Fourier_basis(grid = grid,
@@ -455,10 +438,9 @@ sim_x <- function(param){
     for(i in 1:n){
       x[i,] <- MASS::mvrnorm(1,mu,Sigma)
     }
-
   }
 
-  # Return the functions
+  ###### Output
   return(x)
 }
 

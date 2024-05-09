@@ -5,6 +5,8 @@
 //#########################################################
 #define ARMA_DONT_PRINT_ERRORS
 // #include <Rcpp.h>
+
+#define ARMA_WARN_LEVEL 0
 #include <RcppArmadillo.h>
 #include <RcppArmadilloExtensions/sample.h>
 #include <string>
@@ -13,6 +15,14 @@
 #include <cstring>
 // #include <cmath>
 // [[Rcpp::depends(RcppArmadillo)]]
+
+// [[Rcpp::depends(RcppProgress)]]
+#include <progress.hpp>
+#include <progress_bar.hpp>
+
+// //[[Rcpp::depends(RcppClock)]]
+// #include <RcppClock.h>
+// #include <thread>
 
 using namespace Rcpp;
 using namespace arma;
@@ -586,22 +596,44 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
                               int iter, arma::vec & K, CharacterVector & basis,
                               double g, double lambda ,arma::mat & V_tilde,
                               arma::vec & l_values_length,List & probs_l,
-                              bool progress, double tol) {
-  if(progress) Rcpp::Rcout << "Gibbs Sampler: " <<  std::endl;
-  if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;
+                              bool verbose, double tol) {
+  ////////////////////////////////////////////////////////////////
+  //////////////// Initialization
+  ////////////////////////////////////////////////////////////////
+  if(verbose) Rcpp::Rcout << "\t Initialization." <<  std::endl;
 
-  // Compute the value of n and the p's
+  //////////////// Initialization - Primary objects
+  // Compute the value of n and the p
   int n = as<mat>(x[0]).n_rows ;
-
-  arma::vec p = arma::zeros<arma::vec>(Q)        ;
+  arma::vec p = arma::zeros<arma::vec>(Q) ;
   for(int i=0 ; i<Q ; ++i){
     p(i) = as<mat>(x[i]).n_cols;
   }
+  int sum_K = sum(K);
 
-  // Compute projection of the x_i on all the intervals
-  List normalization_values(Q) ;    // normalization_values is used to normalize the predictors
-  List potential_intervals(Q)        ;    // will be contain all the projections
-  List potential_intervals_dims(Q)   ;    // will be contain the dim of the potential_intervals's
+  //////////////// Initialization - Declare types
+  double sigma_sq             ;
+  arma::vec b_tilde           ;
+  arma::mat Sigma_b_tilde_inv ;
+  arma::mat W_inv             ;
+
+  List m(Q) ;
+  List l(Q) ;
+  List l_possible(Q);
+  List m_possible(Q);
+
+  List normalization_values(Q)     ;                                            // normalization_values is used to normalize the predictors
+  List potential_intervals(Q)      ;                                            // will be contain all the projections
+  List potential_intervals_dims(Q) ;                                            // will be contain the dim of the potential_intervals's
+
+  bool success = false ;
+  arma::mat R          ;
+  arma::mat test       ;
+
+  arma::mat x_tilde = arma::ones<arma::mat>(n,sum_K+1) ;
+  mat trace = zeros<mat>(iter+1,3*sum_K+2);
+
+  //////////////// Initialization - Compute projection of the x_i on all the intervals
   for( int q=0 ; q<Q ; ++q){
     arma::cube temp = potential_intervals_List (x, grids, l_values_length, basis,q) ;
     normalization_values[q] = temp.slice(n);
@@ -616,44 +648,35 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     potential_intervals_dims[q] = temp2;
   }
 
-  // Compute the matrix of lambda for the Ridge penalty of the Rigde Zellner prior
-  int sum_K = sum(K);
+  //////////////// Initialization - Compute the matrix of lambda
+  // for the Ridge penalty of the Rigde Zellner prior
+  // ... or the constant matrix if V does not depend on the intervals
   arma::mat lambda_id0  = arma::zeros<arma::mat>(sum_K+1,sum_K+1) ;
-  lambda_id0(0,0) = 100*var(y);                   // Weakly informative prior
+  lambda_id0(0,0) = 100*var(y);                                                 // Weakly informative prior
   for( int i=1 ; i<sum_K+1; ++i){
     lambda_id0(i,i) = lambda ;
   }
-  // ... or the constant matrix if V does not depend on the intervals
 
-  // Determine the start point
-  if(progress) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
-  double sigma_sq       ;
-  arma::vec b_tilde           ;
-  arma::mat Sigma_b_tilde_inv ;
-  arma::mat W_inv             ;
+  ////////////////////////////////////////////////////////////////
+  //////////////// Determine the starting point
+  ////////////////////////////////////////////////////////////////
+  if(verbose) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
 
-  bool success = false ;
-  arma::mat R                ;
-  arma::mat test             ;
-
-  List m(Q) ;
-  List l(Q) ;
-  arma::mat x_tilde = arma::ones<arma::mat>(n,sum_K+1) ;
-
-  // Try to determine a starting point which not leads to a non-invertible
-  // matrix problem
+  //////////////// Try to determine a starting point
+  // which not leads to a non-invertible matrix problem
   while(success == false){
-    // Initialization of sigma_sq
+    // Starting point for sigma_sq
     sigma_sq  = var(y) ;
 
-    // Initialization of the middle and length of the intervals
+    // Starting point for the middle and length of the intervals
     for( int q=0 ; q<Q ; ++q){
       arma::vec probs_l_temp = probs_l[q];
       m[q] = sample_cpp(K(q),p(q)) + 1 ;
       l[q] = sample_weight(K(q),probs_l_temp) + 1 ;
     }
 
-    // Initialize the current x_tilde matrix (which depend on the intervals)
+    // Initialize the current x_tilde matrix
+    // (which depend on the intervals)
     int count = 0;
     for( int q=0 ; q<Q ; ++q){
       for(int k=0 ; k<K(q) ; ++k) {
@@ -667,7 +690,8 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
       count = count + K(q);
     }
 
-    // Initialize the current W_inv matrix (which depend on the intervals)
+    // Initialize the current W_inv matrix
+    // (which depend on the intervals)
     // (W_inv is the covariance matrix of the Ridge Zellner prior) (without sig)
     W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
 
@@ -677,11 +701,10 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     success         = accu(abs(test)) != 0               ;
   }
 
-  // Initialization of b_tilde
+  // Starting point for b_tilde
   b_tilde = mvrnormArma( zeros<vec>(sum_K+1) , ginv_cpp(W_inv,tol) , sigma_sq) ;
 
-  // Initialize the matrix trace
-  mat trace = zeros<mat>(iter+1,3*sum_K+2);
+  //////////////// Initialize the matrix trace
   int count = 0;
   for( int q=0 ; q<Q ; ++q){
     arma::vec m_temp = m[q] ;
@@ -696,29 +719,34 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     count = count + K(q) ;
   }
 
-  // Initialize some variable used in the Gibbs loop
-  List l_possible(Q);
+  //////////////// Initialize some variable used in the Gibbs loop
   for( int q=0 ; q<Q ; ++q){
     l_possible[q] = sequence(1,l_values_length(q),1);
   }
-  List m_possible(Q);
   for( int q=0 ; q<Q ; ++q){
     m_possible[q] = sequence(1,p(q),1);
   }
 
-  // The Gibbs loop
-  if(progress) Rcpp::Rcout << "\t Start the Gibbs Sampler." <<  std::endl;
+  ////////////////////////////////////////////////////////////////
+  //////////////// The Gibbs loop
+  ////////////////////////////////////////////////////////////////
+  if(verbose){
+    Rcpp::Rcout << "\t Start the Gibbs Sampler loop." <<  std::endl;
+  }
+  Progress progress_bar(iter, verbose);
+
+
   for(int i=1  ; i < iter+1 ; ++i ) {
-    if( i % (iter / 10)  == 0){
-      if(progress) Rcpp::Rcout << "\t " << i / (iter / 100) << "%" << std::endl;
+    // Progress bar
+    if(verbose){
+      progress_bar.increment();
     }
 
     // update sigma_sq
     update_sigma_sq(y,b_tilde,W_inv,x_tilde,n,sum_K,sigma_sq) ;
 
     // update m
-    count = 0 ;
-    // count is used to browse some vec/mat when p(q) is not constant wrt q.
+    count = 0 ;                                                                 // count is used to browse some vec/mat when p(q) is not constant wrt q.
     for( int q=0 ; q<Q ; ++q ){
       // Compute some quantities which do not vary with k
       arma::vec m_q = m[q];
@@ -746,8 +774,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     }
 
     // update l
-    count = 0 ;
-    // count is used to browse some vec/mat when p(q) is not constant wrt q.
+    count = 0 ;                                                                 // count is used to browse some vec/mat when p(q) is not constant wrt q.
     for( int q=0 ; q<Q ; ++q ){
       // Compute some quantities which do not vary with k
       arma::vec m_q = m[q];
@@ -775,23 +802,24 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
       count = count + K(q);
     }
 
-    // update the value "W_inv" (only after the updating of the m's and l's)
+    // Update the value "W_inv"
+    // (only after the updating of the m's and l's)
     W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
 
-    // update the matrix Sigma_b_tilde (only after the updating of
-    // the m's and l's)
+    // Update the matrix Sigma_b_tilde
+    // (only after the updating of the m's and l's)
     Sigma_b_tilde_inv = W_inv + trans(x_tilde) * x_tilde   ;
     test                 = ginv_cpp(Sigma_b_tilde_inv,tol) ;
     success              = accu(abs(test)) != 0               ;
 
-    // Try to determine an update which not leads to a non-invertible
-    // matrix problem. If there is a problem, go back to the beginning of the
-    // updating process.
+    // Try to determine an update
+    // ()which not leads to a non-invertible matrix problem)
+    // If there is a problem, go back to the beginning of the updating process.
     if(success){
-      // update the b_tilde
+      // Update the b_tilde
       update_b_tilde(y,sigma_sq,x_tilde,Sigma_b_tilde_inv,tol,b_tilde) ;
 
-      // update the matrix trace
+      // Update the matrix trace
       count = 0;
       for( int q=0 ; q<Q ; ++q){
         arma::vec m_temp = m[q] ;
@@ -819,19 +847,18 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
         count = count + K(q) ;
       }
 
-      // update the value "x_tilde"
+      // Update the value "x_tilde"
       update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
                      x_tilde);
 
-      // update the value "W_inv"
+      // Update the value "W_inv"
       W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
     }
   }
 
-  // return the trace and the parameters
-  if(progress){
-    Rcpp::Rcout << "\t Return the result." <<  std::endl;
-  }
+  ////////////////////////////////////////////////////////////////
+  //////////////// Return the trace and the parameters
+  ////////////////////////////////////////////////////////////////
   return  List::create(_["trace"]=trace,
                        _["param"]=List::create(_["phi_l"]=probs_l,
                                           _["K"]=K,
@@ -845,68 +872,76 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
 // Perform the Simulated Annealing algorithm to minimize the loss function
 // [[Rcpp::export]]
 List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec & grid,
-                                    int burnin, double Temp,int k_max,
+                                    double Temp,int k_max,
                                     int p_l, int dm, int dl, int p,
                                     std::string basis, arma::mat & normalization_values,
-                                    bool progress, arma::mat & starting_point){
-  if(progress){
-    Rcpp::Rcout << "Simulated Annealing:" <<  std::endl;
-  }
-  // Initialization
-  if(progress){
-    Rcpp::Rcout << "\t Initialization." <<  std::endl;
-  }
-  // int N = beta_sample.n_rows;
+                                    bool verbose, arma::mat & starting_point){
+  ////////////////////////////////////////////////////////////////
+  //////////////// Initialization
+  ////////////////////////////////////////////////////////////////
+  if(verbose) Rcpp::Rcout << "\t Initialization." <<  std::endl;
+
+  //////////////// Initialization - Primary objects
+  // Approximate the posterior expectation
   vec posterior_expe = zeros<vec>(p);
   for(int i=0 ; i<p ; ++i){
     posterior_expe(i) = mean(beta_sample.col(i));
   }
 
-  arma::vec probs;
-  int k;
+  //////////////// Initialization - Declare types
+  int j;
+
+  arma::vec b;
   arma::vec m;
   arma::vec l;
-  arma::vec b;
-  arma::vec d;
-  double d_loss;
-  int value_min;
-  int value_max;
-  arma::vec difference;
-  arma::vec difference_l;
-
-  arma::vec d_tmp;
-  double d_loss_tmp;
-  double proba_acceptance;
-  double u;
-  int j;
-  double Temperature;
+  int k;
   arma::vec b_tmp;
   arma::vec m_tmp;
   arma::vec l_tmp;
   int k_tmp;
-  int accepted;
-  arma::vec choice_prob_interval;
-  arma::vec choice_prob;
-  int choice;
+
   double mean_b;
   double var_b;
+  double new_b;
   int new_m;
   int new_l;
-  double new_b;
+
+  int value_min;
+  int value_max;
+
+  double Temperature;
+  arma::vec d;
+  arma::vec d_tmp;
+  double d_loss;
+  double d_loss_tmp;
+
+  int choice;
+  arma::vec choice_prob;
+  arma::vec choice_prob_interval;
+  arma::vec probs;
+  double proba_acceptance;
+  double u;
+  unsigned accepted;
+
+  arma::vec difference;
+  arma::vec difference_l;
+
   unsigned smooth_param = 1;
   if(smooth_param == 0){
     smooth_param = 1;
   }
   arma::vec tmp_basis;
 
-  // Initialize the matrix trace
+  //////////////// Initialize the matrix trace
   arma::mat trace = arma::zeros<arma::mat>(iter+1,3*k_max+4);
   Temp = std::pow(L2_norm(grid, posterior_expe),2 )*(std::floor(iter)/1000);
   difference = abs(posterior_expe);
   difference = moving_average_cpp(difference,smooth_param);
 
-  // Determine the start point
-  if(progress) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
+  ////////////////////////////////////////////////////////////////
+  //////////////// Determine the starting point
+  ////////////////////////////////////////////////////////////////
+  if(verbose) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
   m = starting_point.col(0);
   l = starting_point.col(1);
   b = starting_point.col(2);
@@ -920,7 +955,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
   d      = compute_beta_cpp(b,m,l,grid,p,k,basis,normalization_values);
   d_loss = loss_cpp(d,grid,posterior_expe);
 
-  // Update the trace with the start point
+  // Update the trace with the starting point
   trace.row(0).subvec( 0       ,           k-1) = trans(b.subvec(0,k-1)) ;
   trace.row(0).subvec( k_max   , k_max   + k-1) = trans(m.subvec(0,k-1))         ;
   trace.row(0).subvec( k_max*2 , k_max*2 + k-1) = trans(l.subvec(0,k-1))         ;
@@ -929,18 +964,23 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
   trace(0,3*k_max+2) = k      ;
   trace(0,3*k_max+3) = d_loss ;
 
-  // Start the loop
-  if(progress){
-    Rcpp::Rcout << "\t Start the loop." <<  std::endl;
+  ////////////////////////////////////////////////////////////////
+  //////////////// The SANN loop
+  ////////////////////////////////////////////////////////////////
+  if(verbose){
+    Rcpp::Rcout << "\t Start the SANN loop." <<  std::endl;
   }
+  Progress progress_bar(iter, verbose);
+
   for(int i=0 ; i<iter ; ++i){
-    Temperature = cooling_cpp(i,Temp);
-    // Progress
-    if( (i+1) % (iter / 10)  == 0){
-      if(progress){
-        Rcpp::Rcout << "\t " << (i+1) / (iter / 100) << "%" << std::endl;
-      }
+    // Progress bar
+    if(verbose){
+      progress_bar.increment();
     }
+
+    //Get the current temperature
+    Temperature = cooling_cpp(i,Temp);
+
     // Initialize the proposal
     b_tmp     = b ;
     m_tmp     = m ;
@@ -957,8 +997,8 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
     if(k == 1    ){
       choice_prob(4) = choice_prob(4) -1;
     }
-
     choice = sample_weight( choice_prob ) + 1;
+
     // change a b_j
     if(choice == 1){
       // choose an interval
@@ -994,15 +1034,6 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
       j = sample_weight(choice_prob_interval);
 
       // Simulate a new m_j
-
-      // value_max = m(j) + dm ;
-      // value_min = m(j) - dm ;
-      // if(value_max > p) value_max = p ;
-      // if(value_min < 1) value_min = 1 ;
-      //
-      // probs = ones<vec>( value_max - value_min + 1 ) ;
-      // m_tmp(j)  = sample_weight( probs ) + value_min ;
-
       difference = (posterior_expe - d);
       difference = moving_average_cpp(difference,smooth_param);
       m_tmp(j) = sample_weight(abs(difference)) +1;
@@ -1016,7 +1047,6 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
       if(value_max > p-1 ){
         value_max = p-1 ;
       }
-
       tmp_basis  = uniform_cpp(m(j),l(j),grid);
       b_tmp(j) = mean(difference.subvec( value_min , value_max)*
         normalization_values( m(j)-1 , l(j)-1 )) / tmp_basis(m(j)-1);
@@ -1035,7 +1065,6 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
       if(value_min < 1){
         value_min = 1 ;
       }
-
       probs = ones<vec>( value_max - value_min + 1 ) ;
       l_tmp(j)  = sample_weight( probs ) + value_min ;
     }
@@ -1134,8 +1163,10 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
     trace(i+1,3*k_max+3) = d_loss   ;
   }
 
-  // Return the result
-  if(progress) Rcpp::Rcout << "\t Return the result." <<  std::endl;
+  ////////////////////////////////////////////////////////////////
+  //////////////// Return the trace and the parameters
+  ////////////////////////////////////////////////////////////////
+  if(verbose) Rcpp::Rcout << "\t Return the result." <<  std::endl;
   return  List::create(_["trace"]         =trace,
                        _["posterior_expe"]=posterior_expe);
 }
@@ -1146,6 +1177,9 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
                           arma::vec & K, List & potential_intervals,
                           List & potential_intervals_dims, arma::vec & p_l,
                           unsigned Q){
+  ////////////////////////////////////////////////////////////////
+  //////////////// Initialization
+  ////////////////////////////////////////////////////////////////
   int      sum_K = sum(K)       ;
   arma::mat      res = zeros<mat>(N,6);
   unsigned n   = y.size()       ;
@@ -1178,6 +1212,9 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
     lambda_id0(i,i) = lambda ;
   }
 
+  ////////////////////////////////////////////////////////////////
+  //////////////// For all data
+  ////////////////////////////////////////////////////////////////
   for(unsigned j=0 ; j<N ; ++j ){
     // load the parameter value
     b_tilde(0) = rposterior(j,3*sum_K  ) ;
@@ -1220,7 +1257,6 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
     lkh     = exp(log_lkh);
 
     // compute the (log) prior density
-
     log_prior_d = -1./(2.*sigma_sq) * dot(b_tilde, W_inv * b_tilde) -
       (sum_K+3.)/2. * log(sigma_sq)  + log(det(W_inv)) / 2.;
 
@@ -1230,10 +1266,9 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
       log_prior_d -=  a_l(q) * sum(l_temp) / p_l(q);
       count += K(q) ;
     }
-
     prior_d = exp(log_prior_d);
-    // compute the (log) posterior density
 
+    // compute the (log) posterior density
     log_posterior_d = log_lkh + log_prior_d;
     posterior_d     = exp(log_posterior_d);
 
@@ -1246,7 +1281,9 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
     res(j,5) = log_prior_d ;
   }
 
-  // return the (log) densities
+  ////////////////////////////////////////////////////////////////
+  //////////////// Output
+  ////////////////////////////////////////////////////////////////
   return(res);
 }
 

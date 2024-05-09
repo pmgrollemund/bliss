@@ -257,8 +257,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Bliss_Gibbs_Sampler_cpp
-List Bliss_Gibbs_Sampler_cpp(int Q, arma::vec& y, List& x, List& grids, int iter, arma::vec& K, CharacterVector& basis, double g, double lambda, arma::mat& V_tilde, arma::vec& l_values_length, List& probs_l, bool progress, double tol);
-RcppExport SEXP _bliss_Bliss_Gibbs_Sampler_cpp(SEXP QSEXP, SEXP ySEXP, SEXP xSEXP, SEXP gridsSEXP, SEXP iterSEXP, SEXP KSEXP, SEXP basisSEXP, SEXP gSEXP, SEXP lambdaSEXP, SEXP V_tildeSEXP, SEXP l_values_lengthSEXP, SEXP probs_lSEXP, SEXP progressSEXP, SEXP tolSEXP) {
+List Bliss_Gibbs_Sampler_cpp(int Q, arma::vec& y, List& x, List& grids, int iter, arma::vec& K, CharacterVector& basis, double g, double lambda, arma::mat& V_tilde, arma::vec& l_values_length, List& probs_l, bool verbose, double tol);
+RcppExport SEXP _bliss_Bliss_Gibbs_Sampler_cpp(SEXP QSEXP, SEXP ySEXP, SEXP xSEXP, SEXP gridsSEXP, SEXP iterSEXP, SEXP KSEXP, SEXP basisSEXP, SEXP gSEXP, SEXP lambdaSEXP, SEXP V_tildeSEXP, SEXP l_values_lengthSEXP, SEXP probs_lSEXP, SEXP verboseSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -274,22 +274,21 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type V_tilde(V_tildeSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type l_values_length(l_values_lengthSEXP);
     Rcpp::traits::input_parameter< List& >::type probs_l(probs_lSEXP);
-    Rcpp::traits::input_parameter< bool >::type progress(progressSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(Bliss_Gibbs_Sampler_cpp(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol));
+    rcpp_result_gen = Rcpp::wrap(Bliss_Gibbs_Sampler_cpp(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, verbose, tol));
     return rcpp_result_gen;
 END_RCPP
 }
 // Bliss_Simulated_Annealing_cpp
-List Bliss_Simulated_Annealing_cpp(int iter, arma::mat& beta_sample, arma::vec& grid, int burnin, double Temp, int k_max, int p_l, int dm, int dl, int p, std::string basis, arma::mat& normalization_values, bool progress, arma::mat& starting_point);
-RcppExport SEXP _bliss_Bliss_Simulated_Annealing_cpp(SEXP iterSEXP, SEXP beta_sampleSEXP, SEXP gridSEXP, SEXP burninSEXP, SEXP TempSEXP, SEXP k_maxSEXP, SEXP p_lSEXP, SEXP dmSEXP, SEXP dlSEXP, SEXP pSEXP, SEXP basisSEXP, SEXP normalization_valuesSEXP, SEXP progressSEXP, SEXP starting_pointSEXP) {
+List Bliss_Simulated_Annealing_cpp(int iter, arma::mat& beta_sample, arma::vec& grid, double Temp, int k_max, int p_l, int dm, int dl, int p, std::string basis, arma::mat& normalization_values, bool verbose, arma::mat& starting_point);
+RcppExport SEXP _bliss_Bliss_Simulated_Annealing_cpp(SEXP iterSEXP, SEXP beta_sampleSEXP, SEXP gridSEXP, SEXP TempSEXP, SEXP k_maxSEXP, SEXP p_lSEXP, SEXP dmSEXP, SEXP dlSEXP, SEXP pSEXP, SEXP basisSEXP, SEXP normalization_valuesSEXP, SEXP verboseSEXP, SEXP starting_pointSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type iter(iterSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type beta_sample(beta_sampleSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type grid(gridSEXP);
-    Rcpp::traits::input_parameter< int >::type burnin(burninSEXP);
     Rcpp::traits::input_parameter< double >::type Temp(TempSEXP);
     Rcpp::traits::input_parameter< int >::type k_max(k_maxSEXP);
     Rcpp::traits::input_parameter< int >::type p_l(p_lSEXP);
@@ -298,9 +297,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type p(pSEXP);
     Rcpp::traits::input_parameter< std::string >::type basis(basisSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type normalization_values(normalization_valuesSEXP);
-    Rcpp::traits::input_parameter< bool >::type progress(progressSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type starting_point(starting_pointSEXP);
-    rcpp_result_gen = Rcpp::wrap(Bliss_Simulated_Annealing_cpp(iter, beta_sample, grid, burnin, Temp, k_max, p_l, dm, dl, p, basis, normalization_values, progress, starting_point));
+    rcpp_result_gen = Rcpp::wrap(Bliss_Simulated_Annealing_cpp(iter, beta_sample, grid, Temp, k_max, p_l, dm, dl, p, basis, normalization_values, verbose, starting_point));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -341,7 +340,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bliss_update_b_tilde", (DL_FUNC) &_bliss_update_b_tilde, 6},
     {"_bliss_loss_cpp", (DL_FUNC) &_bliss_loss_cpp, 3},
     {"_bliss_Bliss_Gibbs_Sampler_cpp", (DL_FUNC) &_bliss_Bliss_Gibbs_Sampler_cpp, 14},
-    {"_bliss_Bliss_Simulated_Annealing_cpp", (DL_FUNC) &_bliss_Bliss_Simulated_Annealing_cpp, 14},
+    {"_bliss_Bliss_Simulated_Annealing_cpp", (DL_FUNC) &_bliss_Bliss_Simulated_Annealing_cpp, 13},
     {"_bliss_dposterior_cpp", (DL_FUNC) &_bliss_dposterior_cpp, 8},
     {NULL, NULL, 0}
 };

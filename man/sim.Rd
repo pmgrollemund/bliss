@@ -11,6 +11,8 @@ sim(param, verbose = FALSE)
 \describe{
  \item{beta_shapes}{a character vector. The qth item indicates the shape of
        the coefficient function associated to the qth functional covariate.}
+ \item{beta_functions}{a list containing numerical vectors to define the beta
+       functions}
  \item{n}{an integer, the sample size.}
  \item{p}{a vector of integers, the qth component is the number of
        times for the qth covariate.}

@@ -2,10 +2,29 @@
 % Please edit documentation in R/bliss.R
 \docType{package}
 \name{bliss}
+\alias{bliss-package}
 \alias{bliss}
 \title{bliss: Bayesian functional Linear regression with Sparse Step functions}
 \description{
 A method for the Bayesian Functional Linear Regression model (functions-on-scalar),
 including two estimators of the coefficient function and an estimator of its support.
 A representation of the posterior distribution is also available.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/pmgrollemund/bliss}
+  \item Report bugs at \url{https://github.com/pmgrollemund/bliss/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Paul-Marie Grollemund \email{paul_marie.grollemund@uca.fr}
+
+Other contributors:
+\itemize{
+  \item Isabelle Sanchez \email{isabelle.sanchez@inra.fr} [contractor]
+  \item Meili Baragatti \email{meili.baragatti@supagro.fr} [contractor]
+}
+
 }

@@ -1,0 +1,26 @@
+bibentry(bibtype = "Article",
+  title        = "Bayesian Functional Linear Regression with Sparse Step Functions.",
+  author       = c(person(given = "P-M.",
+                          family = "Grollemund"),
+                   person(given = "C.",
+                          family = "Abraham"),
+                   person(given = "M.",
+                          family = "Baragatti"),
+                   person(given = "P.",
+                          family = "Pudlo")),
+  journal      = "Bayesian Analysis",
+  year         = "2019",
+  volume       = "14",
+  number       = "1",
+  pages        = "111-135",
+  doi          = "10.1214/18-BA1095",
+  howpublished = "https://projecteuclid.org/euclid.ba/1524103229",
+
+  header       = "To cite bliss in publications use:",
+  textVersion  =
+  paste("Grollemund P-M., Abraham C., Baragatti M., Pudlo P. (2019).",
+        "Bayesian Functional Linear Regression with Sparse Step Functions.",
+        "Bayesian Anal.",
+        "14 (2019), no. 1, 111--135.",
+        "doi:10.1214/18-BA1095. https://projecteuclid.org/euclid.ba/1524103229")
+)

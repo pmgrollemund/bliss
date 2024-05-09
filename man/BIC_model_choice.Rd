@@ -11,15 +11,8 @@ BIC_model_choice(Ks, iter, data, verbose = T)
 
 \item{iter}{an integer, the number of iteration for each run of \code{fit_Bliss}.}
 
-\item{data}{a list containing:
-\describe{
-\item{Q}{an integer, the number of functional covariates.}
-\item{y}{a numerical vector, the outcomes.}
-\item{x}{a list of matrices, the qth matrix contains the observations of the
-      qth functional covariate at time points given by \code{grids}.}
-\item{grids}{a list of numerical vectors, the qth vector is the grid of
-       time points for the qth functional covariate.}
-}}
+\item{data}{a list containing required options to run the function
+\code{fit_Bliss}.}
 
 \item{verbose}{write stuff if TRUE (optional).}
 }

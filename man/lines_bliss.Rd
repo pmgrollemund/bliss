@@ -4,34 +4,27 @@
 \alias{lines_bliss}
 \title{lines_bliss}
 \usage{
-lines_bliss(x, y, connect = FALSE, ...)
+lines_bliss(x, y, col = "black", lty = "solid")
 }
 \arguments{
 \item{x}{the coordinates of points in the plot.}
 
 \item{y}{the y coordinates of points in the plot.}
 
-\item{connect}{a logical value (optional), to handle discontinuous function.
-If \code{connect} is TRUE, the plot is one line. Otherwise, several
-lines are used.}
+\item{col}{a color.}
 
-\item{...}{Arguments to be passed to methods, such as graphical parameters
-(see \code{par}).}
+\item{lty}{option corresponding to "linetype" of \code{geom_line}.}
 }
 \description{
-A suitable representation of the Bliss estimate.
+Add a line to a plot obtained with \code{image_Bliss}.
 }
 \examples{
-### Plot the BLiss estimate on a suitable grid
-\donttest{
 data(data1)
 data(param1)
-# res_bliss1 <- fit_Bliss(data=data1,param=param1,verbose=TRUE)
-}
 data(res_bliss1)
-### Plot the BLiss estimate on a suitable grid
-plot_bliss(res_bliss1$data$grids[[1]],
-           res_bliss1$Bliss_estimate[[1]],lwd=2,bound=FALSE)
-lines_bliss(res_bliss1$data$grids[[1]],
-            res_bliss1$Smooth_estimate[[1]],lty=2)
+
+image_Bliss(res_bliss1$beta_posterior_density,param1,q=1) +
+lines_bliss(res_bliss1$data$grids[[1]],res_bliss1$smooth_estimate[[1]])+
+lines_bliss(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],col="purple")
+
 }

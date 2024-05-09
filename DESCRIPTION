@@ -1,26 +1,29 @@
 Package: bliss
 Title: Bayesian Functional Linear Regression with Sparse Step Functions
-Version: 1.0.5
+Version: 1.1.0
 Authors@R: c(
-  person("Paul-Marie", "Grollemund", email = "paul.marie.grollemund@gmail.com", role = c("aut", "cre")),
+  person("Paul-Marie", "Grollemund", email = "paul_marie.grollemund@uca.fr", role = c("aut", "cre")),
   person("Isabelle", "Sanchez", email = "isabelle.sanchez@inra.fr", role = c("ctr")),
   person("Meili", "Baragatti", email = "meili.baragatti@supagro.fr", role = c("ctr")))
 Author: Paul-Marie Grollemund [aut, cre],
   Isabelle Sanchez [ctr],
   Meili Baragatti [ctr]
-Maintainer: Paul-Marie Grollemund <paul.marie.grollemund@gmail.com>
+Maintainer: Paul-Marie Grollemund <paul_marie.grollemund@uca.fr>
 Description: A method for the Bayesian functional linear regression model (scalar-on-function),
   including two estimators of the coefficient function and an estimator of its support.
   A representation of the posterior distribution is also available. Grollemund P-M., Abraham C., 
   Baragatti M., Pudlo P. (2019) <doi:10.1214/18-BA1095>.
 License: GPL-3
-Depends: R (>= 3.3.0)
-LinkingTo: Rcpp, RcppArmadillo
+Depends: R (>= 3.5.0)
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Encoding: UTF-8
 LazyData: TRUE
 URL: https://github.com/pmgrollemund/bliss
 BugReports: https://github.com/pmgrollemund/bliss/issues
-Imports: Rcpp, RcppArmadillo, MASS
-Suggests: rmarkdown, knitr, RColorBrewer
-RoxygenNote: 7.1.2
+Imports: Rcpp, RcppArmadillo, MASS, ggplot2
+Suggests: 
+    rmarkdown,    
+    knitr,
+    RColorBrewer
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr

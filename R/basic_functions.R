@@ -6,15 +6,8 @@
 #'         K value.
 #' @param Ks a numerical vector containing the K values.
 #' @param iter an integer, the number of iteration for each run of \code{fit_Bliss}.
-#' @param data a list containing:
-#' \describe{
-#' \item{Q}{an integer, the number of functional covariates.}
-#' \item{y}{a numerical vector, the outcomes.}
-#' \item{x}{a list of matrices, the qth matrix contains the observations of the
-#'       qth functional covariate at time points given by \code{grids}.}
-#' \item{grids}{a list of numerical vectors, the qth vector is the grid of
-#'        time points for the qth functional covariate.}
-#' }
+#' @param data a list containing required options to run the function
+#'        \code{fit_Bliss}.
 #' @param verbose write stuff if TRUE (optional).
 #' @export
 #' @examples
@@ -33,7 +26,8 @@ BIC_model_choice <- function(Ks,iter,data,verbose=T){
     if(verbose) cat("K = ", Ks[i], "\n",sep="")
     param_BIC <- list(iter=iter,K=Ks[i])
 
-    res_bliss <- fit_Bliss(data,param_BIC,verbose=F,sann=F,compute_density=F)
+    res_bliss <- fit_Bliss(data,param_BIC,verbose=F,sann=F,compute_density=F,
+                           support_estimate=F)
 
     llkh <- dposterior(res_bliss$posterior_sample,data)
     llkh <- llkh[,'log likelihood']
@@ -43,66 +37,210 @@ BIC_model_choice <- function(Ks,iter,data,verbose=T){
   return(BIC)
 }
 
+################################# ----
+#' post_treatment_bliss
+################################# ----
+#' @description Compute the post treatment values.
+#' @return A list of important post treatment value: BIC, the maximum of the log
+#' likelihood and the numbre of parameters.
+#' @param posterior_sample a list provided by the function \code{Bliss_Gibbs_Sampler}.
+#' @param param a list containing:
+#' \describe{
+#' \item{K}{a vector of integers, corresponding to the numbers of intervals for
+#'       each covariate.}
+#' }
+#' @param data a list containing required options to run the function
+#'        \code{dposterior}.
+#' @export
+#' @examples
+#' \donttest{
+#' data(data1)
+#' data(param1)
+#' data(res_bliss1)
+#'
+#' post_treatment_bliss(res_bliss1$posterior_sample,param1,data1)
+#' }
+post_treatment_bliss <- function(posterior_sample,param,data){
+  ###### Initialisation
+  K <- param[["K"]]
+
+  ###### Compute posterior values
+  llkh <- dposterior(posterior_sample,data)
+  llkh <- llkh[,'log likelihood']
+  lML <- llkh[which.max(llkh)][1]
+  nb_param <- (3*K+2)
+  BIC <- nb_param * log(length(data$y)) - 2 * lML
+
+  ###### Output
+  res <- list(BIC=BIC,loglik=lML,nb_param=nb_param)
+  return(res)
+}
+
+################################# ----
+#' predict_bliss_distribution
+################################# ----
+#' @description Compute the distribution of the predictions.
+#' @return A matrix containing predictions for each individual data \code{x}.
+#' @param x a list containing the design matrices related to the functional
+#'        covariates. Must be similar to the result of the function \code{sim_x}.
+#' @param grids a list of numerical vectors, the qth vector is the grid of
+#'        time points for the qth functional covariate.
+#' @param burnin an integer (optional), the number of iteration to drop from the
+#'       posterior sample.
+#' @param posterior_sample a list provided by the function \code{Bliss_Gibbs_Sampler}.
+#' @param beta_sample a list provided by the function \code{compute_beta_sample}.
+#' @export
+#' @examples
+#' \donttest{
+#' data(data1)
+#' data(param1)
+#' data(res_bliss1)
+#'
+#' predict_bliss_distribution(data1$x,data1$grids,50,res_bliss1$posterior_sample,
+#'    res_bliss1$beta_sample)
+#' }
+predict_bliss_distribution <- function(x,grids,burnin,posterior_sample,beta_sample){
+  ###### Initialisation
+  Q <- length(x)
+  n <- nrow(x[[1]])
+  n_iter <- nrow(posterior_sample$trace)
+  if(is.null(burnin)) burnin <- ceiling(n_iter / 10)
+  n_iter <- n_iter - burnin
+  y_fitted <- matrix(NA,nrow = n,ncol = n_iter)
+
+  ###### Pretreatment
+  for(q in 1:Q){
+    x[[q]] <- scale(x[[q]],scale=F)
+  }
+
+  ###### Compute fitted values
+
+  for(i in 1:n){
+    for(j in 1:n_iter){
+      y_tmp <- posterior_sample$trace$mu[j+burnin]
+
+      for(q in 1:Q){
+        y_tmp <- y_tmp +
+          integrate_trapeze_cpp(grids[[q]],beta_sample[[q]][j+burnin,] * x[[q]][i,])
+      }
+      y_fitted[i,j] <- y_tmp
+    }
+  }
+
+  ###### Output
+  return(y_fitted)
+}
+################################# ----
+#' predict_bliss
+################################# ----
+#' @description Compute predictions.
+#' @return A vector of predictions for each individual data \code{x}.
+#' @param x a list containing the design matrices related to the functional
+#'        covariates. Must be similar to the result of the function \code{sim_x}.
+#' @param grids a list of numerical vectors, the qth vector is the grid of
+#'        time points for the qth functional covariate.
+#' @param burnin an integer (optional), the number of iteration to drop from the
+#'       posterior sample.
+#' @param posterior_sample a list provided by the function \code{Bliss_Gibbs_Sampler}.
+#' @param Smooth_estimate one of the objects resulting from \code{Bliss_Simulated_Annealing}.
+#' @export
+#' @examples
+#' \donttest{
+#' data(data1)
+#' data(param1)
+#' data(res_bliss1)
+#'
+#' predict_bliss(data1$x,data1$grids,50,res_bliss1$posterior_sample,res_bliss1$smooth_estimate)
+#' }
+predict_bliss <- function(x,grids,burnin,posterior_sample,Smooth_estimate){
+  ###### Initialisation
+  Q <- length(x)
+  n <- nrow(x[[1]])
+  y_fitted <- rep(NA,n)
+  n_iter <- nrow(posterior_sample$trace)
+  if(is.null(burnin)) burnin <- ceiling(n_iter / 10)
+
+  ###### Pretreatment
+  for(q in 1:Q){
+    x[[q]] <- scale(x[[q]],scale=F)
+  }
+
+  ###### Compute fitted values
+  mu_hat <- mean(posterior_sample$trace$mu[-(1:burnin)])
+
+  for(i in 1:n){
+    y_tmp <- mu_hat
+    for(q in 1:Q){
+      y_tmp <- y_tmp +
+        integrate_trapeze_cpp(grids[[q]],Smooth_estimate[[q]] * x[[q]][i,])
+    }
+    y_fitted[i] <- y_tmp
+  }
+
+  ###### Output
+  return(y_fitted)
+}
+
 
 ################################# ----
 #' compute_beta_sample
 ################################# ----
 #' @description Compute the posterior coefficient function from the posterior
 #'              sample.
-#' @return return a matrix containing the coefficient function posterior sample.
+#' @return a matrix containing the coefficient function posterior sample.
 #' @param posterior_sample a list provided by the function \code{Bliss_Gibbs_Sampler}.
 #' @param param a list containing:
 #' \describe{
 #' \item{K}{a vector of integers, corresponding to the numbers of intervals for
 #'       each covariate.}
 #' \item{grids}{a numerical vector, the observation time points.}
-#' \item{basis}{a vector of characters (optional) among : "uniform" (default),
+#' \item{basis}{a character (optional) among : "uniform" (default),
 #'       "epanechnikov", "gauss" and "triangular" which correspond to
 #'       different basis functions to expand the coefficient function and the
 #'       functional covariates.}
+#' \item{Q}{an integer, the number of functional covariates.}
+#' \item{p}{a vector of integers, the numbers of time points of each functional
+#'      covariate.}
 #' }
-#' @param Q numeric
-#' @param verbose write stuff if TRUE (optional).
 #' @export
 #' @examples
-#' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
-#' param1$grids<-data1$grids
-#' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 #' data(res_bliss1)
+#' param1$grids <- data1$grids
+#' param1$p <- sapply(data1$grids,length)
+#' param1$Q <- length(data1$x)
 #' beta_sample <- compute_beta_sample(posterior_sample=res_bliss1$posterior_sample,
-#'                                    param=param1,Q=1)
-#' indexes <- sample(nrow(beta_sample[[1]]),1e2,replace=FALSE)
-#' cols <- colorRampPalette(brewer.pal(9,"YlOrRd"))(1e2)
-#' matplot(param1$grids[[1]],t(beta_sample[[1]][indexes,]),type="l",lty=1,col=cols,
-#' xlab="grid",ylab="")
-compute_beta_sample <- function(posterior_sample,param,Q,verbose=FALSE){
-  if(verbose) cat("Compute the coefficient function posterior sample. \n")
-  # Initialize parameters
+#'                                    param=param1)
+compute_beta_sample <- function(posterior_sample,param){
+  ###### Initialisation - Load objects
   Ks     <- param[["K"]]
   grids  <- param[["grids"]]
-  basiss <- param[["basis"]]
-  ps <- sapply(grids,length)
-  if(is.null(basiss)) basiss <- rep("Uniform",length(Ks))
+  basis  <- param[["basis"]]
+  Q      <- param[["Q"]]
+  ps     <- param[["p"]]
 
-  # Compute the coefficient function for each iteration of the Gibbs Sampler
-  # and for each covariable
+  ####### Initialization - Define values
+  if(is.null(basis)) basis <- rep("Uniform",length(Ks))
+
+  ####### Compute the coefficient function
+  # for each iteration of the Gibbs Sampler and for each covariable
   beta_sample <- list()
   count <- 0
   for(q in 1:Q){
     K     <- Ks[q]
     grid  <- grids[[q]]
     p     <- ps[q]
-    basis <- basiss[q]
     trace_tmp <- posterior_sample$trace[,(1+count):(count+3*K)]
+    trace_tmp <- as.matrix(trace_tmp)
     norm_val <- posterior_sample$param$normalization_values[[q]]
 
     beta_sample[[q]] <- compute_beta_sample_cpp(trace_tmp,
-                                                K,grid,p,basis,norm_val)
+                                                K,grid,p,basis[q],norm_val)
     count <- count + 3*K[q]
   }
 
+  ####### Output
   return(beta_sample)
 }
 
@@ -130,7 +268,6 @@ compute_beta_sample <- function(posterior_sample,param,Q,verbose=FALSE){
 #'       different grid.}
 #' \item{thin}{an integer (optional) to thin the posterior sample.}
 #' }
-#' @param verbose write stuff if TRUE (optional).
 #' @importFrom MASS bandwidth.nrd kde2d
 #' @export
 #' @examples
@@ -138,112 +275,105 @@ compute_beta_sample <- function(posterior_sample,param,Q,verbose=FALSE){
 #' library(RColorBrewer)
 #' data(data1)
 #' data(param1)
-#' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 #' data(res_bliss1)
-#' q <- 1
-#' param_beta_density <- list(grid= data1[["grids"]][[q]],
-#'                            iter= param1[["iter"]],
-#'                            p   = param1[["p"]][q],
-#'                            n        = length(data1[["y"]]),
-#'                            thin     = param1[["thin"]],
-#'                            burnin   = param1[["burnin"]],
-#'                            lims_kde = param1[["lims_kde"]][[q]],
-#'                            new_grid = param1[["new_grids"]][[q]],
-#'                            lims_estimate = range(res_bliss1$Smooth_estimate[[q]]))
-#' density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample[[q]],param_beta_density)
-#' image(density_estimate$grid_t,
-#'       density_estimate$grid_beta_t,
-#'       density_estimate$density,col=rev(heat.colors(100)))
+#' param1$grids <- data1$grids
+#' param1$p <- sapply(data1$grids,length)
+#' param1$Q <- length(data1$x)
+#'
+#' density_estimate <- compute_beta_posterior_density(res_bliss1$beta_sample,param1)
 #' }
-compute_beta_posterior_density <- function(beta_sample,param,verbose=FALSE){
-  if(verbose)
-    cat("Compute an approximation of the posterior density of the coefficient function.\n")
-  # load optional objects
-  grid <- param[["grid"]]
+compute_beta_posterior_density <- function(beta_sample,param){
+
+  ####### Initialization - Load objects
+  grids <- param[["grids"]]
   thin     <- param[["thin"]]
   burnin   <- param[["burnin"]]
-  lims_kde <- param[["lims_kde"]]
-  new_grid <- param[["new_grid"]]
+  lims_kdes <- param[["lims_kdes"]]
+  new_grids <- param[["new_grids"]]
+  ps <- param[["p"]]
+  n <- param[["n"]]
+  Q <- param[["Q"]]
 
-  p <- length(grid) # PMG 11/11/18
+  ####### Initialization - Define values
   N <- 512          # PMG 11/11/18
-  iter <- nrow(beta_sample) -1 # PMG 11/11/18
-  lims_estimate <- range(apply(beta_sample,2,mean)) # PMG 11/11/18
 
-  # Initialize the necessary unspecified objects
+  iter <- nrow(beta_sample[[1]]) -1 # PMG 11/11/18
   max_points <- 1e5
   if(is.null(burnin)) burnin <- floor(iter/5)
-  if(is.null(thin))   thin   <- floor((iter-burnin)*p/max_points)
+  if(is.null(thin))   thin   <- floor((iter-burnin)*min(ps)/max_points)
 
-  # Check if the burnin isn't too large.
-  if(2*burnin > iter){
-    burnin <- floor(iter/5)
-    if(verbose)
-      cat("\t Burnin is too large. New burnin : ",burnin,".\n")
-  }
 
   # Compute the coefficient function on the new grid (if required).
-  if(!is.null(new_grid)){
+  if(!is.null(new_grids)){
     old_beta_sample <- beta_sample
-    beta_sample <- matrix(0,nrow(beta_sample),p)
-    if(verbose)
-      cat("Compute the coefficient functions on the new grid.\n")
-    for(i in 1:nrow(beta_sample)){
-      beta_sample[i,] <- change_grid(old_beta_sample[i,],grid,new_grid)
+    for(q in 1:Q){
+      beta_sample[[q]] <- matrix(0,nrow(beta_sample[[q]]),ps[q])
+      for(i in 1:nrow(beta_sample[[q]])){
+        beta_sample[[q]][i,] <- change_grid(old_beta_sample[[q]][i,],grids[[q]],
+                                            new_grids[[q]])
+      }
     }
-    param$old_grid <- grid
-    param$grid     <- new_grid
-    param$new_grid <- NULL # PMG 22/06/18
-    grid           <- new_grid
+    param$old_grids <- grids
+    param$grids     <- new_grids
+    param$new_grids <- NULL # PMG 22/06/18
+    grids           <- new_grids
   }
 
-  # Thin the posterior sample
-  thin_min   <- max(1,floor((iter-burnin)*p/max_points))
-  if(thin <  thin_min){
-    if(verbose)
-      cat("\t 'thin = ",thin,"' is too small. Now, thin = ",
-          thin_min,".\n",sep="")
-    thin <- thin_min
+  # Output object
+  res <- list() ; length(res) <- Q
+
+  ####### Pretreatment
+  if(2*burnin > iter){
+    burnin <- floor(iter/5)
   }
-  if(verbose)
-    cat("\t Thin the sample.\n")
-  beta_sample <- beta_sample[seq(1+burnin,iter,by=thin),]
 
-  # Perform the kde2d function
-  if(verbose)
-    cat("\t Perform the 'kde2d' function.\n")
-  beta_x <- rep(grid,nrow(beta_sample))
-  beta_y <- as.vector(t(beta_sample))
 
-  h1 <- bandwidth.nrd(beta_x)
-  h2 <- bandwidth.nrd(beta_y)
-  if(h2 == 0){
-    h2 <- 4 * 1.06 * sd(beta_y) * length(beta_y)^(-1/5)
+  ####### Compute the posterior density for each functional covariates
+  for(q in 1:Q){
+    # Get objet related to the qth functional covariate
+    lims_estimate <- range(apply(beta_sample[[q]],2,mean)) # PMG 11/11/18
+
+    # Thin the posterior sample
+    thin_min   <- max(1,floor((iter-burnin)*ps[q]/max_points))
+    if(thin <  thin_min){
+      thin <- thin_min
+    }
+    beta_sample[[q]] <- beta_sample[[q]][seq(1+burnin,iter,by=thin),]
+
+    # Perform the kde2d function
+    beta_x <- rep(grids[[q]],nrow(beta_sample[[q]]))
+    beta_y <- as.vector(t(beta_sample[[q]]))
+
+    h1 <- MASS::bandwidth.nrd(beta_x)
+    h2 <- MASS::bandwidth.nrd(beta_y)
+    if(h2 == 0){
+      h2 <- 4 * 1.06 * sd(beta_y) * length(beta_y)^(-1/5)
+    }
+    points <- cbind(beta_x,beta_y)
+
+    lims_kde <- c(range(beta_x), stats::quantile(beta_y,c(0.025,0.975))) # PMG 04/07/18
+    if(lims_kde[3] >= 0 ) lims_kde[3] <- -h2/2 # PMG 04/07/18
+    if(lims_kde[4] <= 0 ) lims_kde[4] <- -h2/2 # PMG 04/07/18
+    if(lims_kde[3] >= lims_estimate[1] ) lims_kde[3] <- lims_estimate[1]-h2/2 # PMG 04/07/18
+    if(lims_kde[4] <= lims_estimate[2] ) lims_kde[4] <- lims_estimate[2]+h2/2 # PMG 04/07/18
+    res_kde2d <- MASS::kde2d(x=beta_x,y=beta_y,lims=lims_kde,
+                       n=N,h=c(h1,h2))
+
+    # Update output result
+    res[[q]]$grid_t <- res_kde2d$x
+    res[[q]]$grid_beta_t <- res_kde2d$y
+    res[[q]]$density <- res_kde2d$z
   }
-  points <- cbind(beta_x,beta_y)
 
-  lims_kde <- c(range(beta_x), quantile(beta_y,c(0.025,0.975))) # PMG 04/07/18
-  if(lims_kde[3] >= 0 ) lims_kde[3] <- -h2/2 # PMG 04/07/18
-  if(lims_kde[4] <= 0 ) lims_kde[4] <- -h2/2 # PMG 04/07/18
-  if(lims_kde[3] >= lims_estimate[1] ) lims_kde[3] <- lims_estimate[1]-h2/2 # PMG 04/07/18
-  if(lims_kde[4] <= lims_estimate[2] ) lims_kde[4] <- lims_estimate[2]+h2/2 # PMG 04/07/18
-  res_kde2d <- kde2d(x=beta_x,y=beta_y,lims=lims_kde,
-                     n=N,h=c(h1,h2))
-
-  # What to return ? # PMG 22/06/18
-  if(!is.null(param$old_grid)){
-    new_beta_sample <- beta_sample
+  ####### Output
+  # update beta_sample
+  if(!is.null(param$old_grids)){
+    res$new_beta_sample <- beta_sample
   }else{
-    new_beta_sample <- NULL
+    res$new_beta_sample <- NULL
   }
 
-  return(list(grid_t          = res_kde2d$x,
-              grid_beta_t     = res_kde2d$y,
-              density         = res_kde2d$z,
-              new_beta_sample = beta_sample
-  ))
-  if(verbose)
-    cat("\t Done.\n")
+  return(res)
 }
 
 ################################# ----
@@ -266,9 +396,6 @@ compute_beta_posterior_density <- function(beta_sample,param,verbose=FALSE){
 #' support_estimation
 ################################# ----
 #' @description Compute the support estimate.
-#' @param beta_sample_q a matrix. Each row is a coefficient function computed from the
-#'        posterior sample.
-#' @param gamma a numeric value, the default value is \code{0.5}.
 #' @return a list containing:
 #' \describe{
 #'  \item{alpha}{a numerical vector. The approximated posterior probabilities
@@ -278,49 +405,62 @@ compute_beta_posterior_density <- function(beta_sample,param,verbose=FALSE){
 #'  \item{estimate_fct}{a numerical vector, another version of the support
 #'        estimate.}
 #' }
+#' @param beta_sample the result of the function \code{compute_beta_sample}.
+#' @param param a list containing the value \code{Q} and an optional
+#'        parameter \code{gamma}.
 #' @export
 #' @examples
 #' data(data1)
 #' data(param1)
-#' # result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 #' data(res_bliss1)
-#' res_support <- support_estimation(res_bliss1$beta_sample[[1]])
+#' param1$Q <- length(data1$x)
 #'
-#' ### The estimate
-#' res_support$estimate
-#' ### Plot the result
-#' grid <- res_bliss1$data$grids[[1]]
-#' plot(grid,res_support$alpha,ylim=c(0,1),type="l",xlab="",ylab="")
-#' for(k in 1:nrow(res_support$estimate)){
-#'     segments(grid[res_support$estimate[k,1]],0.5,
-#'              grid[res_support$estimate[k,2]],0.5,lwd=2,col=2)
-#'     points(grid[res_support$estimate[k,1]],0.5,pch="|",lwd=2,col=2)
-#'     points(grid[res_support$estimate[k,2]],0.5,pch="|",lwd=2,col=2)
-#' }
-#' abline(h=0.5,col=2,lty=2)
-support_estimation <- function(beta_sample_q,gamma=0.5){
-  # alpha: posterior probabilities
-  alpha <- apply(beta_sample_q,2, function(vec) sum(vec != 0)/length(vec))
+#' res_support <- support_estimation(res_bliss1$beta_sample,param1)
+support_estimation <- function(beta_sample,param){
 
-  # Support estimate
-  tmp   <- rep(0,ncol(beta_sample_q))
-  tmp2  <- which(alpha >= gamma)
-  tmp[tmp2] <- 1
-  estimate <- determine_intervals(tmp)
-  estimate <- estimate[estimate$value != 0,]
-  estimate$value <- NULL
+  ####### Initialization - Load objects
+  Q     <- param[["Q"]]
+  gamma <- param[["gamma"]]
 
-  # Support estimate (vectorial version)
-  estimate_fct <- rep(0,ncol(beta_sample_q))
-  if(nrow(estimate) > 0){
-    for(i in 1:nrow(estimate)){
-      estimate_fct[estimate$begin[i]:estimate$end[i]] <- 1
+  ####### Initialization - Define values
+  if(is.null(gamma)) gamma <- 0.5
+
+  res_support <- list()
+  res_support$estimate <- list() ; length(res_support$estimate) <- Q
+  res_support$support_estimate_fct <- list() ; length(res_support$support_estimate_fct) <- Q
+  res_support$alpha <- list() ; length(res_support$alpha) <- Q
+
+  ####### Run the support estimation
+  # for each functional covariates
+  for(q in 1:Q){
+
+    # alpha: posterior probabilities
+    alpha <- apply(beta_sample[[q]],2, function(vec) sum(vec != 0)/length(vec))
+
+    # Support estimate
+    tmp   <- rep(0,ncol(beta_sample[[q]]))
+    tmp2  <- which(alpha >= gamma)
+    tmp[tmp2] <- 1
+    estimate <- determine_intervals(tmp)
+    estimate <- estimate[estimate$value != 0,]
+    estimate$value <- NULL
+
+    # Support estimate (vectorial version)
+    estimate_fct <- rep(0,ncol(beta_sample[[q]]))
+    if(nrow(estimate) > 0){
+      for(i in 1:nrow(estimate)){
+        estimate_fct[estimate$begin[i]:estimate$end[i]] <- 1
+      }
     }
+
+    # Update output object
+    res_support$estimate[[q]] <- estimate
+    res_support$estimate_fct[[q]] <- estimate_fct
+    res_support$alpha[[q]] <- alpha
   }
 
-  return(list(alpha        = alpha,
-              estimate     = estimate,
-              estimate_fct = estimate_fct))
+  ####### Output
+  return(res_support)
 }
 
 ################################# ----
@@ -521,5 +661,85 @@ pdexp <- function(a,l_values){
 integrate_trapeze <- function(x,y){
   apply(as.matrix(y),2,function(vect)
     sum(diff(x)*(vect[-1]+vect[-length(vect)]))/2)
+}
+
+################################# ----
+#' do_need_to_reduce
+################################# ----
+#' @description Determine if it is required to reduce the size of the grid time
+#'        points for each functional covariate.
+#' @return a boolean value.
+#' @param param a list containing  p_threshold the maximum number of time points
+#'        and p the actual number of time points for each functional covariate.
+#' @export
+#' @examples
+#' data(param1)
+#' param1$p <- sapply(data1$grids,length)
+#'
+#' do_need_to_reduce(param1)
+do_need_to_reduce <- function(param){
+  ###### Initialisation - Load objects
+  p_threshold <- param[["p_threshold"]]
+
+  ###### Initialisation - Define objects
+  if(is.null(p_threshold)) p_threshold <- 100
+
+  ###### Determine the condition
+  cond <- any( param$p > p_threshold)
+
+  ###### Output
+  return(cond)
+}
+
+################################# ----
+#' reduce_x
+################################# ----
+#' @description Reduce the number of time points.
+#' @return a numerical value, the approximation.
+#' @param data similar to \code{fit_Bliss}.
+#' @param param a list containing values \code{Q}, \code{p} and \code{p}
+#' @export
+#' @examples
+#' param <- list(Q=1,n=10,p=c(150),grids_lim=list(c(0,1)))
+#' data <- sim(param)
+#'
+#' data(param1)
+#' param1$n <- nrow(data$x[[1]])
+#' param1$p <- sapply(data$grids,length)
+#' param1$Q <- length(data$x)
+#'
+#' data <- reduce_x(data,param1)
+reduce_x <- function(data,param){
+  ###### Initialisation - Load objects
+  p_threshold <- param[["p_threshold"]]
+  Q <- param[["Q"]]
+  p <- param[["p"]]
+  n <- param[["n"]]
+
+  ###### Initialisation - Define objects
+  if(is.null(p_threshold)) p_threshold <- 100
+
+  ###### Change the grid for the required functional covariates
+  for(q in 1:Q){
+    if(p[q] > p_threshold){
+      new_x <- matrix(NA,n,p_threshold)
+
+      # Define the new grid
+      new_grid <- seq(min(data$grids[[q]]),
+                      max(data$grids[[q]]),le=p_threshold)
+
+      # Change all individual functional covariate
+      for(i in 1:n){
+        new_x[i,] <- change_grid(fct = data$x[[q]][i,],grid = data$grids[[q]],new_grid=new_grid)
+      }
+
+      # Change the daa object
+      data$x[[q]] <- new_x
+      data$grids[[q]] <- new_grid
+    }
+  }
+
+  ###### Ouput
+  return(data)
 }
 

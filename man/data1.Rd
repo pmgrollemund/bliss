@@ -7,7 +7,6 @@
 \format{
 a list of data
 \describe{
-  \item{Q}{the number of functional covariates}
   \item{y}{y coordinate}
   \item{x}{x coordinate}
   \item{betas}{the coefficient function used to generate the data}

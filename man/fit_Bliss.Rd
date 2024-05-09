@@ -7,16 +7,16 @@
 fit_Bliss(
   data,
   param,
-  compute_density = TRUE,
   sann = TRUE,
+  compute_density = TRUE,
   support_estimate = TRUE,
-  verbose = FALSE
+  sann_trace = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{data}{a list containing:
 \describe{
-\item{Q}{an integer, the number of functional covariates.}
 \item{y}{a numerical vector, the outcomes.}
 \item{x}{a list of matrices, the qth matrix contains the observations of the
       qth functional covariate at time points given by \code{grids}.}
@@ -43,8 +43,6 @@ fit_Bliss(
       Simulated Annealing algorithm.}
 \item{lims_kde}{an integer (optional), correspond to the \code{lims} option
       of the \code{kde2d} funtion.}
-\item{n_chains}{an integer (optional) which corresponds to the number of
-      Gibbs sampler runs.}
 \item{new_grids}{a list of Q vectors (optional) to compute beta samples on
       different grids.}
 \item{Temp_init}{a nonnegative value (optional), the initial temperature for
@@ -52,16 +50,25 @@ fit_Bliss(
 \item{thin}{an integer (optional) to thin the posterior sample.}
 \item{times_sann}{an integer (optional), the number of times the algorithm
       will be executed}
+\item{times_sann}{an integer (optional), the number of times the algorithm
+      will be executed}
+\item{allow_reducing}{a boolean value (optional), indicate if the function is
+      allowed to reduce the number of sample times of each functional covariate.}
+\item{verbose_cpp}{a boolean value (optional). Write stuff from the Rcpp scripts
+      if TRUE.}
 }}
-
-\item{compute_density}{a logical value. If TRUE, the posterior density
-of the coefficient function is computed. (optional)}
 
 \item{sann}{a logical value. If TRUE, the Bliss estimate is
 computed with a Simulated Annealing Algorithm. (optional)}
 
+\item{compute_density}{a logical value. If TRUE, the posterior density
+of the coefficient function is computed. (optional)}
+
 \item{support_estimate}{a logical value. If TRUE, the estimate of the
 coefficient function support is computed. (optional)}
+
+\item{sann_trace}{a logical value. If TRUE, the trace of the Simulated
+Annealing algorithm is included into the result object. (optional)}
 
 \item{verbose}{write stuff if TRUE (optional).}
 }
@@ -86,11 +93,6 @@ return a list containing:
        sample of the qth functional covariates.}
  \item{Bliss_estimate}{a list of numerical vectors corresponding to the
        Bliss estimates of each functional covariates.}
- \item{chains}{a list of \code{posterior_sample}. \code{chains} is \code{NULL} if
-       \code{n_chains}=1.}
- \item{chains_info}{a list for each chain providing: a mu estimate, a sigma_sq estimate,
- the Smooth estimate of the coefficient function and the autocorrelation of the
- Markov Chain.}
  \item{data}{a list containing the data.}
  \item{posterior_sample}{a list of information about the posterior sample:
        the trace matrix of the Gibbs sampler, a list of Gibbs sampler parameters

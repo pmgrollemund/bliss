@@ -23,11 +23,6 @@
 #'        sample of the qth functional covariates.}
 #'  \item{Bliss_estimate}{a list of numerical vectors corresponding to the
 #'        Bliss estimates of each functional covariates.}
-#'  \item{chains}{a list of \code{posterior_sample}. \code{chains} is \code{NULL} if
-#'        \code{n_chains}=1.}
-#'  \item{chains_info}{a list for each chain providing: a mu estimate, a sigma_sq estimate,
-#'  the Smooth estimate of the coefficient function and the autocorrelation of the
-#'  Markov Chain.}
 #'  \item{data}{a list containing the data.}
 #'  \item{posterior_sample}{a list of information about the posterior sample:
 #'        the trace matrix of the Gibbs sampler, a list of Gibbs sampler parameters
@@ -39,7 +34,6 @@
 #' }
 #' @param data a list containing:
 #' \describe{
-#' \item{Q}{an integer, the number of functional covariates.}
 #' \item{y}{a numerical vector, the outcomes.}
 #' \item{x}{a list of matrices, the qth matrix contains the observations of the
 #'       qth functional covariate at time points given by \code{grids}.}
@@ -65,8 +59,6 @@
 #'       Simulated Annealing algorithm.}
 #' \item{lims_kde}{an integer (optional), correspond to the \code{lims} option
 #'       of the \code{kde2d} funtion.}
-#' \item{n_chains}{an integer (optional) which corresponds to the number of
-#'       Gibbs sampler runs.}
 #' \item{new_grids}{a list of Q vectors (optional) to compute beta samples on
 #'       different grids.}
 #' \item{Temp_init}{a nonnegative value (optional), the initial temperature for
@@ -74,11 +66,19 @@
 #' \item{thin}{an integer (optional) to thin the posterior sample.}
 #' \item{times_sann}{an integer (optional), the number of times the algorithm
 #'       will be executed}
+#' \item{times_sann}{an integer (optional), the number of times the algorithm
+#'       will be executed}
+#' \item{allow_reducing}{a boolean value (optional), indicate if the function is
+#'       allowed to reduce the number of sample times of each functional covariate.}
+#' \item{verbose_cpp}{a boolean value (optional). Write stuff from the Rcpp scripts
+#'       if TRUE.}
 #' }
 #' @param compute_density a logical value. If TRUE, the posterior density
 #'         of the coefficient function is computed. (optional)
 #' @param sann a logical value. If TRUE, the Bliss estimate is
 #'         computed with a Simulated Annealing Algorithm. (optional)
+#' @param sann_trace a logical value. If TRUE, the trace of the Simulated
+#'         Annealing algorithm is included into the result object. (optional)
 #' @param support_estimate a logical value. If TRUE, the estimate of the
 #' coefficient function support is computed. (optional)
 #' @param verbose write stuff if TRUE (optional).
@@ -86,119 +86,90 @@
 #' @export
 #' @examples
 #' # see the vignette BlissIntro.
-fit_Bliss <- function(data,param,compute_density=TRUE,sann=TRUE,
-                      support_estimate=TRUE,
-                      verbose=FALSE){
-  # Define Q
-  Q <- data[["Q"]]
-  if(is.null(Q))
-    stop("Please specify Q: the number of functional covariates (in the 'data' object).")
-  # Define p
-  param$p  <- sapply(data$grids,length)
-  # Centering the data
-  data$x_save <- data$x
-  for(q in 1:Q){
-    data$x[[q]] <- scale(data$x[[q]],scale=F)
+fit_Bliss <- function(data,param,
+                      sann=TRUE,compute_density=TRUE,support_estimate=TRUE,
+                      sann_trace=FALSE,
+                      verbose=TRUE){
+  if(verbose) cat("===========================================================\n")
+  ###### Initialisation
+  param$n <- length(data$y)
+  param$p <- sapply(data$grids,length)
+  param$Q <- length(data$x)
+  if(is.null(param$grids)) param$grids <- data$grids
+  param$sann_trace <- sann_trace
+  param$verbose <- verbose
+  if(is.null(param[["allow_reducing"]])) param[["allow_reducing"]] <- TRUE
+
+  ###### Alerte
+  if(!is.list(data$x))
+    stop("data$x must be a list.")
+  if(!is.list(data$grids))
+    stop("data$grids must be a list.")
+  if(is.null(data$grids))
+    stop("data must contain an element 'grids'.")
+  if(length(data$x) != length(data$grids))
+    stop("data$x and data$grids must be related to the same amount of functional covariate. \n\t length(data$x) == length(data$grids)")
+
+  ##### Pretreatmentt
+  # If p is too large for some functional covariate, it is better
+  # to reduce this number in order to get faster computation.c
+  if(verbose) cat("- Pretreatment.\n")
+  reduction_required <- do_need_to_reduce(param)
+  if(reduction_required & param[["allow_reducing"]]){
+    warning(paste("We need to reduce the dimension of at least one functional ",
+                  "covariate, otherwise computational time would be too large. ",
+                  "If you do want to overpass this, please indicate: \n\t",
+                  "param$allow_reducing <- FALSE\n",
+                  sep="")
+    )
+    data <- reduce_x(data,param)
+    param$p <- sapply(data$grids,length)
+    param$grids <-data$grids
   }
 
-  # How many chains i have to do ?
-  if(is.null(param[["n_chains"]])){
-    param[["n_chains"]] <- 1
-  }
-  n_chains <- param[["n_chains"]]
-  # Initialize the list "chains"
-  chains <- list()
-  chains_info <- list()
-
-  if(verbose) cat("Sample from the posterior distribution.\n")
-  # For each chain :
-  for(j in 1:n_chains){
-    if(verbose & n_chains > 1) cat("Chain ",j,": \n",sep="")
-    chains[[j]] <- list()
-
-    # Execute the Gibbs Sampler algorithm to sample the posterior distribution
-    param_Gibbs_Sampler <- list(iter  = param[["iter"]],
-                                K     = param[["K"]],
-                                basis = param[["basis"]],
-                                p     = param[["p"]],
-                                phi_l = param[["phi_l"]],
-                                grids = data[["grids"]])
-    chains[[j]] <- Bliss_Gibbs_Sampler(data,param_Gibbs_Sampler,verbose)
-
-    chains_info[[j]] <- compute_chains_info(chains[[j]],param_Gibbs_Sampler)
-  }
-
-  # Choose a chain for inference
-  j <- sample(n_chains,1)
-  posterior_sample <- chains[[j]]
+  ###### Fit the Bliss model
+  if(verbose) cat("- Model fiting.\n")
+  # Sample from the posterior distribution
+  if(verbose) cat("   Gibbs Sampler: Sample from the posterior distribution.\n")
+  posterior_sample <- Bliss_Gibbs_Sampler(data,param,verbose)
 
   # Compute a posterior sample of coefficient function
-  if(verbose) cat("Coefficient function: smooth estimate.\n")
-  beta_sample <- compute_beta_sample(posterior_sample,param_Gibbs_Sampler,Q)
+  if(verbose) cat("   Compute beta functions related to the posterior sample.\n")
+  beta_sample <- compute_beta_sample(posterior_sample,param)
 
-  # Execute the Simulated Annealing algorithm to estimate the coefficient function
-  Bliss_estimation <- list()
-  Bliss_estimate   <- list()
-  trace_sann       <- list()
-  Smooth_estimate  <- list()
+  ###### Compute estimates
+  if(verbose) cat("- Derive estimates.\n")
+  # Run the Simulated Annealing algorithm to estimate the coefficient function
   if(sann){
-    if(verbose) cat("Coefficient function: Bliss estimate.\n")
-    for(q in 1:Q){
-      param_Simulated_Annealing <- list( grid = data[["grids"]][[q]],
-                                         iter = param[["iter"]],
-                                         p    = param[["p"]][q],
-                                         Temp_init = param[["Temp_init"]],
-                                         K    = param[["K"]][q],
-                                         k_max = param[["k_max"]][q],
-                                         iter_sann = param[["iter_sann"]],
-                                         times_sann= param[["times_sann"]],
-                                         burnin    = param[["burnin"]],
-                                         l_max     = param[["l_max"]][q],
-                                         basis     = param[["basis"]][q])
+    if(verbose) cat("   Simulated Annealing (to get the Bliss and smooth estimates):\n")
+    res_sann <- Bliss_Simulated_Annealing(beta_sample,posterior_sample,param)
 
-      Bliss_estimation[[q]] <- Bliss_Simulated_Annealing(beta_sample[[q]],
-                                                         posterior_sample$param$normalization_values[[q]],
-                                                         param_Simulated_Annealing)
-      Bliss_estimate[[q]]  <- Bliss_estimation[[q]]$Bliss_estimate
-      trace_sann[[q]]      <- Bliss_estimation[[q]]$trace
-      Smooth_estimate[[q]] <- Bliss_estimation[[q]]$Smooth_estimate
-    }
-    rm(Bliss_estimation)
+    Bliss_estimate  <- res_sann$Bliss_estimate
+    trace_sann      <- res_sann$trace
+    Smooth_estimate <- res_sann$Smooth_estimate
+  }else{
+    Bliss_estimate   <- list()
+    trace_sann       <- list()
+    Smooth_estimate  <- list()
   }
 
   # Compute an approximation of the posterior density of the coefficient function
-  beta_posterior_density <- list()
   if (compute_density){
-    if(verbose) cat("Compute the approximation of the posterior distribution.\n")
-    for(q in 1:Q){
-      param_beta_density <- list(grid= data[["grids"]][[q]],
-                                 iter= param[["iter"]],
-                                 p   = param[["p"]][q],
-                                 n        = length(data[["y"]]),
-                                 thin     = param[["thin"]],
-                                 burnin   = param[["burnin"]],
-                                 lims_kde = param[["lims_kde"]][[q]],
-                                 new_grid = param[["new_grids"]][[q]],
-                                 lims_estimate = range(Smooth_estimate[[q]]),
-                                 verbose = verbose)
-
-      beta_posterior_density[[q]] <-
-        compute_beta_posterior_density(beta_sample[[q]],param_beta_density)
-    }
+    if(verbose) cat("   Compute the approximation of the posterior distribution.\n")
+    beta_posterior_density <- compute_beta_posterior_density(beta_sample,param)
+  }else{
+    beta_posterior_density <- list()
   }
 
   # Compute the support estimate
   if(support_estimate){
-    if(verbose) cat("Support estimation.\n")
-    support_estimate <- list()
-    support_estimate_fct <- list()
-    alpha <- list()
-    for(q in 1:Q){
-      res_support <- support_estimation(beta_sample[[q]])
-      support_estimate[[q]]     <- res_support$estimate
-      support_estimate_fct[[q]] <- res_support$estimate_fct
-      alpha[[q]]                <- res_support$alpha
-    }
+    if(verbose) cat("   Support estimation.\n")
+    res_support <- support_estimation(beta_sample,param)
+
+    support_estimate     <- res_support$estimate
+    support_estimate_fct <- res_support$estimate_fct
+    alpha                <- res_support$alpha
+
     rm(res_support)
   }else{
     support_estimate <- list()
@@ -206,27 +177,58 @@ fit_Bliss <- function(data,param,compute_density=TRUE,sann=TRUE,
     alpha <- list()
   }
 
-  # Do not return the list "chains" if n_chains is 1.
-  if(n_chains == 1) chains <- NULL
+  ###### Compute posterior quantities
+  if(verbose) cat("- Posterior quantities.\n")
 
-  if(verbose) cat("Compute the (log) densities of the posterior sample. \n")
+  # Densities
+  if(verbose) cat("   Compute the (log) densities of the posterior sample. \n")
   posterior_sample$posterior_density <- dposterior(posterior_sample,data)
 
+  if(sann){
+    if(verbose) cat("   Fitting posterior y values. \n")
+    # Fitted values
+    y_fitted <- predict_bliss(data$x,data$grids,param$burnin,posterior_sample,Smooth_estimate)
+  }else{
+    y_fitted <- NULL
+  }
+
+  # Fitted value distribution
+  y_fitted_distribution <-
+    predict_bliss_distribution(data$x,data$grids,param$burnin,posterior_sample,
+                               beta_sample)
+
+  # Usual quantities (freq and bayes)
+  if(verbose) cat("   Usual quantities. \n")
+  res_post_treatment <- post_treatment_bliss(posterior_sample,param,data)
+  BIC_value <- res_post_treatment$BIC
+  loglik <- res_post_treatment$loglik
+  nb_param <- res_post_treatment$nb_param
+  MSE <- mean( (data$y - y_fitted)^2)
+
+  ###### Output
   # The object to return
   res <- list(alpha                  = alpha,
               beta_posterior_density = beta_posterior_density,
               beta_sample            = beta_sample,
               Bliss_estimate         = Bliss_estimate,
-              chains                 = chains,
-              chains_info            = chains_info,
               data                   = data,
+              y_fitted               = y_fitted,
+              y_fitted_distribution  = y_fitted_distribution,
+              MSE                    = MSE,
               posterior_sample       = posterior_sample,
-              Smooth_estimate        = Smooth_estimate,
+              smooth_estimate        = Smooth_estimate,
               support_estimate       = support_estimate,
               support_estimate_fct   = support_estimate_fct,
-              trace_sann             = trace_sann
+              trace_sann             = trace_sann,
+              BIC                    = BIC_value,
+              loglik                 = loglik,
+              nb_param               = nb_param
   )
   class(res) = c("bliss")
+
+  if(verbose)
+    printbliss(res)
+
   return(invisible(res))
 }
 
@@ -242,10 +244,21 @@ fit_Bliss <- function(data,param,compute_density=TRUE,sann=TRUE,
 printbliss<-function(x,...){
   if(!any(class(x) == "bliss"))
     stop("Input must have class \"bliss\".")
+  to_print <- c(nb_param=x$nb_param,
+                loglik=x$loglik,
+                BIC=x$BIC,
+                MSE=x$MSE
+  )
 
-  cat("This is a bliss object:\n")
-  cat("----- \n")
-  cat("\n")
-  print(str(x))
+  cat("===========================================================\n")
+  print(to_print)
+  cat("===========================================================\n")
+
+  cat("* Useful fields \n")
+  cat("   $Bliss_estime, $smooth_estimate, $support_estimate, $alpha,\n")
+  cat("   $beta_posterior_density, $posterior_sample, $beta_sample \n")
+  cat("* Useful post-treatment functions \n")
+  cat("   image_Bliss(), interpretation_plot() \n")
+
 }
 

@@ -6,22 +6,23 @@
 \usage{
 Bliss_Simulated_Annealing(
   beta_sample,
-  normalization_values,
+  posterior_sample,
   param,
-  verbose = FALSE
+  verbose_cpp = FALSE
 )
 }
 \arguments{
 \item{beta_sample}{a matrix. Each row is a coefficient function computed from the
 posterior sample.}
 
-\item{normalization_values}{a matrix given by the function \code{Bliss_Gibbs_Sampler}.}
+\item{posterior_sample}{a list resulting from the \code{Bliss_Gibbs_Sampler}
+function.}
 
 \item{param}{a list containing:
 \describe{
-\item{grid}{a numerical vector, the time points.}
-\item{K}{an integer, the number of intervals.}
-\item{basis}{a character vector (optional). The possible values are "uniform"
+\item{grids}{a list of numerical vectors, the qth vector is the grid of
+       time points for the qth functional covariate.}
+\item{basis}{a character (optional). The possible values are "uniform"
       (default), "epanechnikov", "gauss" and "triangular" which correspond to
       different basis functions to expand the coefficient function and the
       functional covariates}
@@ -35,9 +36,13 @@ posterior sample.}
       Simulated Annealing algorithm.}
 \item{Temp_init}{a nonnegative value (optional), the initial temperature for
      the cooling function of the Simulated Annealing algorithm.}
+\item{Q}{an integer, the number of functional covariates.}
+\item{p}{a vector of integers, the numbers of time point of each functional
+     covariate.}
+\item{verbose}{write stuff if TRUE (optional).}
 }}
 
-\item{verbose}{write stuff if TRUE (optional).}
+\item{verbose_cpp}{Rcpp writes stuff if TRUE (optional).}
 }
 \value{
 a list containing:
@@ -47,10 +52,6 @@ a list containing:
  \item{Smooth_estimate}{a numerical vector, which is the posterior expectation
        of the coefficient function for each time points.}
  \item{trace}{a matrix, the trace of the algorithm.}
- \item{argmin}{an integer, the index of the iteration minimizing the Bliss loss.}
- \item{difference}{a numerical vector, the difference between the Bliss
-       estimate and the smooth estimate.}
- \item{sdifference}{a numerical vector, a smooth version of \code{difference}.}
 }
 }
 \description{
@@ -60,17 +61,14 @@ A Simulated Annealing algorithm to compute the Bliss estimate.
 \donttest{
 data(data1)
 data(param1)
-param1$grids<-data1$grids
-# result of res_bliss1<-fit_Bliss(data=data1,param=param1)
 data(res_bliss1)
-beta_sample <- compute_beta_sample(posterior_sample=res_bliss1$posterior_sample,
-                                   param=param1,Q=1)
-param_test<-list(grid=param1$grids[[1]],iter=1e3,K=2)
-test<-Bliss_Simulated_Annealing(beta_sample[[1]],
-                 res_bliss1$posterior_sample$param$normalization_values[[1]],
-                 param=param_test)
-ylim <- range(range(test$Bliss_estimate),range(test$Smooth_estimate))
-plot(param_test$grid,test$Bliss_estimate,type="l",ylim=ylim)
-lines(param_test$grid,test$Smooth_estimate,lty=2)
+param1$Q <- length(data1$x)
+param1$grids <- data1$grids
+param1$p <- sapply(data1$grids,length)
+
+posterior_sample <- res_bliss1$posterior_sample
+beta_sample <- compute_beta_sample(posterior_sample,param1)
+
+res_sann <- Bliss_Simulated_Annealing(beta_sample,posterior_sample,param1)
 }
 }

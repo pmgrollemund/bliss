@@ -24,9 +24,6 @@ a Bliss object (list)
        sample of the qth functional covariates.}
   \item{Bliss_estimate}{a list of numerical vectors corresponding to the
        Bliss estimates of each functional covariates.}
-  \item{chains_info}{a list containing (for each chain): a mu estimate, a sigma_sq estimate,
-  the Smooth estimate of the coefficient function and the autocorrelation of the
-  Markov Chain.}
   \item{data}{see the description of the object \code{data1}.}
   \item{posterior_sample}{a list containing (for each chain) the result of the
   \code{Bliss_Gibbs_Sampler} function.}

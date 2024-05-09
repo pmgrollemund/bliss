@@ -3,7 +3,6 @@
 #' A data object for bliss model
 #' @format a list of data
 #' \describe{
-#'   \item{Q}{the number of functional covariates}
 #'   \item{y}{y coordinate}
 #'   \item{x}{x coordinate}
 #'   \item{betas}{the coefficient function used to generate the data}
@@ -48,9 +47,6 @@
 #'        sample of the qth functional covariates.}
 #'   \item{Bliss_estimate}{a list of numerical vectors corresponding to the
 #'        Bliss estimates of each functional covariates.}
-#'   \item{chains_info}{a list containing (for each chain): a mu estimate, a sigma_sq estimate,
-#'   the Smooth estimate of the coefficient function and the autocorrelation of the
-#'   Markov Chain.}
 #'   \item{data}{see the description of the object \code{data1}.}
 #'   \item{posterior_sample}{a list containing (for each chain) the result of the
 #'   \code{Bliss_Gibbs_Sampler} function.}
