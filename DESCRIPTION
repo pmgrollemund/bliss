@@ -20,7 +20,7 @@ Encoding: UTF-8
 LazyData: TRUE
 URL: https://github.com/pmgrollemund/bliss
 BugReports: https://github.com/pmgrollemund/bliss/issues
-Imports: Rcpp, RcppArmadillo, MASS, ggplot2
+Imports: Rcpp, MASS, ggplot2
 Suggests: 
     rmarkdown,    
     knitr,
