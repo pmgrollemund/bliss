@@ -64,6 +64,9 @@
     <loc>/reference/determine_intervals.html</loc>
   </url>
   <url>
+    <loc>/reference/do_need_to_reduce.html</loc>
+  </url>
+  <url>
     <loc>/reference/dposterior.html</loc>
   </url>
   <url>
@@ -97,7 +100,19 @@
     <loc>/reference/plot_bliss.html</loc>
   </url>
   <url>
+    <loc>/reference/post_treatment_bliss.html</loc>
+  </url>
+  <url>
+    <loc>/reference/predict_bliss.html</loc>
+  </url>
+  <url>
+    <loc>/reference/predict_bliss_distribution.html</loc>
+  </url>
+  <url>
     <loc>/reference/printbliss.html</loc>
+  </url>
+  <url>
+    <loc>/reference/reduce_x.html</loc>
   </url>
   <url>
     <loc>/reference/res_bliss1.html</loc>
