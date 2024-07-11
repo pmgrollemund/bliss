@@ -125,7 +125,7 @@ arma::vec mvrnormArma(arma::vec mu, arma::mat VarCovar, double sigma_sq, double 
   int ncols = VarCovar.n_cols;
   arma::vec y = arma::randn<arma::vec>(ncols);
 
-  if(VarCovar(0,0) < tol) VarCovar(0,0) = tol;
+  if(VarCovar(0,0) < tol) VarCovar(0,0) = 1.1*tol;
   VarCovar = chol(VarCovar);
 
   return  mu + std::sqrt(sigma_sq) * trans(trans(y) * VarCovar);
@@ -698,7 +698,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   mat trace = zeros<mat>(iter+1,3*sum_K+2);
 
   //////////////// Initialization - Related to prior
-  double a_star = (sum_K+1)/2 ;
+  double a_star = (n+sum_K+1)/2 ;
 
   //////////////// Initialization - Compute projection of the x_i on all the intervals
   for( int q=0 ; q<Q ; ++q){
