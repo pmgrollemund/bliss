@@ -5,10 +5,6 @@ ginv_cpp <- function(x, tol) {
     .Call(`_bliss_ginv_cpp`, x, tol)
 }
 
-mvrnormArma <- function(mu, VarCovar, sigma_sq, tol) {
-    .Call(`_bliss_mvrnormArma`, mu, VarCovar, sigma_sq, tol)
-}
-
 integrate_trapeze_cpp <- function(x, y) {
     .Call(`_bliss_integrate_trapeze_cpp`, x, y)
 }
@@ -69,13 +65,8 @@ loss_cpp <- function(d, grid, posterior_expe) {
     .Call(`_bliss_loss_cpp`, d, grid, posterior_expe)
 }
 
-<<<<<<< Updated upstream
 Bliss_Gibbs_Sampler_cpp <- function(Q, y, x, grids, iter, K, basis, g, v, l_values_length, probs_l, verbose, tol) {
     .Call(`_bliss_Bliss_Gibbs_Sampler_cpp`, Q, y, x, grids, iter, K, basis, g, v, l_values_length, probs_l, verbose, tol)
-=======
-Bliss_Gibbs_Sampler_prior_cpp <- function(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol) {
-    .Call(`_bliss_Bliss_Gibbs_Sampler_prior_cpp`, Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol)
->>>>>>> Stashed changes
 }
 
 Bliss_Simulated_Annealing_cpp <- function(iter, beta_sample, grid, Temp, k_max, p_l, dm, dl, p, basis, normalization_values, verbose, starting_point) {
@@ -84,9 +75,5 @@ Bliss_Simulated_Annealing_cpp <- function(iter, beta_sample, grid, Temp, k_max, 
 
 dposterior_cpp <- function(rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q, tol) {
     .Call(`_bliss_dposterior_cpp`, rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q, tol)
-}
-
-Bliss_Gibbs_Sampler_cpp <- function(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol) {
-    .Call(`_bliss_Bliss_Gibbs_Sampler_cpp`, Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol)
 }
 

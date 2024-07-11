@@ -25,11 +25,7 @@ export(post_treatment_bliss)
 export(predict_bliss)
 export(predict_bliss_distribution)
 export(printbliss)
-<<<<<<< Updated upstream
 export(reduce_x)
-=======
-export(prior_Bliss)
->>>>>>> Stashed changes
 export(sigmoid)
 export(sigmoid_sharp)
 export(sim)

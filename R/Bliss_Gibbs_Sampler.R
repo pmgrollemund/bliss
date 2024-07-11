@@ -45,15 +45,8 @@
 #' theta_1 <- res_Bliss_Gibbs_Sampler$trace[1,]
 #' theta_1
 #' }
-<<<<<<< Updated upstream
 Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE){
-
   ####### Initialization - Load objects
-=======
-Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE,to_sample="posterior"){
-  # load objects
-  x     <- data[["x"]]
->>>>>>> Stashed changes
   y     <- data[["y"]]
   x     <- data[["x"]]
   grids <- data[["grids"]]
@@ -123,7 +116,6 @@ Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE,to_sample="posterior"){
   }
   rm(pb_count)
 
-<<<<<<< Updated upstream
   ####### Pretreatment - related to the prior distribution
   # Determine the prior distribution of l
   Probs_l <- l_values
@@ -140,22 +132,6 @@ Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE,to_sample="posterior"){
                                  g,v, l_values_length,Probs_l,
                                  verbose_cpp,tol=sqrt(.Machine$double.eps))
   ####### Output
-=======
-  # Perfome the Gibbs Sampler and return the result.
-  if(to_sample == "posterior"){
-    res <- Bliss_Gibbs_Sampler_cpp(Q,y,x,grids,
-                                   iter,K,basis,
-                                   g,lambda,V_tilde, l_values_length,Probs_l,
-                                   verbose_cpp,tol=sqrt(.Machine$double.eps))
-  }
-  if(to_sample == "prior"){
-    res <- Bliss_Gibbs_Sampler_prior_cpp(Q,y,x,grids,
-                                   iter,K,basis,
-                                   g,lambda,V_tilde, l_values_length,Probs_l,
-                                   verbose_cpp,tol=sqrt(.Machine$double.eps))
-  }
-
->>>>>>> Stashed changes
   trace_names <- NULL
   if(Q == 1){
     for(k in 1:K[q]){
