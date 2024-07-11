@@ -246,6 +246,21 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// update_b_tilde_prior
+void update_b_tilde_prior(arma::vec& y, double sigma_sq, arma::mat& x_tilde, arma::mat& Sigma_b_tilde_inv, double tol, arma::vec& b_tilde);
+RcppExport SEXP _bliss_update_b_tilde_prior(SEXP ySEXP, SEXP sigma_sqSEXP, SEXP x_tildeSEXP, SEXP Sigma_b_tilde_invSEXP, SEXP tolSEXP, SEXP b_tildeSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type sigma_sq(sigma_sqSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type x_tilde(x_tildeSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Sigma_b_tilde_inv(Sigma_b_tilde_invSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type b_tilde(b_tildeSEXP);
+    update_b_tilde_prior(y, sigma_sq, x_tilde, Sigma_b_tilde_inv, tol, b_tilde);
+    return R_NilValue;
+END_RCPP
+}
 // loss_cpp
 double loss_cpp(arma::vec& d, arma::vec& grid, arma::vec& posterior_expe);
 RcppExport SEXP _bliss_loss_cpp(SEXP dSEXP, SEXP gridSEXP, SEXP posterior_expeSEXP) {
@@ -259,9 +274,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+<<<<<<< Updated upstream
 // Bliss_Gibbs_Sampler_cpp
 List Bliss_Gibbs_Sampler_cpp(int Q, arma::vec& y, List& x, List& grids, int iter, arma::vec& K, CharacterVector& basis, double g, double v, arma::vec& l_values_length, List& probs_l, bool verbose, double tol);
 RcppExport SEXP _bliss_Bliss_Gibbs_Sampler_cpp(SEXP QSEXP, SEXP ySEXP, SEXP xSEXP, SEXP gridsSEXP, SEXP iterSEXP, SEXP KSEXP, SEXP basisSEXP, SEXP gSEXP, SEXP vSEXP, SEXP l_values_lengthSEXP, SEXP probs_lSEXP, SEXP verboseSEXP, SEXP tolSEXP) {
+=======
+// Bliss_Gibbs_Sampler_prior_cpp
+List Bliss_Gibbs_Sampler_prior_cpp(int Q, arma::vec& y, List& x, List& grids, int iter, arma::vec& K, CharacterVector& basis, double g, double lambda, arma::mat& V_tilde, arma::vec& l_values_length, List& probs_l, bool progress, double tol);
+RcppExport SEXP _bliss_Bliss_Gibbs_Sampler_prior_cpp(SEXP QSEXP, SEXP ySEXP, SEXP xSEXP, SEXP gridsSEXP, SEXP iterSEXP, SEXP KSEXP, SEXP basisSEXP, SEXP gSEXP, SEXP lambdaSEXP, SEXP V_tildeSEXP, SEXP l_values_lengthSEXP, SEXP probs_lSEXP, SEXP progressSEXP, SEXP tolSEXP) {
+>>>>>>> Stashed changes
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -278,7 +299,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List& >::type probs_l(probs_lSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+<<<<<<< Updated upstream
     rcpp_result_gen = Rcpp::wrap(Bliss_Gibbs_Sampler_cpp(Q, y, x, grids, iter, K, basis, g, v, l_values_length, probs_l, verbose, tol));
+=======
+    rcpp_result_gen = Rcpp::wrap(Bliss_Gibbs_Sampler_prior_cpp(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol));
+>>>>>>> Stashed changes
     return rcpp_result_gen;
 END_RCPP
 }
@@ -324,6 +349,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Bliss_Gibbs_Sampler_cpp
+List Bliss_Gibbs_Sampler_cpp(int Q, arma::vec& y, List& x, List& grids, int iter, arma::vec& K, CharacterVector& basis, double g, double lambda, arma::mat& V_tilde, arma::vec& l_values_length, List& probs_l, bool progress, double tol);
+RcppExport SEXP _bliss_Bliss_Gibbs_Sampler_cpp(SEXP QSEXP, SEXP ySEXP, SEXP xSEXP, SEXP gridsSEXP, SEXP iterSEXP, SEXP KSEXP, SEXP basisSEXP, SEXP gSEXP, SEXP lambdaSEXP, SEXP V_tildeSEXP, SEXP l_values_lengthSEXP, SEXP probs_lSEXP, SEXP progressSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type Q(QSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< List& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< List& >::type grids(gridsSEXP);
+    Rcpp::traits::input_parameter< int >::type iter(iterSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type K(KSEXP);
+    Rcpp::traits::input_parameter< CharacterVector& >::type basis(basisSEXP);
+    Rcpp::traits::input_parameter< double >::type g(gSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type V_tilde(V_tildeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type l_values_length(l_values_lengthSEXP);
+    Rcpp::traits::input_parameter< List& >::type probs_l(probs_lSEXP);
+    Rcpp::traits::input_parameter< bool >::type progress(progressSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(Bliss_Gibbs_Sampler_cpp(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, progress, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bliss_ginv_cpp", (DL_FUNC) &_bliss_ginv_cpp, 2},
@@ -341,10 +390,18 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bliss_update_mqk", (DL_FUNC) &_bliss_update_mqk, 18},
     {"_bliss_update_lqk", (DL_FUNC) &_bliss_update_lqk, 19},
     {"_bliss_update_b_tilde", (DL_FUNC) &_bliss_update_b_tilde, 6},
+    {"_bliss_update_b_tilde_prior", (DL_FUNC) &_bliss_update_b_tilde_prior, 6},
     {"_bliss_loss_cpp", (DL_FUNC) &_bliss_loss_cpp, 3},
+<<<<<<< Updated upstream
     {"_bliss_Bliss_Gibbs_Sampler_cpp", (DL_FUNC) &_bliss_Bliss_Gibbs_Sampler_cpp, 13},
     {"_bliss_Bliss_Simulated_Annealing_cpp", (DL_FUNC) &_bliss_Bliss_Simulated_Annealing_cpp, 13},
     {"_bliss_dposterior_cpp", (DL_FUNC) &_bliss_dposterior_cpp, 9},
+=======
+    {"_bliss_Bliss_Gibbs_Sampler_prior_cpp", (DL_FUNC) &_bliss_Bliss_Gibbs_Sampler_prior_cpp, 14},
+    {"_bliss_Bliss_Simulated_Annealing_cpp", (DL_FUNC) &_bliss_Bliss_Simulated_Annealing_cpp, 14},
+    {"_bliss_dposterior_cpp", (DL_FUNC) &_bliss_dposterior_cpp, 8},
+    {"_bliss_Bliss_Gibbs_Sampler_cpp", (DL_FUNC) &_bliss_Bliss_Gibbs_Sampler_cpp, 14},
+>>>>>>> Stashed changes
     {NULL, NULL, 0}
 };
 

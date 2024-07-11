@@ -572,6 +572,17 @@ void update_sigma_sq (arma::vec & y, arma::vec & b_tilde, arma::mat & Sigma_b_ti
   sigma_sq = 1. / (R::rgamma(a_star, 1/b_star) );
 }
 
+// update the parameter sigma_sq
+void update_sigma_sq_prior (arma::vec & y, arma::vec & b_tilde, arma::mat & W_inv,
+                      arma::mat & x_tilde, int n, int sum_K, double & sigma_sq) {
+  double b_tilde_tmp = dot(b_tilde, W_inv * b_tilde) ;
+
+  double a_star = (sum_K+1)/2 ;
+  double b_star = 0.5*( b_tilde_tmp);
+
+  sigma_sq = 1. / (R::rgamma(a_star, 1/b_star) );
+}
+
 // update the parameter b
 // [[Rcpp::export]]
 void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
@@ -580,6 +591,16 @@ void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
   arma::vec mu_b_tilde = trans(x_tilde) * y;
   b_tilde = mvrnormArma( ginv_cpp(Sigma_b_tilde_inv,tol) * mu_b_tilde ,
                          ginv_cpp(Sigma_b_tilde_inv,tol), sigma_sq,tol);
+}
+
+// update the parameter b
+// [[Rcpp::export]]
+void update_b_tilde_prior (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
+                     arma::mat & Sigma_b_tilde_inv, double tol,
+                     arma::vec & b_tilde) {
+  arma::vec mu_b_tilde = arma::zeros<arma::vec>(Sigma_b_tilde_inv.n_cols);
+  b_tilde = mvrnormArma( mu_b_tilde ,
+                         ginv_cpp(Sigma_b_tilde_inv,tol), sigma_sq);
 }
 
 // Compute the loss function for a proposal d
@@ -632,7 +653,7 @@ void update_x_tilde (int Q, arma::vec & K, List & potential_intervals,
 // b_1, m1 and l1 are of length K, ..., b_Q, mQ and lQ are of
 // length KQ.
 // [[Rcpp::export]]
-List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
+List Bliss_Gibbs_Sampler_prior_cpp (int Q, arma::vec & y, List & x, List & grids,
                               int iter, arma::vec & K, CharacterVector & basis,
                               double g, double v ,
                               arma::vec & l_values_length,List & probs_l,
@@ -744,7 +765,11 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
       compute_Sigma_b_tilde_inv_prior(Q,K, g, x_tilde,sum_K,v0,v) ;
 
     // Check if there is a non-invertible matrix problem
+<<<<<<< Updated upstream
     Sigma_b_tilde_inv = Sigma_b_tilde_inv_prior + trans(x_tilde) * x_tilde ;
+=======
+    Sigma_b_tilde_inv = W_inv  ;
+>>>>>>> Stashed changes
     test            = ginv_cpp(Sigma_b_tilde_inv,tol)    ;
     success         = accu(abs(test)) != 0               ;
   }
@@ -792,6 +817,7 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     }
 
     // update sigma_sq
+<<<<<<< Updated upstream
     update_sigma_sq(y,b_tilde,Sigma_b_tilde_inv_prior,x_tilde,n,sum_K,sigma_sq) ;
 
     // update m
@@ -849,16 +875,34 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
       l[q] = l_q;
       // Update count
       count = count + K(q);
+=======
+    update_sigma_sq_prior(y,b_tilde,W_inv,x_tilde,n,sum_K,sigma_sq) ;
+
+    // update m and l
+    for( int q=0 ; q<Q ; ++q){
+      arma::vec probs_l_temp = probs_l[q];
+      m[q] = sample_cpp(K(q),p(q)) + 1 ;
+      l[q] = sample_weight(K(q),probs_l_temp) + 1 ;
+>>>>>>> Stashed changes
     }
+    // update the value "x_tilde"
+    update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
+                   x_tilde);
 
     // Update the value "Sigma_b_tilde_inv_prior"
     // (only after the updating of the m's and l's)
     Sigma_b_tilde_inv_prior =
       compute_Sigma_b_tilde_inv_prior (Q,K, g, x_tilde,sum_K,v0,v) ;
 
+<<<<<<< Updated upstream
     // Update the matrix Sigma_b_tilde
     // (only after the updating of the m's and l's)
     Sigma_b_tilde_inv = Sigma_b_tilde_inv_prior + trans(x_tilde) * x_tilde   ;
+=======
+    // update the matrix Sigma_b_tilde (only after the updating of
+    // the m's and l's)
+    Sigma_b_tilde_inv = W_inv ;
+>>>>>>> Stashed changes
     test                 = ginv_cpp(Sigma_b_tilde_inv,tol) ;
     success              = accu(abs(test)) != 0               ;
 
@@ -866,8 +910,13 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
     // ()which not leads to a non-invertible matrix problem)
     // If there is a problem, go back to the beginning of the updating process.
     if(success){
+<<<<<<< Updated upstream
       // Update the b_tilde
       update_b_tilde(y,sigma_sq,x_tilde,Sigma_b_tilde_inv,tol,b_tilde) ;
+=======
+      // update the b_tilde
+      update_b_tilde_prior(y,sigma_sq,x_tilde,Sigma_b_tilde_inv,tol,b_tilde) ;
+>>>>>>> Stashed changes
 
       // Update the matrix trace
       count = 0;
@@ -1344,5 +1393,263 @@ arma::mat dposterior_cpp (arma::mat & rposterior, arma::vec & y, unsigned N,
 }
 
 
+// [[Rcpp::export]]
+List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
+                              int iter, arma::vec & K, CharacterVector & basis,
+                              double g, double lambda ,arma::mat & V_tilde,
+                              arma::vec & l_values_length,List & probs_l,
+                              bool progress, double tol) {
+  if(progress) Rcpp::Rcout << "Gibbs Sampler: " <<  std::endl;
+  if(progress) Rcpp::Rcout << "\t Initialization." <<  std::endl;
 
+  // Compute the value of n and the p's
+  int n = as<mat>(x[0]).n_rows ;
 
+  arma::vec p = arma::zeros<arma::vec>(Q)        ;
+  for(int i=0 ; i<Q ; ++i){
+    p(i) = as<mat>(x[i]).n_cols;
+  }
+
+  // Compute projection of the x_i on all the intervals
+  List normalization_values(Q) ;    // normalization_values is used to normalize the predictors
+  List potential_intervals(Q)        ;    // will be contain all the projections
+  List potential_intervals_dims(Q)   ;    // will be contain the dim of the potential_intervals's
+  for( int q=0 ; q<Q ; ++q){
+    arma::cube temp = potential_intervals_List (x, grids, l_values_length, basis,q) ;
+    normalization_values[q] = temp.slice(n);
+
+    temp = temp.subcube(0,0,0,p(q)-1,l_values_length(q)-1,n-1);
+    potential_intervals[q] = temp;
+
+    arma::vec temp2 = arma::zeros<arma::vec>(3);
+    temp2(0) = p(q)    ;
+    temp2(1) = l_values_length(q) ;
+    temp2(2) = n    ;
+    potential_intervals_dims[q] = temp2;
+  }
+
+  // Compute the matrix of lambda for the Ridge penalty of the Rigde Zellner prior
+  int sum_K = sum(K);
+  arma::mat lambda_id0  = arma::zeros<arma::mat>(sum_K+1,sum_K+1) ;
+  lambda_id0(0,0) = 100*var(y);                   // Weakly informative prior
+  for( int i=1 ; i<sum_K+1; ++i){
+    lambda_id0(i,i) = lambda ;
+  }
+  // ... or the constant matrix if V does not depend on the intervals
+
+  // Determine the start point
+  if(progress) Rcpp::Rcout << "\t Determine the starting point." <<  std::endl;
+  double sigma_sq       ;
+  arma::vec b_tilde           ;
+  arma::mat Sigma_b_tilde_inv ;
+  arma::mat W_inv             ;
+
+  bool success = false ;
+  arma::mat R                ;
+  arma::mat test             ;
+
+  List m(Q) ;
+  List l(Q) ;
+  arma::mat x_tilde = arma::ones<arma::mat>(n,sum_K+1) ;
+
+  // Try to determine a starting point which not leads to a non-invertible
+  // matrix problem
+  while(success == false){
+    // Initialization of sigma_sq
+    sigma_sq  = var(y) ;
+
+    // Initialization of the middle and length of the intervals
+    for( int q=0 ; q<Q ; ++q){
+      arma::vec probs_l_temp = probs_l[q];
+      m[q] = sample_cpp(K(q),p(q)) + 1 ;
+      l[q] = sample_weight(K(q),probs_l_temp) + 1 ;
+    }
+
+    // Initialize the current x_tilde matrix (which depend on the intervals)
+    int count = 0;
+    for( int q=0 ; q<Q ; ++q){
+      for(int k=0 ; k<K(q) ; ++k) {
+        arma::vec m_temp = m[q] ;
+        arma::vec l_temp = l[q] ;
+        NumericVector potential_intervals_temp = potential_intervals[q];
+        arma::vec potential_intervals_dims_temp = potential_intervals_dims[q];
+        x_tilde.col(k+1+count) = potential_intervals_extract(potential_intervals_temp,
+                    m_temp(k),l_temp(k),potential_intervals_dims_temp);
+      }
+      count = count + K(q);
+    }
+
+    // Initialize the current W_inv matrix (which depend on the intervals)
+    // (W_inv is the covariance matrix of the Ridge Zellner prior) (without sig)
+    W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
+
+    // Check if there is a non-invertible matrix problem
+    Sigma_b_tilde_inv = W_inv + trans(x_tilde) * x_tilde ;
+    test            = ginv_cpp(Sigma_b_tilde_inv,tol)    ;
+    success         = accu(abs(test)) != 0               ;
+  }
+
+  // Initialization of b_tilde
+  b_tilde = mvrnormArma( zeros<vec>(sum_K+1) , ginv_cpp(W_inv,tol) , sigma_sq) ;
+
+  // Initialize the matrix trace
+  mat trace = zeros<mat>(iter+1,3*sum_K+2);
+  int count = 0;
+  for( int q=0 ; q<Q ; ++q){
+    arma::vec m_temp = m[q] ;
+    arma::vec l_temp = l[q] ;
+    trace.row(0).subvec( 3*count        , 3*count+  K(q)-1) =
+      trans(b_tilde.subvec( 1+count , K(q)+count )) ;
+    trace.row(0).subvec( 3*count+  K(q) , 3*count+2*K(q)-1)   = trans(m_temp) ;
+    trace.row(0).subvec( 3*count+2*K(q) , 3*count+3*K(q)-1)   = trans(l_temp) ;
+
+    trace(0,3*sum_K  ) = b_tilde(0) ;
+    trace(0,3*sum_K+1) = sigma_sq      ;
+    count = count + K(q) ;
+  }
+
+  // Initialize some variable used in the Gibbs loop
+  List l_possible(Q);
+  for( int q=0 ; q<Q ; ++q){
+    l_possible[q] = sequence(1,l_values_length(q),1);
+  }
+  List m_possible(Q);
+  for( int q=0 ; q<Q ; ++q){
+    m_possible[q] = sequence(1,p(q),1);
+  }
+
+  // The Gibbs loop
+  if(progress) Rcpp::Rcout << "\t Start the Gibbs Sampler." <<  std::endl;
+  for(int i=1  ; i < iter+1 ; ++i ) {
+    if( i % (iter / 10)  == 0){
+      if(progress) Rcpp::Rcout << "\t " << i / (iter / 100) << "%" << std::endl;
+    }
+
+    // update sigma_sq
+    update_sigma_sq(y,b_tilde,W_inv,x_tilde,n,sum_K,sigma_sq) ;
+
+    // update m
+    count = 0 ;
+    // count is used to browse some vec/mat when p(q) is not constant wrt q.
+    for( int q=0 ; q<Q ; ++q ){
+      // Compute some quantities which do not vary with k
+      arma::vec m_q = m[q];
+      arma::vec l_q = l[q];
+      int p_q = p(q);
+      NumericVector potential_intervals_q = potential_intervals[q];
+      arma::vec potential_intervals_dims_q      = potential_intervals_dims[q];
+      arma::vec m_possible_q = sequence(1,p_q,1) ;
+
+      for(int k=0 ; k<K(q) ; ++k){
+        // update m_k
+        update_mqk(count,k,y,b_tilde,sigma_sq,m_q,l_q,x_tilde,
+                   potential_intervals_q,potential_intervals_dims_q,m_possible_q,p_q,Q,K,g,
+                   sum_K,lambda_id0);
+
+        // update the value "x_tilde"
+        update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
+                       x_tilde);
+      }
+
+      // Update the m_q value
+      m[q] = m_q;
+      // Update count
+      count = count + K(q);
+    }
+
+    // update l
+    count = 0 ;
+    // count is used to browse some vec/mat when p(q) is not constant wrt q.
+    for( int q=0 ; q<Q ; ++q ){
+      // Compute some quantities which do not vary with k
+      arma::vec m_q = m[q];
+      arma::vec l_q = l[q];
+      int l_values_length_q = l_values_length(q);
+      NumericVector potential_intervals_q = potential_intervals[q];
+      arma::vec potential_intervals_dims_q      = potential_intervals_dims[q];
+      arma::vec l_possible_q = sequence(1,l_values_length_q,1) ;
+      arma::vec probs_l_q         = probs_l[q];
+
+      for(int k=0 ; k<K(q) ; ++k){
+        // update l_k
+        update_lqk(count,k,y,b_tilde,sigma_sq,m_q,l_q,x_tilde,
+                   potential_intervals_q,potential_intervals_dims_q,l_possible_q,probs_l_q,
+                   l_values_length_q, Q,K,g,sum_K,lambda_id0);
+
+        // update the value "x_tilde"
+        update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
+                       x_tilde);
+      }
+
+      // Update the m_q value
+      l[q] = l_q;
+      // Update count
+      count = count + K(q);
+    }
+
+    // update the value "W_inv" (only after the updating of the m's and l's)
+    W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
+
+    // update the matrix Sigma_b_tilde (only after the updating of
+    // the m's and l's)
+    Sigma_b_tilde_inv = W_inv + trans(x_tilde) * x_tilde   ;
+    test                 = ginv_cpp(Sigma_b_tilde_inv,tol) ;
+    success              = accu(abs(test)) != 0               ;
+
+    // Try to determine an update which not leads to a non-invertible
+    // matrix problem. If there is a problem, go back to the beginning of the
+    // updating process.
+    if(success){
+      // update the b_tilde
+      update_b_tilde(y,sigma_sq,x_tilde,Sigma_b_tilde_inv,tol,b_tilde) ;
+
+      // update the matrix trace
+      count = 0;
+      for( int q=0 ; q<Q ; ++q){
+        arma::vec m_temp = m[q] ;
+        arma::vec l_temp = l[q] ;
+        trace.row(i).subvec( 3*count        , 3*count+  K(q)-1) =
+          trans(b_tilde.subvec( 1+count , K(q)+count )) ;
+        trace.row(i).subvec( 3*count+  K(q) , 3*count+2*K(q)-1) = trans(m_temp);
+        trace.row(i).subvec( 3*count+2*K(q) , 3*count+3*K(q)-1) = trans(l_temp);
+
+        trace(i,3*sum_K  ) = b_tilde(0) ;
+        trace(i,3*sum_K+1) = sigma_sq      ;
+        count = count + K(q) ;
+      }
+    }else{ //... go back to the beginning of the updating process.
+      i     = i - 1 ;
+      count = 0;
+      for( int q=0 ; q<Q ; ++q){
+        b_tilde.subvec( 1+count , K(q)+count ) =
+          trans(trace.row(i).subvec( 3*count , 3*count+  K(q)-1))  ;
+        m[q] = trans(trace.row(i).subvec( 3*count+  K(q) , 3*count+2*K(q)-1)) ;
+        l[q] = trans(trace.row(i).subvec( 3*count+2*K(q) , 3*count+3*K(q)-1)) ;
+
+        b_tilde(0) = trace(i,3*sum_K  ) ;
+        sigma_sq      = trace(i,3*sum_K+1) ;
+        count = count + K(q) ;
+      }
+
+      // update the value "x_tilde"
+      update_x_tilde(Q,K,potential_intervals,potential_intervals_dims,m,l,
+                     x_tilde);
+
+      // update the value "W_inv"
+      W_inv = compute_W_inv_List (Q,K, g, x_tilde,sum_K,lambda_id0) ;
+    }
+  }
+
+  // return the trace and the parameters
+  if(progress){
+    Rcpp::Rcout << "\t Return the result." <<  std::endl;
+  }
+  return  List::create(_["trace"]=trace,
+                       _["param"]=List::create(_["phi_l"]=probs_l,
+                                          _["K"]=K,
+                                          _["l_values_length"]=l_values_length,
+                                          _["potential_intervals"]=potential_intervals,
+                                          _["grids"]=grids,
+                                          _["normalization_values"]=normalization_values
+                       ));
+}

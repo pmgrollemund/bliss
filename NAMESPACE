@@ -25,13 +25,18 @@ export(post_treatment_bliss)
 export(predict_bliss)
 export(predict_bliss_distribution)
 export(printbliss)
+<<<<<<< Updated upstream
 export(reduce_x)
+=======
+export(prior_Bliss)
+>>>>>>> Stashed changes
 export(sigmoid)
 export(sigmoid_sharp)
 export(sim)
 export(sim_x)
 export(support_estimation)
 import(Rcpp)
+import(RcppArmadillo)
 importFrom(MASS,bandwidth.nrd)
 importFrom(MASS,kde2d)
 importFrom(MASS,mvrnorm)
