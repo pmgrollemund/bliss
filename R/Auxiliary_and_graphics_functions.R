@@ -255,7 +255,8 @@ dposterior <- function(posterior_sample,data,theta=NULL){
   }
 
   res <- dposterior_cpp(rposterior,y,N,as.vector(K),potential_intervals,potential_intervals_dims,
-                        as.vector(posterior_sample$param$l_values_length),Q)
+                        as.vector(posterior_sample$param$l_values_length),Q,
+                        tol=sqrt(.Machine$double.eps))
   colnames(res) <- c("posterior density","log posterior density",
                      "likelihood","log likelihood",
                      "prior density","log prior density")

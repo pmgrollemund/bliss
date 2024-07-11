@@ -58,9 +58,8 @@ Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE){
 
   ####### Initialization - Define values
   # Related to the Zellner penalization
-  lambda <- 5
+  v <- 5
   g <- param$n
-  V_tilde <- diag(1+sum(K))
 
   # Determine values about l
   l_values <- list()
@@ -129,7 +128,7 @@ Bliss_Gibbs_Sampler <- function(data,param,verbose=FALSE){
   ####### Run the Gibbs Sampler
   res <- Bliss_Gibbs_Sampler_cpp(Q,y,x,grids,
                                  iter,K,basis,
-                                 g,lambda,V_tilde, l_values_length,Probs_l,
+                                 g,v, l_values_length,Probs_l,
                                  verbose_cpp,tol=sqrt(.Machine$double.eps))
   ####### Output
   trace_names <- NULL

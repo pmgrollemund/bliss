@@ -24,15 +24,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // mvrnormArma
-arma::vec mvrnormArma(arma::vec mu, arma::mat VarCovar, double sigma_sq);
-RcppExport SEXP _bliss_mvrnormArma(SEXP muSEXP, SEXP VarCovarSEXP, SEXP sigma_sqSEXP) {
+arma::vec mvrnormArma(arma::vec mu, arma::mat VarCovar, double sigma_sq, double tol);
+RcppExport SEXP _bliss_mvrnormArma(SEXP muSEXP, SEXP VarCovarSEXP, SEXP sigma_sqSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec >::type mu(muSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type VarCovar(VarCovarSEXP);
     Rcpp::traits::input_parameter< double >::type sigma_sq(sigma_sqSEXP);
-    rcpp_result_gen = Rcpp::wrap(mvrnormArma(mu, VarCovar, sigma_sq));
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(mvrnormArma(mu, VarCovar, sigma_sq, tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -176,8 +177,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // update_mqk
-void update_mqk(int count, int k, arma::vec& y, arma::vec& b_tilde, double sigma_sq, arma::vec& m_q, arma::vec& l_q, arma::mat x_tilde, NumericVector& potential_intervals_q, arma::vec& potential_intervals_dims_q, arma::vec& m_possible_q, int p_q, int Q, arma::vec K, double g, int sum_K, arma::mat& lambda_id0);
-RcppExport SEXP _bliss_update_mqk(SEXP countSEXP, SEXP kSEXP, SEXP ySEXP, SEXP b_tildeSEXP, SEXP sigma_sqSEXP, SEXP m_qSEXP, SEXP l_qSEXP, SEXP x_tildeSEXP, SEXP potential_intervals_qSEXP, SEXP potential_intervals_dims_qSEXP, SEXP m_possible_qSEXP, SEXP p_qSEXP, SEXP QSEXP, SEXP KSEXP, SEXP gSEXP, SEXP sum_KSEXP, SEXP lambda_id0SEXP) {
+void update_mqk(int count, int k, arma::vec& y, arma::vec& b_tilde, double sigma_sq, arma::vec& m_q, arma::vec& l_q, arma::mat x_tilde, NumericVector& potential_intervals_q, arma::vec& potential_intervals_dims_q, arma::vec& m_possible_q, int p_q, int Q, arma::vec K, double g, int sum_K, double v0, double v);
+RcppExport SEXP _bliss_update_mqk(SEXP countSEXP, SEXP kSEXP, SEXP ySEXP, SEXP b_tildeSEXP, SEXP sigma_sqSEXP, SEXP m_qSEXP, SEXP l_qSEXP, SEXP x_tildeSEXP, SEXP potential_intervals_qSEXP, SEXP potential_intervals_dims_qSEXP, SEXP m_possible_qSEXP, SEXP p_qSEXP, SEXP QSEXP, SEXP KSEXP, SEXP gSEXP, SEXP sum_KSEXP, SEXP v0SEXP, SEXP vSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type count(countSEXP);
@@ -196,14 +197,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type K(KSEXP);
     Rcpp::traits::input_parameter< double >::type g(gSEXP);
     Rcpp::traits::input_parameter< int >::type sum_K(sum_KSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type lambda_id0(lambda_id0SEXP);
-    update_mqk(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_possible_q, p_q, Q, K, g, sum_K, lambda_id0);
+    Rcpp::traits::input_parameter< double >::type v0(v0SEXP);
+    Rcpp::traits::input_parameter< double >::type v(vSEXP);
+    update_mqk(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_possible_q, p_q, Q, K, g, sum_K, v0, v);
     return R_NilValue;
 END_RCPP
 }
 // update_lqk
-void update_lqk(int count, int k, arma::vec& y, arma::vec& b_tilde, double sigma_sq, arma::vec& m_q, arma::vec& l_q, arma::mat x_tilde, NumericVector& potential_intervals_q, arma::vec& potential_intervals_dims_q, arma::vec& l_possible_q, arma::vec& phi_l_q, int l_values_length_q, int Q, arma::vec K, double g, int sum_K, arma::mat& lambda_id0);
-RcppExport SEXP _bliss_update_lqk(SEXP countSEXP, SEXP kSEXP, SEXP ySEXP, SEXP b_tildeSEXP, SEXP sigma_sqSEXP, SEXP m_qSEXP, SEXP l_qSEXP, SEXP x_tildeSEXP, SEXP potential_intervals_qSEXP, SEXP potential_intervals_dims_qSEXP, SEXP l_possible_qSEXP, SEXP phi_l_qSEXP, SEXP l_values_length_qSEXP, SEXP QSEXP, SEXP KSEXP, SEXP gSEXP, SEXP sum_KSEXP, SEXP lambda_id0SEXP) {
+void update_lqk(int count, int k, arma::vec& y, arma::vec& b_tilde, double sigma_sq, arma::vec& m_q, arma::vec& l_q, arma::mat x_tilde, NumericVector& potential_intervals_q, arma::vec& potential_intervals_dims_q, arma::vec& l_possible_q, arma::vec& phi_l_q, int l_values_length_q, int Q, arma::vec K, double g, int sum_K, double v0, double v);
+RcppExport SEXP _bliss_update_lqk(SEXP countSEXP, SEXP kSEXP, SEXP ySEXP, SEXP b_tildeSEXP, SEXP sigma_sqSEXP, SEXP m_qSEXP, SEXP l_qSEXP, SEXP x_tildeSEXP, SEXP potential_intervals_qSEXP, SEXP potential_intervals_dims_qSEXP, SEXP l_possible_qSEXP, SEXP phi_l_qSEXP, SEXP l_values_length_qSEXP, SEXP QSEXP, SEXP KSEXP, SEXP gSEXP, SEXP sum_KSEXP, SEXP v0SEXP, SEXP vSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type count(countSEXP);
@@ -223,8 +225,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type K(KSEXP);
     Rcpp::traits::input_parameter< double >::type g(gSEXP);
     Rcpp::traits::input_parameter< int >::type sum_K(sum_KSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type lambda_id0(lambda_id0SEXP);
-    update_lqk(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_possible_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, lambda_id0);
+    Rcpp::traits::input_parameter< double >::type v0(v0SEXP);
+    Rcpp::traits::input_parameter< double >::type v(vSEXP);
+    update_lqk(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_possible_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, v0, v);
     return R_NilValue;
 END_RCPP
 }
@@ -257,8 +260,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // Bliss_Gibbs_Sampler_cpp
-List Bliss_Gibbs_Sampler_cpp(int Q, arma::vec& y, List& x, List& grids, int iter, arma::vec& K, CharacterVector& basis, double g, double lambda, arma::mat& V_tilde, arma::vec& l_values_length, List& probs_l, bool verbose, double tol);
-RcppExport SEXP _bliss_Bliss_Gibbs_Sampler_cpp(SEXP QSEXP, SEXP ySEXP, SEXP xSEXP, SEXP gridsSEXP, SEXP iterSEXP, SEXP KSEXP, SEXP basisSEXP, SEXP gSEXP, SEXP lambdaSEXP, SEXP V_tildeSEXP, SEXP l_values_lengthSEXP, SEXP probs_lSEXP, SEXP verboseSEXP, SEXP tolSEXP) {
+List Bliss_Gibbs_Sampler_cpp(int Q, arma::vec& y, List& x, List& grids, int iter, arma::vec& K, CharacterVector& basis, double g, double v, arma::vec& l_values_length, List& probs_l, bool verbose, double tol);
+RcppExport SEXP _bliss_Bliss_Gibbs_Sampler_cpp(SEXP QSEXP, SEXP ySEXP, SEXP xSEXP, SEXP gridsSEXP, SEXP iterSEXP, SEXP KSEXP, SEXP basisSEXP, SEXP gSEXP, SEXP vSEXP, SEXP l_values_lengthSEXP, SEXP probs_lSEXP, SEXP verboseSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -270,13 +273,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type K(KSEXP);
     Rcpp::traits::input_parameter< CharacterVector& >::type basis(basisSEXP);
     Rcpp::traits::input_parameter< double >::type g(gSEXP);
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type V_tilde(V_tildeSEXP);
+    Rcpp::traits::input_parameter< double >::type v(vSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type l_values_length(l_values_lengthSEXP);
     Rcpp::traits::input_parameter< List& >::type probs_l(probs_lSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(Bliss_Gibbs_Sampler_cpp(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, verbose, tol));
+    rcpp_result_gen = Rcpp::wrap(Bliss_Gibbs_Sampler_cpp(Q, y, x, grids, iter, K, basis, g, v, l_values_length, probs_l, verbose, tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -304,8 +306,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // dposterior_cpp
-arma::mat dposterior_cpp(arma::mat& rposterior, arma::vec& y, unsigned N, arma::vec& K, List& potential_intervals, List& potential_intervals_dims, arma::vec& p_l, unsigned Q);
-RcppExport SEXP _bliss_dposterior_cpp(SEXP rposteriorSEXP, SEXP ySEXP, SEXP NSEXP, SEXP KSEXP, SEXP potential_intervalsSEXP, SEXP potential_intervals_dimsSEXP, SEXP p_lSEXP, SEXP QSEXP) {
+arma::mat dposterior_cpp(arma::mat& rposterior, arma::vec& y, unsigned N, arma::vec& K, List& potential_intervals, List& potential_intervals_dims, arma::vec& p_l, unsigned Q, double tol);
+RcppExport SEXP _bliss_dposterior_cpp(SEXP rposteriorSEXP, SEXP ySEXP, SEXP NSEXP, SEXP KSEXP, SEXP potential_intervalsSEXP, SEXP potential_intervals_dimsSEXP, SEXP p_lSEXP, SEXP QSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -317,14 +319,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List& >::type potential_intervals_dims(potential_intervals_dimsSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type p_l(p_lSEXP);
     Rcpp::traits::input_parameter< unsigned >::type Q(QSEXP);
-    rcpp_result_gen = Rcpp::wrap(dposterior_cpp(rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q));
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(dposterior_cpp(rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q, tol));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bliss_ginv_cpp", (DL_FUNC) &_bliss_ginv_cpp, 2},
-    {"_bliss_mvrnormArma", (DL_FUNC) &_bliss_mvrnormArma, 3},
+    {"_bliss_mvrnormArma", (DL_FUNC) &_bliss_mvrnormArma, 4},
     {"_bliss_integrate_trapeze_cpp", (DL_FUNC) &_bliss_integrate_trapeze_cpp, 2},
     {"_bliss_uniform_cpp", (DL_FUNC) &_bliss_uniform_cpp, 3},
     {"_bliss_triangular_cpp", (DL_FUNC) &_bliss_triangular_cpp, 3},
@@ -335,13 +338,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bliss_potential_intervals_List", (DL_FUNC) &_bliss_potential_intervals_List, 5},
     {"_bliss_moving_average_cpp", (DL_FUNC) &_bliss_moving_average_cpp, 2},
     {"_bliss_potential_intervals_extract", (DL_FUNC) &_bliss_potential_intervals_extract, 4},
-    {"_bliss_update_mqk", (DL_FUNC) &_bliss_update_mqk, 17},
-    {"_bliss_update_lqk", (DL_FUNC) &_bliss_update_lqk, 18},
+    {"_bliss_update_mqk", (DL_FUNC) &_bliss_update_mqk, 18},
+    {"_bliss_update_lqk", (DL_FUNC) &_bliss_update_lqk, 19},
     {"_bliss_update_b_tilde", (DL_FUNC) &_bliss_update_b_tilde, 6},
     {"_bliss_loss_cpp", (DL_FUNC) &_bliss_loss_cpp, 3},
-    {"_bliss_Bliss_Gibbs_Sampler_cpp", (DL_FUNC) &_bliss_Bliss_Gibbs_Sampler_cpp, 14},
+    {"_bliss_Bliss_Gibbs_Sampler_cpp", (DL_FUNC) &_bliss_Bliss_Gibbs_Sampler_cpp, 13},
     {"_bliss_Bliss_Simulated_Annealing_cpp", (DL_FUNC) &_bliss_Bliss_Simulated_Annealing_cpp, 13},
-    {"_bliss_dposterior_cpp", (DL_FUNC) &_bliss_dposterior_cpp, 8},
+    {"_bliss_dposterior_cpp", (DL_FUNC) &_bliss_dposterior_cpp, 9},
     {NULL, NULL, 0}
 };
 

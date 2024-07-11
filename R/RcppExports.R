@@ -5,8 +5,8 @@ ginv_cpp <- function(x, tol) {
     .Call(`_bliss_ginv_cpp`, x, tol)
 }
 
-mvrnormArma <- function(mu, VarCovar, sigma_sq) {
-    .Call(`_bliss_mvrnormArma`, mu, VarCovar, sigma_sq)
+mvrnormArma <- function(mu, VarCovar, sigma_sq, tol) {
+    .Call(`_bliss_mvrnormArma`, mu, VarCovar, sigma_sq, tol)
 }
 
 integrate_trapeze_cpp <- function(x, y) {
@@ -49,12 +49,12 @@ potential_intervals_extract <- function(potential_intervals, mk, lk, dims) {
     .Call(`_bliss_potential_intervals_extract`, potential_intervals, mk, lk, dims)
 }
 
-update_mqk <- function(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_possible_q, p_q, Q, K, g, sum_K, lambda_id0) {
-    invisible(.Call(`_bliss_update_mqk`, count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_possible_q, p_q, Q, K, g, sum_K, lambda_id0))
+update_mqk <- function(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_possible_q, p_q, Q, K, g, sum_K, v0, v) {
+    invisible(.Call(`_bliss_update_mqk`, count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, m_possible_q, p_q, Q, K, g, sum_K, v0, v))
 }
 
-update_lqk <- function(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_possible_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, lambda_id0) {
-    invisible(.Call(`_bliss_update_lqk`, count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_possible_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, lambda_id0))
+update_lqk <- function(count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_possible_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, v0, v) {
+    invisible(.Call(`_bliss_update_lqk`, count, k, y, b_tilde, sigma_sq, m_q, l_q, x_tilde, potential_intervals_q, potential_intervals_dims_q, l_possible_q, phi_l_q, l_values_length_q, Q, K, g, sum_K, v0, v))
 }
 
 update_b_tilde <- function(y, sigma_sq, x_tilde, Sigma_b_tilde_inv, tol, b_tilde) {
@@ -65,15 +65,15 @@ loss_cpp <- function(d, grid, posterior_expe) {
     .Call(`_bliss_loss_cpp`, d, grid, posterior_expe)
 }
 
-Bliss_Gibbs_Sampler_cpp <- function(Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, verbose, tol) {
-    .Call(`_bliss_Bliss_Gibbs_Sampler_cpp`, Q, y, x, grids, iter, K, basis, g, lambda, V_tilde, l_values_length, probs_l, verbose, tol)
+Bliss_Gibbs_Sampler_cpp <- function(Q, y, x, grids, iter, K, basis, g, v, l_values_length, probs_l, verbose, tol) {
+    .Call(`_bliss_Bliss_Gibbs_Sampler_cpp`, Q, y, x, grids, iter, K, basis, g, v, l_values_length, probs_l, verbose, tol)
 }
 
 Bliss_Simulated_Annealing_cpp <- function(iter, beta_sample, grid, Temp, k_max, p_l, dm, dl, p, basis, normalization_values, verbose, starting_point) {
     .Call(`_bliss_Bliss_Simulated_Annealing_cpp`, iter, beta_sample, grid, Temp, k_max, p_l, dm, dl, p, basis, normalization_values, verbose, starting_point)
 }
 
-dposterior_cpp <- function(rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q) {
-    .Call(`_bliss_dposterior_cpp`, rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q)
+dposterior_cpp <- function(rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q, tol) {
+    .Call(`_bliss_dposterior_cpp`, rposterior, y, N, K, potential_intervals, potential_intervals_dims, p_l, Q, tol)
 }
 
