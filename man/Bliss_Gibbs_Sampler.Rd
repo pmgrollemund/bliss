@@ -4,7 +4,7 @@
 \alias{Bliss_Gibbs_Sampler}
 \title{Bliss_Gibbs_Sampler}
 \usage{
-Bliss_Gibbs_Sampler(data, param, verbose = FALSE, to_sample = "posterior")
+Bliss_Gibbs_Sampler(data, param, verbose = FALSE)
 }
 \arguments{
 \item{data}{a list containing:
@@ -34,9 +34,6 @@ on the length of the intervals. Lower values promotes wider intervals.}
 }}
 
 \item{verbose}{write stuff if TRUE (optional).}
-
-\item{to_sample}{indicates to sample the posterior distribtion ("posterior")
-or the prior distribution ("prior").}
 }
 \value{
 a list containing :

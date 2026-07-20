@@ -19,6 +19,7 @@ lines_bliss(x, y, col = "black", lty = "solid")
 Add a line to a plot obtained with \code{image_Bliss}.
 }
 \examples{
+\donttest{
 data(data1)
 data(param1)
 data(res_bliss1)
@@ -26,5 +27,5 @@ data(res_bliss1)
 image_Bliss(res_bliss1$beta_posterior_density,param1,q=1) +
 lines_bliss(res_bliss1$data$grids[[1]],res_bliss1$smooth_estimate[[1]])+
 lines_bliss(res_bliss1$data$grids[[1]],res_bliss1$Bliss_estimate[[1]],col="purple")
-
+}
 }

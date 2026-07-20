@@ -57,10 +57,6 @@ update_b_tilde <- function(y, sigma_sq, x_tilde, Sigma_b_tilde_inv, tol, b_tilde
     invisible(.Call(`_bliss_update_b_tilde`, y, sigma_sq, x_tilde, Sigma_b_tilde_inv, tol, b_tilde))
 }
 
-update_b_tilde_prior <- function(y, sigma_sq, x_tilde, Sigma_b_tilde_inv, tol, b_tilde) {
-    invisible(.Call(`_bliss_update_b_tilde_prior`, y, sigma_sq, x_tilde, Sigma_b_tilde_inv, tol, b_tilde))
-}
-
 loss_cpp <- function(d, grid, posterior_expe) {
     .Call(`_bliss_loss_cpp`, d, grid, posterior_expe)
 }

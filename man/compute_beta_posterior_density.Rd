@@ -25,7 +25,7 @@ posterior sample.}
 }
 \value{
 An approximation of the posterior density on a two-dimensional grid
-        (corresponds to the result of the \code{\link[=kde2d]{kde2d}} function).
+        (corresponds to the result of the \code{kde2d} function).
 }
 \description{
 Compute the posterior density of the coefficient function.
@@ -34,7 +34,7 @@ Compute the posterior density of the coefficient function.
 The posterior densities correponds to approximations of the marginal
          posterior distribitions (of beta(t) for each t).
          The sample is thinned in order to reduce the correlation and the
-         computational time of the function \code{\link[=kde2d]{kde2d}}.
+         computational time of the function \code{kde2d}.
 }
 \examples{
 \donttest{

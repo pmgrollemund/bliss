@@ -4,7 +4,13 @@
 \alias{image_Bliss}
 \title{image_Bliss}
 \usage{
-image_Bliss(beta_posterior_density, param = list(), q = 1, to_print = TRUE)
+image_Bliss(
+  beta_posterior_density,
+  param = list(),
+  q = 1,
+  to_print = TRUE,
+  log = FALSE
+)
 }
 \arguments{
 \item{beta_posterior_density}{a list. The result of the function
@@ -16,14 +22,18 @@ ylim, xlab, ylab, title.}
 \item{q}{an integer (optional), the index of the functional covariate to plot.}
 
 \item{to_print}{display the plot if TRUE.}
+
+\item{log}{if TRUE, the log density is plotted.}
 }
 \description{
 Plot an approximation of the posterior density.
 }
 \examples{
+\donttest{
 data(data1)
 data(param1)
 data(res_bliss1)
 
 image_Bliss(res_bliss1$beta_posterior_density,param1,q=1)
+}
 }

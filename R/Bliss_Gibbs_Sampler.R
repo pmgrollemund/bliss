@@ -33,8 +33,6 @@
 #'       if TRUE.}
 #' }
 #' @param verbose write stuff if TRUE (optional).
-#' @param to_sample indicates to sample the posterior distribtion ("posterior")
-#' or the prior distribution ("prior").
 #' @importFrom stats var
 #' @export
 #' @examples

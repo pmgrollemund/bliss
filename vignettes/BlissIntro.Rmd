@@ -117,7 +117,7 @@ Considering Functional Linear Regression model (FLR), and the specific
 function $\beta(.)$. 
 The following chunck shows how to plot the posterior distribution of the 
 coefficient function:
-```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
+```{r ,eval=FALSE, include = TRUE,fig.height=5,fig.width=7}
   library(ggplot2)
   image_Bliss(res_bliss$beta_posterior_density,param,q=1) 
 ```
@@ -129,7 +129,7 @@ By using the following code, you can access to:
 * **the smooth estimate**, the standard bayesian estimate of the coefficient 
 function (standard means that it minimizes the posterior $L^2$-loss).
 
-```{r ,eval=TRUE, include = TRUE,fig.height=5,fig.width=7}
+```{r ,eval=FALSE, include = TRUE,fig.height=5,fig.width=7}
   image_Bliss(res_bliss$beta_posterior_density,param,q=1) + 
     lines_bliss(res_bliss$data$grids[[1]],res_bliss$Bliss_estimate[[1]]) + 
     lines_bliss(res_bliss$data$grids[[1]],res_bliss$smooth_estimate[[1]],lty = "dashed")+ 

@@ -237,7 +237,8 @@ compute_beta_sample <- function(posterior_sample,param){
 
     beta_sample[[q]] <- compute_beta_sample_cpp(trace_tmp,
                                                 K,grid,p,basis[q],norm_val)
-    count <- count + 3*K[q]
+    # count <- count + 3*K[q] # Error 2026-07-15, found by Héctor Izquierdo Sanz
+    count <- count + 3*K
   }
 
   ####### Output
@@ -251,9 +252,9 @@ compute_beta_sample <- function(posterior_sample,param){
 #' @details The posterior densities correponds to approximations of the marginal
 #'          posterior distribitions (of beta(t) for each t).
 #'          The sample is thinned in order to reduce the correlation and the
-#'          computational time of the function \code{\link[=kde2d]{kde2d}}.
+#'          computational time of the function \code{kde2d}.
 #' @return An approximation of the posterior density on a two-dimensional grid
-#'         (corresponds to the result of the \code{\link[=kde2d]{kde2d}} function).
+#'         (corresponds to the result of the \code{kde2d} function).
 #' @param beta_sample a matrix. Each row is a coefficient function computed from the
 #'        posterior sample.
 #' @param param a list containing:

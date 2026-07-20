@@ -593,7 +593,6 @@ void update_b_tilde (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
 }
 
 // update the parameter b
-// [[Rcpp::export]]
 void update_b_tilde_prior (arma::vec & y, double sigma_sq, arma::mat & x_tilde,
                      arma::mat & Sigma_b_tilde_inv, double tol,
                      arma::vec & b_tilde) {
@@ -652,11 +651,12 @@ void update_x_tilde (int Q, arma::vec & K, List & potential_intervals,
 // b_1, m1 and l1 are of length K, ..., b_Q, mQ and lQ are of
 // length KQ.
 // [[Rcpp::export]]
-List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
-                              int iter, arma::vec & K, CharacterVector & basis,
-                              double g, double v ,
-                              arma::vec & l_values_length,List & probs_l,
-                              bool verbose, double tol) {
+List Bliss_Gibbs_Sampler_cpp (
+    int Q, arma::vec & y, List & x, List & grids,
+    int iter, arma::vec & K, CharacterVector & basis,
+    double g, double v ,
+    arma::vec & l_values_length,List & probs_l,
+    bool verbose, double tol) {
   ////////////////////////////////////////////////////////////////
   //////////////// Initialization
   ////////////////////////////////////////////////////////////////
@@ -677,6 +677,9 @@ List Bliss_Gibbs_Sampler_cpp (int Q, arma::vec & y, List & x, List & grids,
   arma::mat Sigma_b_tilde_inv       ;
   arma::mat Sigma_b_tilde_inv_prior ;
   double v0 = 100*var(y); // Weakly informative prior
+  if(v0 == 0){
+    v0 = sqrt(1/tol);
+  }
   if(v0 >= 1/tol){
     v0 = sqrt(1/tol);
   }
@@ -1112,7 +1115,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
       if(value_max > p-1 ){
         value_max = p-1 ;
       }
-      tmp_basis  = uniform_cpp(m(j),l(j),grid);
+  tmp_basis  = uniform_cpp(m(j),l(j),grid);
       b_tmp(j) = mean(difference.subvec( value_min , value_max)*
         normalization_values( m(j)-1 , l(j)-1 )) / tmp_basis(m(j)-1);
     }
@@ -1126,6 +1129,7 @@ List Bliss_Simulated_Annealing_cpp (int iter, arma::mat & beta_sample, arma::vec
       value_min = l(j) - dl ;
       if(value_max > p_l){
         value_max = p_l ;
+        value_min = p_l - 2*dl ; // PMG - 2024-07-15
       }
       if(value_min < 1){
         value_min = 1 ;
